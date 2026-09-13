@@ -1,0 +1,20 @@
+# amber_crt — monochrome amber-on-black, styled after a vintage amber CRT terminal.
+name = "amber_crt"
+ascii_only = true
+
+[roles]
+bg = "#0a0500"
+fg = "#ffb000"
+dim = "#8a5f00"
+accent = "#ffcf40"
+accent_alt = "#ff8c00"
+selection_bg = "#ffb000"
+selection_fg = "#0a0500"
+border = "#5c3d00"
+border_focus = "#ffcf40"
+header_bg = "#1a0f00"
+success = "#ffb000"
+warning = "#ffcf40"
+error = "#ff4500"
+progress_filled = "#ffb000"
+progress_empty = "#3d2900"

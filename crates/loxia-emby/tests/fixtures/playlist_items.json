@@ -1,0 +1,716 @@
+{
+  "Items": [
+    {
+      "Name": "I Like It",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108792",
+      "PlaylistItemId": "128",
+      "Container": "flac",
+      "RunTimeTicks": 3366266670,
+      "IndexNumber": 1,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Thomas Lemmer"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Thomas Lemmer",
+          "Id": "71904"
+        }
+      ],
+      "Composers": [],
+      "Album": "Cosmic Chill Lounge, Volume 4: Relax Edition",
+      "AlbumId": "108939",
+      "AlbumPrimaryImageTag": "572d8fe28f25b1b5bd7f0bf2625432d9",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "883c7e826fa57203d33f310ebf412207"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Till The Break Of Dawn (Lounge Edit)",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108789",
+      "PlaylistItemId": "129",
+      "Container": "flac",
+      "RunTimeTicks": 2980000000,
+      "IndexNumber": 2,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Dulac",
+        "Dubois"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Dulac",
+          "Id": "108942"
+        },
+        {
+          "Name": "Dubois",
+          "Id": "108943"
+        }
+      ],
+      "Composers": [],
+      "Album": "Cosmic Chill Lounge, Volume 4: Relax Edition",
+      "AlbumId": "108939",
+      "AlbumPrimaryImageTag": "572d8fe28f25b1b5bd7f0bf2625432d9",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "f6a8b5b7d02b4340d11ed212d1b5cb39"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Sunflowers",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108786",
+      "PlaylistItemId": "130",
+      "Container": "flac",
+      "RunTimeTicks": 4056266670,
+      "IndexNumber": 4,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Boot Cut Rockers",
+        "Mica Wanner"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Boot Cut Rockers",
+          "Id": "71946"
+        },
+        {
+          "Name": "Mica Wanner",
+          "Id": "71953"
+        }
+      ],
+      "Composers": [],
+      "Album": "Cosmic Chill Lounge, Volume 4: Relax Edition",
+      "AlbumId": "108939",
+      "AlbumPrimaryImageTag": "572d8fe28f25b1b5bd7f0bf2625432d9",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "91ef9a35b0dfd0cd4b8500094f0cb7ed"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Beautiful",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108780",
+      "PlaylistItemId": "131",
+      "Container": "flac",
+      "RunTimeTicks": 2992666670,
+      "IndexNumber": 5,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Polished Chrome"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Polished Chrome",
+          "Id": "71923"
+        }
+      ],
+      "Composers": [],
+      "Album": "Cosmic Chill Lounge, Volume 4: Relax Edition",
+      "AlbumId": "108939",
+      "AlbumPrimaryImageTag": "572d8fe28f25b1b5bd7f0bf2625432d9",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "4c95aaa50cb09bcfad71d511da32137b"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Like Love (Original Mix)",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108791",
+      "PlaylistItemId": "132",
+      "Container": "flac",
+      "RunTimeTicks": 3949866670,
+      "IndexNumber": 6,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sly"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sly",
+          "Id": "108944"
+        }
+      ],
+      "Composers": [],
+      "Album": "Cosmic Chill Lounge, Volume 4: Relax Edition",
+      "AlbumId": "108939",
+      "AlbumPrimaryImageTag": "572d8fe28f25b1b5bd7f0bf2625432d9",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "14abb28332c9c440a3aec58c2c308796"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Carousel",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108788",
+      "PlaylistItemId": "133",
+      "Container": "flac",
+      "RunTimeTicks": 3170933330,
+      "IndexNumber": 7,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Ambray"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Ambray",
+          "Id": "71954"
+        }
+      ],
+      "Composers": [],
+      "Album": "Cosmic Chill Lounge, Volume 4: Relax Edition",
+      "AlbumId": "108939",
+      "AlbumPrimaryImageTag": "572d8fe28f25b1b5bd7f0bf2625432d9",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "8ad6fd047cd71c916bbdd009ebe7af3b"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Hollow (Sine Remix)",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108785",
+      "PlaylistItemId": "134",
+      "Container": "flac",
+      "RunTimeTicks": 3092800000,
+      "IndexNumber": 8,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sonic Adventure Project"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sonic Adventure Project",
+          "Id": "71947"
+        }
+      ],
+      "Composers": [],
+      "Album": "Cosmic Chill Lounge, Volume 4: Relax Edition",
+      "AlbumId": "108939",
+      "AlbumPrimaryImageTag": "572d8fe28f25b1b5bd7f0bf2625432d9",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "9b23c38499d581646983bf4b009f43e8"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Only A Dream",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108779",
+      "PlaylistItemId": "135",
+      "Container": "flac",
+      "RunTimeTicks": 3224666670,
+      "IndexNumber": 9,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Gold Lounge"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Gold Lounge",
+          "Id": "71943"
+        }
+      ],
+      "Composers": [],
+      "Album": "Cosmic Chill Lounge, Volume 4: Relax Edition",
+      "AlbumId": "108939",
+      "AlbumPrimaryImageTag": "572d8fe28f25b1b5bd7f0bf2625432d9",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "81027dd31d20c5d99c88dc8215b48c86"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "New Paths",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108787",
+      "PlaylistItemId": "136",
+      "Container": "flac",
+      "RunTimeTicks": 2513333330,
+      "IndexNumber": 10,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sine"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sine",
+          "Id": "71920"
+        }
+      ],
+      "Composers": [],
+      "Album": "Cosmic Chill Lounge, Volume 4: Relax Edition",
+      "AlbumId": "108939",
+      "AlbumPrimaryImageTag": "572d8fe28f25b1b5bd7f0bf2625432d9",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "998c0219c4b0f7104d18e8e33fa82763"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Biya",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108781",
+      "PlaylistItemId": "137",
+      "Container": "flac",
+      "RunTimeTicks": 2784000000,
+      "IndexNumber": 11,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Merge Of Equals",
+        "Sitta"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Merge Of Equals",
+          "Id": "71918"
+        },
+        {
+          "Name": "Sitta",
+          "Id": "108940"
+        }
+      ],
+      "Composers": [],
+      "Album": "Cosmic Chill Lounge, Volume 4: Relax Edition",
+      "AlbumId": "108939",
+      "AlbumPrimaryImageTag": "572d8fe28f25b1b5bd7f0bf2625432d9",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "430e78123408257d2b0fb32770d18b8c"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Leaving The Lights",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108794",
+      "PlaylistItemId": "138",
+      "Container": "flac",
+      "RunTimeTicks": 2177600000,
+      "IndexNumber": 12,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Villablue",
+        "Juanita Grande"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Villablue",
+          "Id": "71957"
+        },
+        {
+          "Name": "Juanita Grande",
+          "Id": "71958"
+        }
+      ],
+      "Composers": [],
+      "Album": "Cosmic Chill Lounge, Volume 4: Relax Edition",
+      "AlbumId": "108939",
+      "AlbumPrimaryImageTag": "572d8fe28f25b1b5bd7f0bf2625432d9",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "ca25ea3cb351b5ecec2929015c3e0a2e"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "The Rapture",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108790",
+      "PlaylistItemId": "139",
+      "Container": "flac",
+      "RunTimeTicks": 2716533330,
+      "IndexNumber": 13,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "The Charlie North Michael e Project"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "The Charlie North Michael e Project",
+          "Id": "71972"
+        }
+      ],
+      "Composers": [],
+      "Album": "Cosmic Chill Lounge, Volume 4: Relax Edition",
+      "AlbumId": "108939",
+      "AlbumPrimaryImageTag": "572d8fe28f25b1b5bd7f0bf2625432d9",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "18bdedbaa32f5f90b7dcc1c91853c3b7"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Springtime",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108783",
+      "PlaylistItemId": "140",
+      "Container": "flac",
+      "RunTimeTicks": 3080000000,
+      "IndexNumber": 14,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Schellrich",
+        "Sine"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Schellrich",
+          "Id": "108941"
+        },
+        {
+          "Name": "Sine",
+          "Id": "71920"
+        }
+      ],
+      "Composers": [],
+      "Album": "Cosmic Chill Lounge, Volume 4: Relax Edition",
+      "AlbumId": "108939",
+      "AlbumPrimaryImageTag": "572d8fe28f25b1b5bd7f0bf2625432d9",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "9f219f216fed26e7cdd24757941cb0ac"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "One",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108793",
+      "PlaylistItemId": "141",
+      "Container": "flac",
+      "RunTimeTicks": 2619866670,
+      "IndexNumber": 16,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Thomas Lemmer"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Thomas Lemmer",
+          "Id": "71904"
+        }
+      ],
+      "Composers": [],
+      "Album": "Cosmic Chill Lounge, Volume 4: Relax Edition",
+      "AlbumId": "108939",
+      "AlbumPrimaryImageTag": "572d8fe28f25b1b5bd7f0bf2625432d9",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "a844b3d84a2b31f8bbe133854ccab707"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    }
+  ],
+  "TotalRecordCount": 14
+}

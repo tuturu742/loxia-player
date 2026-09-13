@@ -1,0 +1,9 @@
+---
+source: crates/loxia-audio/src/eq.rs
+assertion_line: 94
+expression: "band_command(9, -3.0)"
+---
+(
+    "change",
+    "9|f=16000|w=11313.71|g=-3.0",
+)

@@ -1,0 +1,1415 @@
+{
+  "Items": [
+    {
+      "Name": "Comfortable Void",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "1517",
+      "DateCreated": "2023-12-03T21:27:35.0000000Z",
+      "Container": "mp3",
+      "MediaSources": [
+        {
+          "Chapters": [],
+          "Protocol": "File",
+          "Id": "mediasource_1517",
+          "Path": "/redacted/path.flac",
+          "Type": "Default",
+          "Container": "mp3",
+          "Size": 16422912,
+          "Name": "01 - Comfortable Void",
+          "IsRemote": false,
+          "HasMixedProtocols": false,
+          "RunTimeTicks": 4089730610,
+          "SupportsTranscoding": true,
+          "SupportsDirectStream": true,
+          "SupportsDirectPlay": true,
+          "IsInfiniteStream": false,
+          "RequiresOpening": false,
+          "RequiresClosing": false,
+          "RequiresLooping": false,
+          "SupportsProbing": true,
+          "MediaStreams": [
+            {
+              "Codec": "mp3",
+              "TimeBase": "1/14112000",
+              "DisplayTitle": "MP3 stereo",
+              "IsInterlaced": false,
+              "ChannelLayout": "stereo",
+              "BitRate": 320000,
+              "Channels": 2,
+              "SampleRate": 44100,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Type": "Audio",
+              "Index": 0,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            },
+            {
+              "Codec": "mjpeg",
+              "ColorSpace": "bt470bg",
+              "Comment": "Cover (front)",
+              "TimeBase": "1/90000",
+              "IsInterlaced": false,
+              "BitDepth": 8,
+              "RefFrames": 1,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Height": 531,
+              "Width": 600,
+              "RealFrameRate": 90000,
+              "Profile": "Progressive",
+              "Type": "EmbeddedImage",
+              "AspectRatio": "200:177",
+              "Index": 1,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "PixelFormat": "yuvj444p",
+              "Level": -99,
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            }
+          ],
+          "Formats": [],
+          "Bitrate": 321251,
+          "RequiredHttpHeaders": {},
+          "AddApiKeyToDirectStreamUrl": false,
+          "ReadAtNativeFramerate": false,
+          "DefaultAudioStreamIndex": 0,
+          "ItemId": "1517"
+        }
+      ],
+      "Genres": [
+        "Downtempo"
+      ],
+      "RunTimeTicks": 4089730610,
+      "Size": 16422912,
+      "Bitrate": 321251,
+      "ProductionYear": 2012,
+      "IndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "GenreItems": [
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        }
+      ],
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "Album": "Comfortable Void",
+      "AlbumId": "66666",
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "b5c337196f424120db4c461f07de005f"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Inadvertent",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "1518",
+      "DateCreated": "2023-12-03T21:27:35.0000000Z",
+      "Container": "mp3",
+      "MediaSources": [
+        {
+          "Chapters": [],
+          "Protocol": "File",
+          "Id": "mediasource_1518",
+          "Path": "/redacted/path.flac",
+          "Type": "Default",
+          "Container": "mp3",
+          "Size": 16023552,
+          "Name": "02 - Inadvertent",
+          "IsRemote": false,
+          "HasMixedProtocols": false,
+          "RunTimeTicks": 3989681630,
+          "SupportsTranscoding": true,
+          "SupportsDirectStream": true,
+          "SupportsDirectPlay": true,
+          "IsInfiniteStream": false,
+          "RequiresOpening": false,
+          "RequiresClosing": false,
+          "RequiresLooping": false,
+          "SupportsProbing": true,
+          "MediaStreams": [
+            {
+              "Codec": "mp3",
+              "TimeBase": "1/14112000",
+              "DisplayTitle": "MP3 stereo",
+              "IsInterlaced": false,
+              "ChannelLayout": "stereo",
+              "BitRate": 320000,
+              "Channels": 2,
+              "SampleRate": 44100,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Type": "Audio",
+              "Index": 0,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            },
+            {
+              "Codec": "mjpeg",
+              "ColorSpace": "bt470bg",
+              "Comment": "Cover (front)",
+              "TimeBase": "1/90000",
+              "IsInterlaced": false,
+              "BitDepth": 8,
+              "RefFrames": 1,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Height": 531,
+              "Width": 600,
+              "RealFrameRate": 90000,
+              "Profile": "Progressive",
+              "Type": "EmbeddedImage",
+              "AspectRatio": "200:177",
+              "Index": 1,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "PixelFormat": "yuvj444p",
+              "Level": -99,
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            }
+          ],
+          "Formats": [],
+          "Bitrate": 321299,
+          "RequiredHttpHeaders": {},
+          "AddApiKeyToDirectStreamUrl": false,
+          "ReadAtNativeFramerate": false,
+          "DefaultAudioStreamIndex": 0,
+          "ItemId": "1518"
+        }
+      ],
+      "Genres": [
+        "Downtempo"
+      ],
+      "RunTimeTicks": 3989681630,
+      "Size": 16023552,
+      "Bitrate": 321299,
+      "ProductionYear": 2012,
+      "IndexNumber": 2,
+      "IsFolder": false,
+      "Type": "Audio",
+      "GenreItems": [
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        }
+      ],
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "Album": "Comfortable Void",
+      "AlbumId": "66666",
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "b7e3b92b872d487ec7465f4d0b94ec8b"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Dance Of The Droids",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "1514",
+      "DateCreated": "2023-12-03T21:27:34.0000000Z",
+      "Container": "mp3",
+      "MediaSources": [
+        {
+          "Chapters": [],
+          "Protocol": "File",
+          "Id": "mediasource_1514",
+          "Path": "/redacted/path.flac",
+          "Type": "Default",
+          "Container": "mp3",
+          "Size": 15532032,
+          "Name": "03 - Dance Of The Droids",
+          "IsRemote": false,
+          "HasMixedProtocols": false,
+          "RunTimeTicks": 3867167350,
+          "SupportsTranscoding": true,
+          "SupportsDirectStream": true,
+          "SupportsDirectPlay": true,
+          "IsInfiniteStream": false,
+          "RequiresOpening": false,
+          "RequiresClosing": false,
+          "RequiresLooping": false,
+          "SupportsProbing": true,
+          "MediaStreams": [
+            {
+              "Codec": "mp3",
+              "TimeBase": "1/14112000",
+              "DisplayTitle": "MP3 stereo",
+              "IsInterlaced": false,
+              "ChannelLayout": "stereo",
+              "BitRate": 320000,
+              "Channels": 2,
+              "SampleRate": 44100,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Type": "Audio",
+              "Index": 0,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            },
+            {
+              "Codec": "mjpeg",
+              "ColorSpace": "bt470bg",
+              "Comment": "Cover (front)",
+              "TimeBase": "1/90000",
+              "IsInterlaced": false,
+              "BitDepth": 8,
+              "RefFrames": 1,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Height": 531,
+              "Width": 600,
+              "RealFrameRate": 90000,
+              "Profile": "Progressive",
+              "Type": "EmbeddedImage",
+              "AspectRatio": "200:177",
+              "Index": 1,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "PixelFormat": "yuvj444p",
+              "Level": -99,
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            }
+          ],
+          "Formats": [],
+          "Bitrate": 321310,
+          "RequiredHttpHeaders": {},
+          "AddApiKeyToDirectStreamUrl": false,
+          "ReadAtNativeFramerate": false,
+          "DefaultAudioStreamIndex": 0,
+          "ItemId": "1514"
+        }
+      ],
+      "Genres": [
+        "Downtempo"
+      ],
+      "RunTimeTicks": 3867167350,
+      "Size": 15532032,
+      "Bitrate": 321310,
+      "ProductionYear": 2012,
+      "IndexNumber": 3,
+      "IsFolder": false,
+      "Type": "Audio",
+      "GenreItems": [
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        }
+      ],
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "Album": "Comfortable Void",
+      "AlbumId": "66666",
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "388f5e31947be8cd6d035cbe00676a20"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "1N50MN14",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "1515",
+      "DateCreated": "2023-12-03T21:27:34.0000000Z",
+      "Container": "mp3",
+      "MediaSources": [
+        {
+          "Chapters": [],
+          "Protocol": "File",
+          "Id": "mediasource_1515",
+          "Path": "/redacted/path.flac",
+          "Type": "Default",
+          "Container": "mp3",
+          "Size": 15577088,
+          "Name": "04 - 1N50MN14",
+          "IsRemote": false,
+          "HasMixedProtocols": false,
+          "RunTimeTicks": 3878138780,
+          "SupportsTranscoding": true,
+          "SupportsDirectStream": true,
+          "SupportsDirectPlay": true,
+          "IsInfiniteStream": false,
+          "RequiresOpening": false,
+          "RequiresClosing": false,
+          "RequiresLooping": false,
+          "SupportsProbing": true,
+          "MediaStreams": [
+            {
+              "Codec": "mp3",
+              "TimeBase": "1/14112000",
+              "DisplayTitle": "MP3 stereo",
+              "IsInterlaced": false,
+              "ChannelLayout": "stereo",
+              "BitRate": 320000,
+              "Channels": 2,
+              "SampleRate": 44100,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Type": "Audio",
+              "Index": 0,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            },
+            {
+              "Codec": "mjpeg",
+              "ColorSpace": "bt470bg",
+              "Comment": "Cover (front)",
+              "TimeBase": "1/90000",
+              "IsInterlaced": false,
+              "BitDepth": 8,
+              "RefFrames": 1,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Height": 531,
+              "Width": 600,
+              "RealFrameRate": 90000,
+              "Profile": "Progressive",
+              "Type": "EmbeddedImage",
+              "AspectRatio": "200:177",
+              "Index": 1,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "PixelFormat": "yuvj444p",
+              "Level": -99,
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            }
+          ],
+          "Formats": [],
+          "Bitrate": 321331,
+          "RequiredHttpHeaders": {},
+          "AddApiKeyToDirectStreamUrl": false,
+          "ReadAtNativeFramerate": false,
+          "DefaultAudioStreamIndex": 0,
+          "ItemId": "1515"
+        }
+      ],
+      "Genres": [
+        "Downtempo"
+      ],
+      "RunTimeTicks": 3878138780,
+      "Size": 15577088,
+      "Bitrate": 321331,
+      "ProductionYear": 2012,
+      "IndexNumber": 4,
+      "IsFolder": false,
+      "Type": "Audio",
+      "GenreItems": [
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        }
+      ],
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "Album": "Comfortable Void",
+      "AlbumId": "66666",
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "66108d795e4c6eccaf5114f88c99c299"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Nanites",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "1522",
+      "DateCreated": "2023-12-03T21:27:34.0000000Z",
+      "Container": "mp3",
+      "MediaSources": [
+        {
+          "Chapters": [],
+          "Protocol": "File",
+          "Id": "mediasource_1522",
+          "Path": "/redacted/path.flac",
+          "Type": "Default",
+          "Container": "mp3",
+          "Size": 17895424,
+          "Name": "05 - Nanites",
+          "IsRemote": false,
+          "HasMixedProtocols": false,
+          "RunTimeTicks": 4458057140,
+          "SupportsTranscoding": true,
+          "SupportsDirectStream": true,
+          "SupportsDirectPlay": true,
+          "IsInfiniteStream": false,
+          "RequiresOpening": false,
+          "RequiresClosing": false,
+          "RequiresLooping": false,
+          "SupportsProbing": true,
+          "MediaStreams": [
+            {
+              "Codec": "mp3",
+              "TimeBase": "1/14112000",
+              "DisplayTitle": "MP3 stereo",
+              "IsInterlaced": false,
+              "ChannelLayout": "stereo",
+              "BitRate": 320000,
+              "Channels": 2,
+              "SampleRate": 44100,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Type": "Audio",
+              "Index": 0,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            },
+            {
+              "Codec": "mjpeg",
+              "ColorSpace": "bt470bg",
+              "Comment": "Cover (front)",
+              "TimeBase": "1/90000",
+              "IsInterlaced": false,
+              "BitDepth": 8,
+              "RefFrames": 1,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Height": 531,
+              "Width": 600,
+              "RealFrameRate": 90000,
+              "Profile": "Progressive",
+              "Type": "EmbeddedImage",
+              "AspectRatio": "200:177",
+              "Index": 1,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "PixelFormat": "yuvj444p",
+              "Level": -99,
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            }
+          ],
+          "Formats": [],
+          "Bitrate": 321134,
+          "RequiredHttpHeaders": {},
+          "AddApiKeyToDirectStreamUrl": false,
+          "ReadAtNativeFramerate": false,
+          "DefaultAudioStreamIndex": 0,
+          "ItemId": "1522"
+        }
+      ],
+      "Genres": [
+        "Downtempo"
+      ],
+      "RunTimeTicks": 4458057140,
+      "Size": 17895424,
+      "Bitrate": 321134,
+      "ProductionYear": 2012,
+      "IndexNumber": 5,
+      "IsFolder": false,
+      "Type": "Audio",
+      "GenreItems": [
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        }
+      ],
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "Album": "Comfortable Void",
+      "AlbumId": "66666",
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "9ff0deb12fd8b0f8487e918684faddbf"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Sequor",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "1523",
+      "DateCreated": "2023-12-03T21:27:34.0000000Z",
+      "Container": "mp3",
+      "MediaSources": [
+        {
+          "Chapters": [],
+          "Protocol": "File",
+          "Id": "mediasource_1523",
+          "Path": "/redacted/path.flac",
+          "Type": "Default",
+          "Container": "mp3",
+          "Size": 19496960,
+          "Name": "06 - Sequor",
+          "IsRemote": false,
+          "HasMixedProtocols": false,
+          "RunTimeTicks": 4858253060,
+          "SupportsTranscoding": true,
+          "SupportsDirectStream": true,
+          "SupportsDirectPlay": true,
+          "IsInfiniteStream": false,
+          "RequiresOpening": false,
+          "RequiresClosing": false,
+          "RequiresLooping": false,
+          "SupportsProbing": true,
+          "MediaStreams": [
+            {
+              "Codec": "mp3",
+              "TimeBase": "1/14112000",
+              "DisplayTitle": "MP3 stereo",
+              "IsInterlaced": false,
+              "ChannelLayout": "stereo",
+              "BitRate": 320000,
+              "Channels": 2,
+              "SampleRate": 44100,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Type": "Audio",
+              "Index": 0,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            },
+            {
+              "Codec": "mjpeg",
+              "ColorSpace": "bt470bg",
+              "Comment": "Cover (front)",
+              "TimeBase": "1/90000",
+              "IsInterlaced": false,
+              "BitDepth": 8,
+              "RefFrames": 1,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Height": 531,
+              "Width": 600,
+              "RealFrameRate": 90000,
+              "Profile": "Progressive",
+              "Type": "EmbeddedImage",
+              "AspectRatio": "200:177",
+              "Index": 1,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "PixelFormat": "yuvj444p",
+              "Level": -99,
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            }
+          ],
+          "Formats": [],
+          "Bitrate": 321053,
+          "RequiredHttpHeaders": {},
+          "AddApiKeyToDirectStreamUrl": false,
+          "ReadAtNativeFramerate": false,
+          "DefaultAudioStreamIndex": 0,
+          "ItemId": "1523"
+        }
+      ],
+      "Genres": [
+        "Downtempo"
+      ],
+      "RunTimeTicks": 4858253060,
+      "Size": 19496960,
+      "Bitrate": 321053,
+      "ProductionYear": 2012,
+      "IndexNumber": 6,
+      "IsFolder": false,
+      "Type": "Audio",
+      "GenreItems": [
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        }
+      ],
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "Album": "Comfortable Void",
+      "AlbumId": "66666",
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "898c2e2b6fc1bacd42cdef66881145f3"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Something Something",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "1519",
+      "DateCreated": "2023-12-03T21:27:34.0000000Z",
+      "Container": "mp3",
+      "MediaSources": [
+        {
+          "Chapters": [],
+          "Protocol": "File",
+          "Id": "mediasource_1519",
+          "Path": "/redacted/path.flac",
+          "Type": "Default",
+          "Container": "mp3",
+          "Size": 17522688,
+          "Name": "07 - Something Something",
+          "IsRemote": false,
+          "HasMixedProtocols": false,
+          "RunTimeTicks": 4364800000,
+          "SupportsTranscoding": true,
+          "SupportsDirectStream": true,
+          "SupportsDirectPlay": true,
+          "IsInfiniteStream": false,
+          "RequiresOpening": false,
+          "RequiresClosing": false,
+          "RequiresLooping": false,
+          "SupportsProbing": true,
+          "MediaStreams": [
+            {
+              "Codec": "mp3",
+              "TimeBase": "1/14112000",
+              "DisplayTitle": "MP3 stereo",
+              "IsInterlaced": false,
+              "ChannelLayout": "stereo",
+              "BitRate": 320000,
+              "Channels": 2,
+              "SampleRate": 44100,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Type": "Audio",
+              "Index": 0,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            },
+            {
+              "Codec": "mjpeg",
+              "ColorSpace": "bt470bg",
+              "Comment": "Cover (front)",
+              "TimeBase": "1/90000",
+              "IsInterlaced": false,
+              "BitDepth": 8,
+              "RefFrames": 1,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Height": 531,
+              "Width": 600,
+              "RealFrameRate": 90000,
+              "Profile": "Progressive",
+              "Type": "EmbeddedImage",
+              "AspectRatio": "200:177",
+              "Index": 1,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "PixelFormat": "yuvj444p",
+              "Level": -99,
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            }
+          ],
+          "Formats": [],
+          "Bitrate": 321163,
+          "RequiredHttpHeaders": {},
+          "AddApiKeyToDirectStreamUrl": false,
+          "ReadAtNativeFramerate": false,
+          "DefaultAudioStreamIndex": 0,
+          "ItemId": "1519"
+        }
+      ],
+      "Genres": [
+        "Downtempo"
+      ],
+      "RunTimeTicks": 4364800000,
+      "Size": 17522688,
+      "Bitrate": 321163,
+      "ProductionYear": 2012,
+      "IndexNumber": 7,
+      "IsFolder": false,
+      "Type": "Audio",
+      "GenreItems": [
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        }
+      ],
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "Album": "Comfortable Void",
+      "AlbumId": "66666",
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "d401b607b202a41594803cb7f0a16e40"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Oomph",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "1516",
+      "DateCreated": "2023-12-03T21:27:34.0000000Z",
+      "Container": "mp3",
+      "MediaSources": [
+        {
+          "Chapters": [],
+          "Protocol": "File",
+          "Id": "mediasource_1516",
+          "Path": "/redacted/path.flac",
+          "Type": "Default",
+          "Container": "mp3",
+          "Size": 25864192,
+          "Name": "08 - Oomph",
+          "IsRemote": false,
+          "HasMixedProtocols": false,
+          "RunTimeTicks": 6450155100,
+          "SupportsTranscoding": true,
+          "SupportsDirectStream": true,
+          "SupportsDirectPlay": true,
+          "IsInfiniteStream": false,
+          "RequiresOpening": false,
+          "RequiresClosing": false,
+          "RequiresLooping": false,
+          "SupportsProbing": true,
+          "MediaStreams": [
+            {
+              "Codec": "mp3",
+              "TimeBase": "1/14112000",
+              "DisplayTitle": "MP3 stereo",
+              "IsInterlaced": false,
+              "ChannelLayout": "stereo",
+              "BitRate": 320000,
+              "Channels": 2,
+              "SampleRate": 44100,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Type": "Audio",
+              "Index": 0,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            },
+            {
+              "Codec": "mjpeg",
+              "ColorSpace": "bt470bg",
+              "Comment": "Cover (front)",
+              "TimeBase": "1/90000",
+              "IsInterlaced": false,
+              "BitDepth": 8,
+              "RefFrames": 1,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Height": 531,
+              "Width": 600,
+              "RealFrameRate": 90000,
+              "Profile": "Progressive",
+              "Type": "EmbeddedImage",
+              "AspectRatio": "200:177",
+              "Index": 1,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "PixelFormat": "yuvj444p",
+              "Level": -99,
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            }
+          ],
+          "Formats": [],
+          "Bitrate": 320788,
+          "RequiredHttpHeaders": {},
+          "AddApiKeyToDirectStreamUrl": false,
+          "ReadAtNativeFramerate": false,
+          "DefaultAudioStreamIndex": 0,
+          "ItemId": "1516"
+        }
+      ],
+      "Genres": [
+        "Downtempo"
+      ],
+      "RunTimeTicks": 6450155100,
+      "Size": 25864192,
+      "Bitrate": 320788,
+      "ProductionYear": 2012,
+      "IndexNumber": 8,
+      "IsFolder": false,
+      "Type": "Audio",
+      "GenreItems": [
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        }
+      ],
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "Album": "Comfortable Void",
+      "AlbumId": "66666",
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "355749a3601342bcba44b2bb764c1c7f"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Wake (Live Edit)",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "1520",
+      "DateCreated": "2023-12-03T21:27:34.0000000Z",
+      "Container": "mp3",
+      "MediaSources": [
+        {
+          "Chapters": [],
+          "Protocol": "File",
+          "Id": "mediasource_1520",
+          "Path": "/redacted/path.flac",
+          "Type": "Default",
+          "Container": "mp3",
+          "Size": 22396928,
+          "Name": "09 - Wake (Live Edit)",
+          "IsRemote": false,
+          "HasMixedProtocols": false,
+          "RunTimeTicks": 5583151020,
+          "SupportsTranscoding": true,
+          "SupportsDirectStream": true,
+          "SupportsDirectPlay": true,
+          "IsInfiniteStream": false,
+          "RequiresOpening": false,
+          "RequiresClosing": false,
+          "RequiresLooping": false,
+          "SupportsProbing": true,
+          "MediaStreams": [
+            {
+              "Codec": "mp3",
+              "TimeBase": "1/14112000",
+              "DisplayTitle": "MP3 stereo",
+              "IsInterlaced": false,
+              "ChannelLayout": "stereo",
+              "BitRate": 320000,
+              "Channels": 2,
+              "SampleRate": 44100,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Type": "Audio",
+              "Index": 0,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            },
+            {
+              "Codec": "mjpeg",
+              "ColorSpace": "bt470bg",
+              "Comment": "Cover (front)",
+              "TimeBase": "1/90000",
+              "IsInterlaced": false,
+              "BitDepth": 8,
+              "RefFrames": 1,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Height": 531,
+              "Width": 600,
+              "RealFrameRate": 90000,
+              "Profile": "Progressive",
+              "Type": "EmbeddedImage",
+              "AspectRatio": "200:177",
+              "Index": 1,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "PixelFormat": "yuvj444p",
+              "Level": -99,
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            }
+          ],
+          "Formats": [],
+          "Bitrate": 320921,
+          "RequiredHttpHeaders": {},
+          "AddApiKeyToDirectStreamUrl": false,
+          "ReadAtNativeFramerate": false,
+          "DefaultAudioStreamIndex": 0,
+          "ItemId": "1520"
+        }
+      ],
+      "Genres": [
+        "Downtempo"
+      ],
+      "RunTimeTicks": 5583151020,
+      "Size": 22396928,
+      "Bitrate": 320921,
+      "ProductionYear": 2012,
+      "IndexNumber": 9,
+      "IsFolder": false,
+      "Type": "Audio",
+      "GenreItems": [
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        }
+      ],
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "Album": "Comfortable Void",
+      "AlbumId": "66666",
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "0b1c7f3bd68531c386feefe456229d5a"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "There Is No Spoon",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "1521",
+      "DateCreated": "2023-12-03T21:27:34.0000000Z",
+      "Container": "mp3",
+      "MediaSources": [
+        {
+          "Chapters": [],
+          "Protocol": "File",
+          "Id": "mediasource_1521",
+          "Path": "/redacted/path.flac",
+          "Type": "Default",
+          "Container": "mp3",
+          "Size": 19642368,
+          "Name": "10 - There Is No Spoon",
+          "IsRemote": false,
+          "HasMixedProtocols": false,
+          "RunTimeTicks": 4894824490,
+          "SupportsTranscoding": true,
+          "SupportsDirectStream": true,
+          "SupportsDirectPlay": true,
+          "IsInfiniteStream": false,
+          "RequiresOpening": false,
+          "RequiresClosing": false,
+          "RequiresLooping": false,
+          "SupportsProbing": true,
+          "MediaStreams": [
+            {
+              "Codec": "mp3",
+              "TimeBase": "1/14112000",
+              "DisplayTitle": "MP3 stereo",
+              "IsInterlaced": false,
+              "ChannelLayout": "stereo",
+              "BitRate": 320000,
+              "Channels": 2,
+              "SampleRate": 44100,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Type": "Audio",
+              "Index": 0,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            },
+            {
+              "Codec": "mjpeg",
+              "ColorSpace": "bt470bg",
+              "Comment": "Cover (front)",
+              "TimeBase": "1/90000",
+              "IsInterlaced": false,
+              "BitDepth": 8,
+              "RefFrames": 1,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Height": 531,
+              "Width": 600,
+              "RealFrameRate": 90000,
+              "Profile": "Progressive",
+              "Type": "EmbeddedImage",
+              "AspectRatio": "200:177",
+              "Index": 1,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "PixelFormat": "yuvj444p",
+              "Level": -99,
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            }
+          ],
+          "Formats": [],
+          "Bitrate": 321030,
+          "RequiredHttpHeaders": {},
+          "AddApiKeyToDirectStreamUrl": false,
+          "ReadAtNativeFramerate": false,
+          "DefaultAudioStreamIndex": 0,
+          "ItemId": "1521"
+        }
+      ],
+      "Genres": [
+        "Downtempo"
+      ],
+      "RunTimeTicks": 4894824490,
+      "Size": 19642368,
+      "Bitrate": 321030,
+      "ProductionYear": 2012,
+      "IndexNumber": 10,
+      "IsFolder": false,
+      "Type": "Audio",
+      "GenreItems": [
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        }
+      ],
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "Album": "Comfortable Void",
+      "AlbumId": "66666",
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "c170be36d0e595d4583285f50419d7c0"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    }
+  ],
+  "TotalRecordCount": 10
+}

@@ -1,0 +1,21 @@
+# default_terminal — transparent, uses the terminal's own ANSI palette.
+# `bg` MUST stay "reset": painting it breaks terminal transparency, the whole point of this theme.
+name = "default_terminal"
+ascii_only = false
+
+[roles]
+bg = "reset"
+fg = "reset"
+dim = 8
+accent = 12
+accent_alt = 13
+selection_bg = 4
+selection_fg = 15
+border = 8
+border_focus = 12
+header_bg = "reset"
+success = 10
+warning = 11
+error = 9
+progress_filled = 12
+progress_empty = 8

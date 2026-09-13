@@ -1,0 +1,6 @@
+---
+source: crates/loxia-tui/src/widgets/inspector.rs
+assertion_line: 629
+expression: "replay_gain_source_label(AppliedGain::None, None)"
+---
+no gain

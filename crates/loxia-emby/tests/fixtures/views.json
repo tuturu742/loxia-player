@@ -1,0 +1,146 @@
+{
+  "Items": [
+    {
+      "Name": "Music",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "86188",
+      "Guid": "a259724db7ec47b3b9cc2f47a2484622",
+      "Etag": "c7edac6267c3e88ca722fc63e31a9adb",
+      "DateCreated": "2025-08-15T17:11:33.0000000Z",
+      "DateModified": "0001-01-01T00:00:00.0000000Z",
+      "CanDelete": false,
+      "CanDownload": false,
+      "PresentationUniqueKey": "a259724db7ec47b3b9cc2f47a2484622",
+      "SortName": "Music",
+      "ForcedSortName": "Music",
+      "ExternalUrls": [],
+      "Taglines": [],
+      "RemoteTrailers": [],
+      "ProviderIds": {},
+      "IsFolder": true,
+      "ParentId": "2",
+      "Type": "CollectionFolder",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "DisplayPreferencesId": "a259724db7ec47b3b9cc2f47a2484622",
+      "PrimaryImageAspectRatio": 1.7777777777777777,
+      "CollectionType": "music",
+      "ImageTags": {
+        "Primary": "c3d9fcc32768bb71eecaa06cbb13e299"
+      },
+      "BackdropImageTags": [],
+      "LockedFields": [],
+      "LockData": false
+    },
+    {
+      "Name": "MusicLegacy",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "371",
+      "Guid": "248e2744fdd84b8ab8e9035cf82febee",
+      "Etag": "c7edac6267c3e88ca722fc63e31a9adb",
+      "DateCreated": "2025-07-31T19:39:14.0000000Z",
+      "DateModified": "0001-01-01T00:00:00.0000000Z",
+      "CanDelete": false,
+      "CanDownload": false,
+      "PresentationUniqueKey": "248e2744fdd84b8ab8e9035cf82febee",
+      "SortName": "MusicLegacy",
+      "ForcedSortName": "MusicLegacy",
+      "ExternalUrls": [],
+      "Taglines": [],
+      "RemoteTrailers": [],
+      "ProviderIds": {},
+      "IsFolder": true,
+      "ParentId": "2",
+      "Type": "CollectionFolder",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "DisplayPreferencesId": "248e2744fdd84b8ab8e9035cf82febee",
+      "PrimaryImageAspectRatio": 1.7777777777777777,
+      "CollectionType": "music",
+      "ImageTags": {
+        "Primary": "81c70afff42f3038aa3ef5ed80070cbe"
+      },
+      "BackdropImageTags": [],
+      "LockedFields": [],
+      "LockData": false
+    },
+    {
+      "Name": "Collections",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "82176",
+      "Guid": "0e05f7903a5841dd81c2be24b2e0d5bb",
+      "Etag": "c7edac6267c3e88ca722fc63e31a9adb",
+      "DateCreated": "2025-08-01T20:33:58.0000000Z",
+      "DateModified": "0001-01-01T00:00:00.0000000Z",
+      "CanDelete": false,
+      "CanDownload": false,
+      "PresentationUniqueKey": "0e05f7903a5841dd81c2be24b2e0d5bb",
+      "SortName": "zCollections",
+      "ForcedSortName": "zCollections",
+      "ExternalUrls": [],
+      "Taglines": [],
+      "RemoteTrailers": [],
+      "ProviderIds": {},
+      "IsFolder": true,
+      "ParentId": "2",
+      "Type": "CollectionFolder",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "DisplayPreferencesId": "0e05f7903a5841dd81c2be24b2e0d5bb",
+      "PrimaryImageAspectRatio": 1.7777777777777777,
+      "CollectionType": "boxsets",
+      "ImageTags": {
+        "Primary": "61c2cc2d3f543f4e2c4d9c4a55b900ee"
+      },
+      "BackdropImageTags": [],
+      "LockedFields": [
+        "SortName"
+      ],
+      "LockData": false
+    },
+    {
+      "Name": "Playlists",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "95491",
+      "Guid": "1051b590fd9349b58b084a956029f1b7",
+      "Etag": "9440dee8e33718c133d56804ed382d19",
+      "DateCreated": "2025-09-21T10:59:31.0000000Z",
+      "DateModified": "0001-01-01T00:00:00.0000000Z",
+      "CanDelete": false,
+      "CanDownload": false,
+      "PresentationUniqueKey": "1051b590fd9349b58b084a956029f1b7",
+      "SortName": "zPlaylists",
+      "ForcedSortName": "zPlaylists",
+      "ExternalUrls": [],
+      "Taglines": [],
+      "RemoteTrailers": [],
+      "ProviderIds": {},
+      "IsFolder": true,
+      "ParentId": "2",
+      "Type": "CollectionFolder",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "DisplayPreferencesId": "1051b590fd9349b58b084a956029f1b7",
+      "CollectionType": "playlists",
+      "ImageTags": {},
+      "BackdropImageTags": [],
+      "LockedFields": [
+        "SortName"
+      ],
+      "LockData": false
+    }
+  ],
+  "TotalRecordCount": 4
+}

@@ -1,0 +1,5 @@
+---
+source: crates/loxia-emby/src/query.rs
+expression: snapshot_pairs(&album_tracks)
+---
+Fields=Genres,DateCreated,MediaSources,UserData,ProductionYear,PremiereDate,Overview,ParentId,ArtistItems,AlbumArtists,ChildCount,RunTimeTicks&IncludeItemTypes=Audio&ParentId=album1&SortBy=ParentIndexNumber,IndexNumber&SortOrder=Ascending

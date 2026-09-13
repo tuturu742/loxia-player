@@ -1,0 +1,44 @@
+[package]
+name = "loxia-emby"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[features]
+test-support = ["loxia-core/test-support"]
+
+[dependencies]
+loxia-core = { path = "../loxia-core" }
+reqwest = { workspace = true }
+tokio-tungstenite = { workspace = true }
+rustls = { workspace = true }
+futures = { workspace = true }
+bytes = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+gethostname = { workspace = true }
+# Exception recorded in docs/13-dependencies.md rule 7 and docs/12-decisions.md: with_retry's
+# backoff needs an async sleep primitive. Pinned to the workspace lock version, not the full
+# runtime (which stays confined to `loxia` per rule 7's existing pattern for loxia-audio). `fs`/
+# `io-util` added by `08-03`: `endpoints::download::fetch_to_file` streams a cache/download fetch
+# straight to disk, chunk by chunk, so a dropped connection leaves a genuine partial `.part` file
+# rather than losing everything received so far — both features are already part of this crate's
+# own locked `tokio` feature set (`docs/13-dependencies.md`), just not previously enabled here.
+tokio = { version = "1.53", default-features = false, features = ["time", "fs", "io-util"] }
+
+[dev-dependencies]
+wiremock = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true }
+proptest = { workspace = true }
+pretty_assertions = { workspace = true }
+insta = { workspace = true }
+# For examples/probe.rs's subcommand parsing only — the same locked version the `loxia` binary
+# uses (13-dependencies.md), not a new dependency.
+clap = { workspace = true }
+anyhow = { workspace = true }

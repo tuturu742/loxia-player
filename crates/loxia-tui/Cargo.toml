@@ -1,0 +1,29 @@
+[package]
+name = "loxia-tui"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[features]
+test-support = ["loxia-core/test-support"]
+
+[dependencies]
+loxia-core = { path = "../loxia-core" }
+ratatui = { workspace = true }
+ratatui-image = { workspace = true }
+image = { workspace = true }
+unicode-width = { workspace = true }
+unicode-segmentation = { workspace = true }
+# `10-03`: `modals::help` iterates every `ActionId` (`strum::IntoEnumIterator`, the same derive
+# `loxia-core` already puts on that enum) to generate its cheat-sheet rows.
+strum = { workspace = true }
+
+[dev-dependencies]
+insta = { workspace = true }
+pretty_assertions = { workspace = true }
+proptest = { workspace = true }
+# Self-dependency with the feature enabled, same idiom as `loxia-core`'s own Cargo.toml: this
+# task's widget tests need `loxia_core::test_support::fixtures`, and this is what makes plain
+# `cargo test`/`cargo clippy --all-targets` exercise it without a manual --features flag.
+loxia-core = { path = "../loxia-core", features = ["test-support"] }

@@ -1,0 +1,529 @@
+name: Release
+
+# Fires on a version tag. Everything downstream derives the version from the tag, so the
+# tag is the single source of truth — `verify` refuses to proceed if Cargo.toml disagrees.
+#
+# `workflow_dispatch` exists so the whole pipeline can be rehearsed against an existing tag
+# without cutting a new one. It builds and uploads nothing unless `publish` is true.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build, e.g. v0.1.0-rc.1"
+        required: true
+        type: string
+      publish:
+        description: "Create the GitHub release and push to the tap"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+env:
+  # Every job resolves the version the same way, from one place.
+  TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+
+jobs:
+  # ---------------------------------------------------------------------------------------
+  # Gate. A release that does not pass the same checks as a PR is not a release.
+  # ---------------------------------------------------------------------------------------
+  verify:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      prerelease: ${{ steps.v.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Tag and Cargo.toml must agree
+        id: v
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          manifest=$(grep -m1 '^version' Cargo.toml | sed -E 's/.*"(.*)".*/\1/')
+          if [ "$version" != "$manifest" ]; then
+            echo "::error::tag $TAG implies version $version, Cargo.toml says $manifest"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          # Anything with a hyphen (rc, beta, alpha) is a pre-release.
+          case "$version" in *-*) echo "prerelease=true" ;; *) echo "prerelease=false" ;; esac >> "$GITHUB_OUTPUT"
+          echo "releasing $version (tag $TAG)"
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install libmpv and libdbus
+        run: sudo apt-get update && sudo apt-get install -y libmpv-dev libdbus-1-dev pkg-config
+
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace --lib --bins --tests --examples
+
+  # ---------------------------------------------------------------------------------------
+  # Linux x86_64 tarball.
+  #
+  # Built inside Debian 12 (bookworm) rather than on the runner: the runner's glibc is far
+  # newer than most users', and a binary is only as portable as the oldest glibc it was
+  # linked against. Bookworm is the oldest base that still ships libmpv **2.x** — the 1.x
+  # ABI on older distributions is not the client API loxia targets.
+  #
+  # The result depends on the user's own mpv at runtime, resolved through the SONAME
+  # `libmpv.so.2`. That is what makes one tarball work across distributions.
+  # ---------------------------------------------------------------------------------------
+  linux-tarball:
+    needs: verify
+    runs-on: ubuntu-latest
+    container: debian:bookworm
+    steps:
+      - name: Install build dependencies
+        run: |
+          set -eux
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential curl ca-certificates git pkg-config \
+            libmpv-dev libdbus-1-dev binutils patchelf
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Install Rust
+        shell: bash
+        run: |
+          set -euo pipefail
+          # rust-toolchain.toml pins the exact version; rustup honours it on first use.
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain none
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory "$PWD"
+          cargo build --release -p loxia-player
+
+      - name: Check what the binary actually requires
+        shell: bash
+        run: |
+          set -euo pipefail
+          bin=target/release/loxia-player
+
+          echo "== direct library dependencies =="
+          objdump -p "$bin" | awk '/NEEDED/ {print $2}' | sort | tee /tmp/needed.txt
+
+          echo "== glibc floor =="
+          floor=$(objdump -T "$bin" | grep -oE 'GLIBC_[0-9.]+' | sort -V | tail -1)
+          echo "$floor"
+          echo "GLIBC_FLOOR=$floor" >> "$GITHUB_ENV"
+
+          # The set of libraries we expect to need is small and deliberate. Anything new
+          # here is a new runtime dependency users must install, so it must be a conscious
+          # decision, not a surprise discovered after release.
+          expected="ld-linux-x86-64.so.2 libc.so.6 libdbus-1.so.3 libgcc_s.so.1 libm.so.6 libmpv.so.2"
+          actual=$(tr '\n' ' ' < /tmp/needed.txt | xargs -n1 | sort | tr '\n' ' ' | xargs)
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::unexpected runtime dependencies"
+            echo "  expected: $expected"
+            echo "  actual:   $actual"
+            exit 1
+          fi
+
+      - name: Stage the tarball
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${{ needs.verify.outputs.version }}"
+          dir="loxia-player-${version}-x86_64-linux"
+          mkdir -p "dist/$dir"
+
+          cp target/release/loxia-player "dist/$dir/"
+          # Built against the container's libmpv, whose path is not where the user's will
+          # be. Strip the baked-in RUNPATH so the binary resolves libmpv.so.2 through the
+          # normal loader search path instead of shadowing it.
+          patchelf --remove-rpath "dist/$dir/loxia-player"
+          strip "dist/$dir/loxia-player"
+
+          cp LICENSE THIRD_PARTY_LICENSES.md README.md CHANGELOG.md "dist/$dir/"
+          cat > "dist/$dir/INSTALL.txt" <<EOF
+          loxia-player ${version} — x86_64 Linux
+
+          Requires at runtime:
+            * mpv / libmpv 0.35 or newer (provides libmpv.so.2)
+            * libdbus-1
+            * glibc ${GLIBC_FLOOR#GLIBC_} or newer
+
+          Install mpv from your distribution, then:
+            install -Dm755 loxia-player ~/.local/bin/loxia-player
+            loxia-player --doctor
+
+          Documentation: https://github.com/tuturu742/loxia-player
+          EOF
+
+          tar -C dist -czf "dist/${dir}.tar.gz" "$dir"
+          sha256sum "dist/${dir}.tar.gz" | tee "dist/${dir}.tar.gz.sha256"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-tarball
+          path: dist/*.tar.gz*
+
+  # ---------------------------------------------------------------------------------------
+  # Windows x86_64 portable ZIP.
+  #
+  # Two separate mpv problems, both solved here:
+  #
+  #   Link time — libmpv2-sys emits `-lmpv` unconditionally, so MSVC needs `mpv.lib`, which
+  #   upstream does not ship in any form the MSVC linker can use. It is generated here from
+  #   the DLL's own export table.
+  #
+  #   Runtime — libmpv's DLL is bundled beside the executable. That makes this artifact a
+  #   redistribution of an LGPL library, so the DLL stays a separate, replaceable file
+  #   (never statically linked), COPYING.LGPL ships with it, and the exact upstream build
+  #   is pinned and hash-verified in packaging/windows/mpv.lock.
+  # ---------------------------------------------------------------------------------------
+  windows-zip:
+    needs: verify
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Read the pinned libmpv build
+        id: mpv
+        shell: bash
+        run: |
+          set -euo pipefail
+          lock=packaging/windows/mpv.lock
+          get() { grep -m1 "^$1" "$lock" | sed -E 's/.*"(.*)".*/\1/'; }
+          url=$(get url); sha=$(get sha256); ver=$(get mpv_version)
+          for pair in "url:$url" "sha256:$sha" "mpv_version:$ver"; do
+            if [ "${pair#*:}" = "REPLACE_ME" ] || [ -z "${pair#*:}" ]; then
+              echo "::error::packaging/windows/mpv.lock has no ${pair%%:*}. See the comments in that file."
+              exit 1
+            fi
+          done
+          { echo "url=$url"; echo "sha256=$sha"; echo "version=$ver"; } >> "$GITHUB_OUTPUT"
+
+      - name: Fetch and verify the libmpv dev archive
+        id: dev
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL "${{ steps.mpv.outputs.url }}" -o mpv-dev.7z
+          echo "${{ steps.mpv.outputs.sha256 }}  mpv-dev.7z" | sha256sum -c -
+          7z x mpv-dev.7z -ompv-dev
+
+          # Upstream has shipped this DLL under more than one name over time, and whatever
+          # it is called has to match the LIBRARY line of the import library built below —
+          # otherwise the executable looks for a DLL that is not the one we ship.
+          dll=$(find mpv-dev -name '*mpv*.dll' | head -1)
+          if [ -z "$dll" ]; then
+            echo "::error::no libmpv DLL in the archive at mpv.lock's url."
+            echo "::error::that usually means it is the player archive; you want the -dev one."
+            find mpv-dev -maxdepth 3 -type f | head -30
+            exit 1
+          fi
+          echo "dll: $dll"
+          { echo "dll=$dll"; echo "dll_name=$(basename "$dll")"; } >> "$GITHUB_OUTPUT"
+
+      - name: Generate the MSVC import library
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Upstream ships headers, the DLL, and `libmpv.dll.a` — a GNU-format import
+          # library that MSVC's linker cannot consume. It ships no `mpv.def` and no `.lib`,
+          # while libmpv2-sys emits a bare `-lmpv`. So derive the module definition from the
+          # DLL's own export table and build mpv.lib from that. libmpv is plain C with no
+          # name decoration, so the exported names transfer verbatim.
+          #
+          # Dash-prefixed MSVC flags, not slash-prefixed: MSYS rewrites `/exports` into a
+          # Windows path before dumpbin ever sees it.
+          dll="${{ steps.dev.outputs.dll }}"
+          {
+            echo "LIBRARY ${{ steps.dev.outputs.dll_name }}"
+            echo "EXPORTS"
+            dumpbin -exports "$dll" | sed -nE \
+              's/^[[:space:]]+[0-9]+[[:space:]]+[0-9A-Fa-f]+[[:space:]]+[0-9A-Fa-f]+[[:space:]]+([A-Za-z_][A-Za-z0-9_]*).*$/    \1/p'
+          } > mpv.def
+
+          exports=$(grep -c '^    ' mpv.def || true)
+          echo "parsed $exports exports"
+          # Two sanity gates: a plausible count, and the one symbol whose absence would mean
+          # we parsed something other than an export table.
+          if [ "$exports" -lt 20 ] || ! grep -q '^    mpv_create$' mpv.def; then
+            echo "::error::export table did not parse ($exports symbols, mpv_create present: $(grep -c '^    mpv_create$' mpv.def || echo 0))"
+            dumpbin -exports "$dll" | head -30
+            exit 1
+          fi
+
+          lib.exe -def:mpv.def -out:mpv.lib -machine:X64
+          test -f mpv.lib
+
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+          # libmpv2-sys emits a bare `-lmpv`, so the linker needs mpv.lib on LIB.
+          export LIB="$(pwd -W 2>/dev/null || pwd);${LIB:-}"
+          cargo build --release -p loxia-player
+
+      - name: Stage the ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${{ needs.verify.outputs.version }}"
+          dir="loxia-player-${version}-x86_64-windows"
+          mkdir -p "dist/$dir"
+
+          cp target/release/loxia-player.exe "dist/$dir/"
+          # The DLL must sit beside the exe: Windows searches the executable's own
+          # directory first, so the portable ZIP works without touching PATH, and the user
+          # can drop in a newer libmpv build by replacing this one file.
+          cp "${{ steps.dev.outputs.dll }}" "dist/$dir/"
+          test -f "dist/$dir/${{ steps.dev.outputs.dll_name }}"
+
+          cp LICENSE COPYING.LGPL THIRD_PARTY_LICENSES.md README.md CHANGELOG.md "dist/$dir/"
+          cat > "dist/$dir/README.txt" <<EOF
+          loxia-player ${version} — x86_64 Windows (portable)
+
+          Run loxia-player.exe. Windows Terminal is strongly recommended; the classic
+          console lacks the colour and mouse support the interface expects.
+
+          ${{ steps.dev.outputs.dll_name }} in this directory is libmpv ${{ steps.mpv.outputs.version }}, from the
+          mpv project, licensed LGPL-2.1-or-later. It is a separate, replaceable file —
+          drop in a newer build if you want one. Source: https://github.com/mpv-player/mpv
+          Licence text: COPYING.LGPL
+
+          Documentation: https://github.com/tuturu742/loxia-player
+          EOF
+
+          cd dist && 7z a -tzip "${dir}.zip" "$dir" >/dev/null
+          sha256sum "${dir}.zip" | tee "${dir}.zip.sha256"
+
+      - name: Licence compliance gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${{ needs.verify.outputs.version }}"
+          dir="dist/loxia-player-${version}-x86_64-windows"
+          fail=0
+          # docs/11-packaging.md §7: these are blocking for any artifact carrying mpv binaries.
+          for required in "${{ steps.dev.outputs.dll_name }}" COPYING.LGPL LICENSE THIRD_PARTY_LICENSES.md; do
+            if [ ! -s "$dir/$required" ]; then
+              echo "::error::$required missing or empty from the Windows artifact"; fail=1
+            fi
+          done
+          # Separate dynamic library, never statically linked into the exe.
+          if [ ! -f "$dir/${{ steps.dev.outputs.dll_name }}" ]; then
+            echo "::error::libmpv must ship as a standalone, replaceable DLL"; fail=1
+          fi
+          exit $fail
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-zip
+          path: dist/*.zip*
+
+  # ---------------------------------------------------------------------------------------
+  # Point the tap's formula at this tag, before bottles are built.
+  #
+  # `brew install --build-bottle` builds whatever the formula says, so the formula has to
+  # carry this version and its source hash first. The bottle block is written back in a
+  # second pass, once the bottles exist as release assets.
+  #
+  # Needs a PAT with `contents: write` on tuturu742/homebrew-tap, stored as the
+  # HOMEBREW_TAP_TOKEN secret — GITHUB_TOKEN cannot push to another repository.
+  # ---------------------------------------------------------------------------------------
+  tap-source:
+    needs: verify
+    if: github.event_name == 'push' || inputs.publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the tap
+        uses: actions/checkout@v4
+        with:
+          repository: tuturu742/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: tap
+
+      - name: Point the formula at this tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${{ needs.verify.outputs.version }}"
+          url="https://github.com/tuturu742/loxia-player/archive/refs/tags/${TAG}.tar.gz"
+          sha=$(curl -fsSL "$url" | sha256sum | cut -d' ' -f1)
+          echo "source sha256: $sha"
+
+          f=tap/Formula/loxia-player.rb
+          sed -i -E "s|^  url \".*\"|  url \"$url\"|" "$f"
+          sed -i -E "s|^  sha256 \"[0-9a-f]{64}\"|  sha256 \"$sha\"|" "$f"
+          grep -E '^  (url|sha256)' "$f"
+
+      - name: Commit and push
+        shell: bash
+        working-directory: tap
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then echo "formula already current"; exit 0; fi
+          git commit -am "loxia-player ${{ needs.verify.outputs.version }}"
+          git push
+
+  # ---------------------------------------------------------------------------------------
+  # Bottles: prebuilt binaries for the formula, so `brew install` does not drag in the rust
+  # and llvm build tree (13 formulae, several gigabytes) on every user's machine.
+  #
+  # The runtime dependency on Homebrew's own mpv remains either way — brew never reuses a
+  # system mpv, by design.
+  # ---------------------------------------------------------------------------------------
+  bottles:
+    needs: [verify, tap-source]
+    if: github.event_name == 'push' || inputs.publish
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15        # Apple Silicon
+          - os: macos-13        # Intel
+          - os: ubuntu-latest   # x86_64_linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Build the bottle
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew tap tuturu742/tap
+          brew trust --tap tuturu742/tap || true
+
+          # --build-bottle makes the build relocatable; --json records the tag and hash.
+          brew install --build-bottle --verbose tuturu742/tap/loxia-player
+          brew bottle --json --no-rebuild \
+            --root-url="https://github.com/tuturu742/loxia-player/releases/download/${TAG}" \
+            tuturu742/tap/loxia-player
+
+          # Homebrew writes `name--version.tag.bottle.tar.gz` locally but resolves
+          # `name-version.tag.bottle.tar.gz` from root_url. Rename before uploading.
+          for f in *--*.bottle.tar.gz; do mv "$f" "${f/--/-}"; done
+          ls -la *.bottle.tar.gz *.json
+
+      - name: Prove the bottle actually runs
+        shell: bash
+        run: |
+          set -euo pipefail
+          loxia-player --version
+          # --doctor exits non-zero if any check fails; with no server configured that is a
+          # warning, not a failure. A clean exit proves it starts and found libmpv.
+          loxia-player --doctor | tee /tmp/doctor.txt
+          grep -q "libmpv" /tmp/doctor.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bottle-${{ matrix.os }}
+          path: |
+            *.bottle.tar.gz
+            *.bottle.json
+
+  # ---------------------------------------------------------------------------------------
+  # Publish everything as one GitHub release.
+  # ---------------------------------------------------------------------------------------
+  release:
+    needs: [verify, linux-tarball, windows-zip, bottles]
+    # Bottles are allowed to fail without sinking the release — the tarball and ZIP are the
+    # artifacts users cannot work around, and a missing bottle only means a source build.
+    if: always() && needs.linux-tarball.result == 'success' && needs.windows-zip.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Collect
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p upload
+          find artifacts -type f \( -name '*.tar.gz' -o -name '*.zip' -o -name '*.sha256' \) \
+            -exec cp {} upload/ \;
+          ls -la upload
+
+      - name: Publish
+        if: github.event_name == 'push' || inputs.publish
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: loxia-player ${{ needs.verify.outputs.version }}
+          prerelease: ${{ needs.verify.outputs.prerelease == 'true' }}
+          generate_release_notes: true
+          files: upload/*
+          fail_on_unmatched_files: true
+
+  # ---------------------------------------------------------------------------------------
+  # Second tap pass: write the bottle block now that the bottles exist at root_url.
+  # ---------------------------------------------------------------------------------------
+  tap-bottles:
+    needs: [verify, bottles, release]
+    if: (github.event_name == 'push' || inputs.publish) && needs.bottles.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: Homebrew/actions/setup-homebrew@master
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: bottle-*
+
+      - name: Check out the tap
+        uses: actions/checkout@v4
+        with:
+          repository: tuturu742/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: tap
+
+      - name: Merge the bottle block into the formula
+        shell: bash
+        run: |
+          set -euo pipefail
+          find artifacts -name '*.bottle.json' -exec cp {} . \;
+          ls -la ./*.bottle.json
+
+          brew tap tuturu742/tap
+          # --write edits the formula in place; --no-commit leaves the commit to us so the
+          # message matches the rest of the tap's history.
+          brew bottle --merge --write --no-commit ./*.bottle.json
+
+          cp "$(brew --repo tuturu742/tap)/Formula/loxia-player.rb" tap/Formula/loxia-player.rb
+          grep -A 8 'bottle do' tap/Formula/loxia-player.rb
+
+      - name: Commit and push
+        shell: bash
+        working-directory: tap
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then echo "no bottle changes"; exit 0; fi
+          git commit -am "loxia-player ${{ needs.verify.outputs.version }}: bottles"
+          git push

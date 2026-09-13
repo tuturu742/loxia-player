@@ -1,0 +1,20 @@
+# cyberpunk_neon — neon magenta/cyan on near-black, loxia's own branding palette.
+name = "cyberpunk_neon"
+ascii_only = false
+
+[roles]
+bg = "#0a0014"
+fg = "#e6e6fa"
+dim = "#6b5b95"
+accent = "#ff2e88"
+accent_alt = "#00f0ff"
+selection_bg = "#3a0d4d"
+selection_fg = "#00f0ff"
+border = "#4d1f6b"
+border_focus = "#ff2e88"
+header_bg = "#150022"
+success = "#39ff14"
+warning = "#ffe600"
+error = "#ff2e88"
+progress_filled = "#00f0ff"
+progress_empty = "#2a0f3d"

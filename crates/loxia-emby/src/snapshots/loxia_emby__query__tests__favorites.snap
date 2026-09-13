@@ -1,0 +1,5 @@
+---
+source: crates/loxia-emby/src/query.rs
+expression: snapshot_pairs(&favorites)
+---
+Fields=Genres,DateCreated,MediaSources,UserData,ProductionYear,PremiereDate,Overview,ParentId,ArtistItems,AlbumArtists,ChildCount,RunTimeTicks&Filters=IsFavorite&IncludeItemTypes=MusicArtist,MusicAlbum,Audio&Recursive=true

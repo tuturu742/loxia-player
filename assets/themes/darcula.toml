@@ -1,0 +1,20 @@
+# darcula — the familiar dark IDE grey/purple/orange palette.
+name = "darcula"
+ascii_only = false
+
+[roles]
+bg = "#2b2b2b"
+fg = "#a9b7c6"
+dim = "#6a6a6a"
+accent = "#cc7832"
+accent_alt = "#9876aa"
+selection_bg = "#214283"
+selection_fg = "#ffffff"
+border = "#3c3f41"
+border_focus = "#cc7832"
+header_bg = "#3c3f41"
+success = "#6a8759"
+warning = "#ffc66d"
+error = "#ff6b68"
+progress_filled = "#6897bb"
+progress_empty = "#3c3f41"

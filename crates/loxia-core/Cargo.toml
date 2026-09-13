@@ -1,0 +1,32 @@
+[package]
+name = "loxia-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[features]
+test-support = []
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+toml = { workspace = true }
+thiserror = { workspace = true }
+jiff = { workspace = true }
+rand = { workspace = true }
+rand_chacha = { workspace = true }
+nucleo-matcher = { workspace = true }
+dirs = { workspace = true }
+strum = { workspace = true }
+smallvec = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+pretty_assertions = { workspace = true }
+insta = { workspace = true }
+# Self-dependency with the feature enabled: `test-support` still ships in dev builds only (never
+# built into the default feature set other crates pull in), but this makes plain `cargo test` and
+# `cargo clippy --all-targets` exercise test_support/* without a manual --features flag — the same
+# gap class as 02-13's `--examples` bug, caught the same way (0 test_support tests actually ran).
+loxia-core = { path = ".", features = ["test-support"] }

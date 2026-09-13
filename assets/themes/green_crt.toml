@@ -1,0 +1,20 @@
+# green_crt — monochrome green-on-black, styled after a vintage green-phosphor CRT terminal.
+name = "green_crt"
+ascii_only = true
+
+[roles]
+bg = "#000900"
+fg = "#33ff33"
+dim = "#1a8c1a"
+accent = "#66ff66"
+accent_alt = "#00cc00"
+selection_bg = "#33ff33"
+selection_fg = "#000900"
+border = "#1a661a"
+border_focus = "#66ff66"
+header_bg = "#001a00"
+success = "#33ff33"
+warning = "#ccff00"
+error = "#ff3333"
+progress_filled = "#33ff33"
+progress_empty = "#0d330d"

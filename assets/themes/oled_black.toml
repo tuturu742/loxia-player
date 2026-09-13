@@ -1,0 +1,20 @@
+# oled_black — pure black background (true OLED pixel-off) with a cyan/magenta accent pair.
+name = "oled_black"
+ascii_only = false
+
+[roles]
+bg = "#000000"
+fg = "#e6e6e6"
+dim = "#707070"
+accent = "#00e5ff"
+accent_alt = "#ff2e88"
+selection_bg = "#1a1a1a"
+selection_fg = "#00e5ff"
+border = "#2a2a2a"
+border_focus = "#00e5ff"
+header_bg = "#000000"
+success = "#39ff14"
+warning = "#ffe600"
+error = "#ff4d4d"
+progress_filled = "#00e5ff"
+progress_empty = "#2a2a2a"

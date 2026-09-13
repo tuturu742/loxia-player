@@ -1,0 +1,155 @@
+{
+  "Items": [
+    {
+      "Name": "Dark Ambient",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66544",
+      "Type": "MusicGenre",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "f40a59517583bafbd5bf64a8a07b756c"
+      },
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "Ambient",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66569",
+      "Type": "MusicGenre",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "479ad28c5b8ff28a94d8c53cfe5e427a"
+      },
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "Folk",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66570",
+      "Type": "MusicGenre",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {},
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "Darkwave",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66580",
+      "Type": "MusicGenre",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {},
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "Metal",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66582",
+      "Type": "MusicGenre",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {},
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "Neo-Classical",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66590",
+      "Type": "MusicGenre",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "006e3c68dbbe0b6292f87463dc6832a9"
+      },
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "Downtempo",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66614",
+      "Type": "MusicGenre",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {},
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "Techno",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66622",
+      "Type": "MusicGenre",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {},
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "IDM",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66625",
+      "Type": "MusicGenre",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "7fd12cb75eba3bd6685efc32f2d7117e"
+      },
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "Progressive House",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66627",
+      "Type": "MusicGenre",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "51430b69068f55dc5d6ecea83b106fae"
+      },
+      "BackdropImageTags": []
+    }
+  ],
+  "TotalRecordCount": 221
+}

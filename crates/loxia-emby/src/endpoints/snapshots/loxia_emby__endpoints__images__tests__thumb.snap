@@ -1,0 +1,5 @@
+---
+source: crates/loxia-emby/src/endpoints/images.rs
+expression: thumb.as_str()
+---
+http://192.168.1.1:8096/emby/Items/t1/Images/Primary?maxHeight=64&tag=tag-abc&quality=90

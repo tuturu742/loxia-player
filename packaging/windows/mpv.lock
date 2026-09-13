@@ -1,0 +1,51 @@
+# The exact libmpv build bundled into the Windows artifacts.
+#
+# loxia links against libmpv dynamically and ships its DLL beside the executable on Windows,
+# because there is no system package manager there to provide it. That makes us a
+# redistributor of an LGPL-2.1-or-later library, so this file exists to satisfy two
+# obligations at once:
+#
+#   1. Reproducibility — the exact upstream build is named here, so anyone can fetch the
+#      identical DLL, or rebuild it from source, and swap it in.
+#   2. Integrity — CI verifies SHA-256 before packaging. A mismatch fails the release
+#      rather than shipping an unverified binary blob.
+#
+# See docs/11-packaging.md §4 and §7.
+#
+# ---------------------------------------------------------------------------------------
+# To bump libmpv:
+#
+#   1. Pick a release from https://github.com/shinchiro/mpv-winbuild-cmake/releases and take
+#      the **dev** archive for plain x86_64 — `mpv-dev-x86_64-<date>-git-<sha>.7z`. Not the
+#      `-v3` variant, which requires AVX2 and would exclude older processors, and not the
+#      player archive, which has no import library or headers.
+#   2. Record the URL, its SHA-256, and the mpv version from the release page:
+#        curl -LO <url> && sha256sum mpv-dev-x86_64-*.7z
+#
+# Note the archive contains headers, the DLL, and `libmpv.dll.a` — a GNU-format import
+# library MSVC cannot use. There is no `mpv.def` and no `.lib`. The release workflow derives
+# the import library from the DLL's export table; nothing here needs to change for that.
+# ---------------------------------------------------------------------------------------
+
+[libmpv]
+# Upstream release page the archive came from, for the record.
+release_url = "https://github.com/shinchiro/mpv-winbuild-cmake/releases/tag/20260927"
+
+# Direct download URL of the dev archive.
+url = "https://github.com/shinchiro/mpv-winbuild-cmake/releases/download/20260927/mpv-dev-x86_64-20260927-git-a1bf4b6559.7z"
+
+# SHA-256 of the archive at `url`. CI refuses to package on a mismatch.
+sha256 = "3a80c48d271a8aa77f7b6617cd7f182a87370361cd23635562927c9eac74ac5c"
+
+# The mpv commit this build corresponds to, recorded in the release notes so a user can
+# rebuild the identical library.
+mpv_version = "git-a1bf4b6559 (build 20260927)"
+
+# Where the original source lives. Required by the LGPL; also printed into the release
+# notes and shipped in THIRD_PARTY_LICENSES.md.
+source_url = "https://github.com/mpv-player/mpv"
+
+# What the archive actually contains, verified at the time of pinning:
+#   include/mpv/{client,render,render_gl,stream_cb}.h
+#   libmpv-2.dll        <- shipped beside loxia-player.exe
+#   libmpv.dll.a        <- GNU import library, unused (MSVC build)

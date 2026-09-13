@@ -1,0 +1,158 @@
+{
+  "Items": [
+    {
+      "Name": "Geisterjagd (Tr\u00e4ne im Meer)",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "133105",
+      "Container": "flac",
+      "MediaSources": [
+        {
+          "Chapters": [],
+          "Protocol": "File",
+          "Id": "mediasource_133105",
+          "Path": "/redacted/path.flac",
+          "Type": "Default",
+          "Container": "flac",
+          "Size": 34434793,
+          "Name": "05 - Geisterjagd (Tr\u00e4ne im Meer)",
+          "IsRemote": false,
+          "HasMixedProtocols": false,
+          "RunTimeTicks": 2635066670,
+          "SupportsTranscoding": true,
+          "SupportsDirectStream": true,
+          "SupportsDirectPlay": true,
+          "IsInfiniteStream": false,
+          "RequiresOpening": false,
+          "RequiresClosing": false,
+          "RequiresLooping": false,
+          "SupportsProbing": true,
+          "MediaStreams": [
+            {
+              "Codec": "flac",
+              "TimeBase": "1/44100",
+              "DisplayTitle": "FLAC stereo",
+              "IsInterlaced": false,
+              "ChannelLayout": "stereo",
+              "BitRate": 1045432,
+              "BitDepth": 16,
+              "Channels": 2,
+              "SampleRate": 44100,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Type": "Audio",
+              "Index": 0,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            },
+            {
+              "Codec": "mjpeg",
+              "ColorSpace": "bt470bg",
+              "Comment": "Cover (front)",
+              "TimeBase": "1/90000",
+              "IsInterlaced": false,
+              "BitDepth": 8,
+              "RefFrames": 1,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Height": 1400,
+              "Width": 1400,
+              "RealFrameRate": 90000,
+              "Profile": "Baseline",
+              "Type": "EmbeddedImage",
+              "AspectRatio": "1:1",
+              "Index": 1,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "PixelFormat": "yuvj420p",
+              "Level": -99,
+              "IsAnamorphic": false,
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            },
+            {
+              "Codec": "lrc",
+              "DisplayTitle": "(LRC)",
+              "IsInterlaced": false,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Type": "Subtitle",
+              "Index": 2,
+              "IsExternal": true,
+              "IsTextSubtitleStream": true,
+              "SupportsExternalStream": true,
+              "Path": "/redacted/path.flac",
+              "Protocol": "File",
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            }
+          ],
+          "Formats": [],
+          "Bitrate": 1045432,
+          "RequiredHttpHeaders": {},
+          "AddApiKeyToDirectStreamUrl": false,
+          "ReadAtNativeFramerate": false,
+          "DefaultAudioStreamIndex": 0,
+          "DefaultSubtitleStreamIndex": 2,
+          "ItemId": "133105"
+        }
+      ],
+      "RunTimeTicks": 2635066670,
+      "Size": 34434793,
+      "Bitrate": 1045432,
+      "IndexNumber": 5,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentBackdropItemId": "74527",
+      "ParentBackdropImageTags": [
+        "c00a35bb1a4f23304fd082c4ab1434ef"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "ASP"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "ASP",
+          "Id": "74527"
+        }
+      ],
+      "Composers": [],
+      "Album": "Weltunter: Der schwarze Schmetterling, Teil III",
+      "AlbumId": "133505",
+      "AlbumPrimaryImageTag": "57d30610b77d4b1f28466840b064d759",
+      "AlbumArtist": "ASP",
+      "AlbumArtists": [
+        {
+          "Name": "ASP",
+          "Id": "74527"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "c3e6485f526baaae3527edb92a52581b"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    }
+  ],
+  "TotalRecordCount": 1
+}

@@ -1,0 +1,21 @@
+---
+source: crates/loxia-tui/src/widgets/lyrics.rs
+expression: "render_at(40, 9, &state)"
+---
+Buffer {
+    area: Rect { x: 0, y: 0, width: 40, height: 9 },
+    content: [
+        "First line                              ",
+        "Second line                             ",
+        "Third line                              ",
+        "                                        ",
+        "                                        ",
+        "                                        ",
+        "                                        ",
+        "                                        ",
+        "                                        ",
+    ],
+    styles: [
+        x: 0, y: 0, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+    ]
+}

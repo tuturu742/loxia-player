@@ -1,0 +1,41 @@
+---
+source: crates/loxia-tui/src/widgets/column.rs
+assertion_line: 526
+expression: rendered
+---
+Buffer {
+    area: Rect { x: 0, y: 0, width: 30, height: 10 },
+    content: [
+        "┌Artists─────────────────────┐",
+        "│                            │",
+        "│                            │",
+        "│                            │",
+        "│nothing here — no artists in│",
+        "│        this library        │",
+        "│                            │",
+        "│                            │",
+        "│                            │",
+        "└────────────────────────────┘",
+    ],
+    styles: [
+        x: 0, y: 0, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 1, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 1, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 2, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 2, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 3, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 3, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 4, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 4, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 5, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 9, y: 5, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 21, y: 5, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 5, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 6, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 6, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 7, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 7, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 8, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 8, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+    ]
+}

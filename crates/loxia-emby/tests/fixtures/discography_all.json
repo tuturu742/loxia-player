@@ -1,0 +1,547 @@
+{
+  "Items": [
+    {
+      "Name": "Comfortable Void",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66666",
+      "DateCreated": "2023-12-03T21:27:34.0000000Z",
+      "Genres": [
+        "Downtempo"
+      ],
+      "RunTimeTicks": 46433959180,
+      "ProductionYear": 2012,
+      "IsFolder": true,
+      "Type": "MusicAlbum",
+      "GenreItems": [
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        }
+      ],
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ChildCount": 10,
+      "PrimaryImageAspectRatio": 1.1299435028248588,
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {},
+      "BackdropImageTags": [],
+      "PrimaryImageItemId": "1517",
+      "PrimaryImageTag": "b5c337196f424120db4c461f07de005f"
+    },
+    {
+      "Name": "Source",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66667",
+      "DateCreated": "2023-12-03T21:27:35.0000000Z",
+      "Genres": [
+        "Ambient"
+      ],
+      "RunTimeTicks": 42273959200,
+      "ProductionYear": 2007,
+      "IsFolder": true,
+      "Type": "MusicAlbum",
+      "GenreItems": [
+        {
+          "Name": "Ambient",
+          "Id": 66569
+        }
+      ],
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ChildCount": 11,
+      "PrimaryImageAspectRatio": 1.1214953271028036,
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {},
+      "BackdropImageTags": [],
+      "PrimaryImageItemId": "1525",
+      "PrimaryImageTag": "2f865b3251bee439df1d57dc5b1702f3"
+    },
+    {
+      "Name": "Fahrenheit Project, Part Six",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "124929",
+      "DateCreated": "2026-01-16T14:18:28.0000000Z",
+      "PremiereDate": "2006-09-30T22:00:00.0000000Z",
+      "Genres": [
+        "Ambient",
+        "Downtempo"
+      ],
+      "RunTimeTicks": 42708375510,
+      "ProductionYear": 2006,
+      "IsFolder": true,
+      "Type": "MusicAlbum",
+      "GenreItems": [
+        {
+          "Name": "Ambient",
+          "Id": 66569
+        },
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        }
+      ],
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ChildCount": 9,
+      "PrimaryImageAspectRatio": 1.1160714285714286,
+      "Artists": [
+        "Solar Fields",
+        "Irukandji",
+        "Aes Dana",
+        "Sync24",
+        "Scann-Tec",
+        "Sundial Aeon",
+        "Cell",
+        "H.U.V.A. Network",
+        "Hol Baumann"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Solar Fields",
+          "Id": "71423"
+        },
+        {
+          "Name": "Irukandji",
+          "Id": "124930"
+        },
+        {
+          "Name": "Aes Dana",
+          "Id": "71424"
+        },
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        },
+        {
+          "Name": "Scann-Tec",
+          "Id": "124931"
+        },
+        {
+          "Name": "Sundial Aeon",
+          "Id": "79948"
+        },
+        {
+          "Name": "Cell",
+          "Id": "71419"
+        },
+        {
+          "Name": "H.U.V.A. Network",
+          "Id": "71422"
+        },
+        {
+          "Name": "Hol Baumann",
+          "Id": "71420"
+        }
+      ],
+      "Composers": [],
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "BoxRear": "58f28f98e7c3233038ed399a2ba700a3"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "PrimaryImageItemId": "124890",
+      "PrimaryImageTag": "1a822dd4415e899dc477cd798a4323fb"
+    },
+    {
+      "Name": "Albedo",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "111142",
+      "DateCreated": "2025-11-10T11:43:06.0000000Z",
+      "PremiereDate": "2005-07-10T22:00:00.0000000Z",
+      "Genres": [
+        "Ambient",
+        "Electronic Music",
+        "Downtempo",
+        "Experimental"
+      ],
+      "RunTimeTicks": 42400133350,
+      "ProductionYear": 2005,
+      "IsFolder": true,
+      "Type": "MusicAlbum",
+      "GenreItems": [
+        {
+          "Name": "Ambient",
+          "Id": 66569
+        },
+        {
+          "Name": "Electronic Music",
+          "Id": 110104
+        },
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        },
+        {
+          "Name": "Experimental",
+          "Id": 71174
+        }
+      ],
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ChildCount": 11,
+      "Artists": [
+        "Vir Unis",
+        "Nova",
+        "Aes Dana",
+        "Antonio Testa",
+        "Solar Fields",
+        "Ochi Brothers",
+        "Sync24",
+        "Carbon Based Lifeforms",
+        "Between Interval",
+        "Ishq",
+        "Hol Baumann"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Vir Unis",
+          "Id": "111143"
+        },
+        {
+          "Name": "Nova",
+          "Id": "111144"
+        },
+        {
+          "Name": "Aes Dana",
+          "Id": "71424"
+        },
+        {
+          "Name": "Antonio Testa",
+          "Id": "111145"
+        },
+        {
+          "Name": "Solar Fields",
+          "Id": "71423"
+        },
+        {
+          "Name": "Ochi Brothers",
+          "Id": "71442"
+        },
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        },
+        {
+          "Name": "Carbon Based Lifeforms",
+          "Id": "71426"
+        },
+        {
+          "Name": "Between Interval",
+          "Id": "111146"
+        },
+        {
+          "Name": "Ishq",
+          "Id": "111147"
+        },
+        {
+          "Name": "Hol Baumann",
+          "Id": "71420"
+        }
+      ],
+      "Composers": [],
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "ff98dba7a74b5200a685cbfb13810fe5",
+        "BoxRear": "4bb17347502bbee231ec3dfb85bedb72"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902"
+    },
+    {
+      "Name": "Chillogram",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "71824",
+      "DateCreated": "2023-12-02T17:06:12.0000000Z",
+      "Genres": [
+        "Ambient"
+      ],
+      "RunTimeTicks": 45124440810,
+      "ProductionYear": 2005,
+      "IsFolder": true,
+      "Type": "MusicAlbum",
+      "GenreItems": [
+        {
+          "Name": "Ambient",
+          "Id": 66569
+        }
+      ],
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ChildCount": 13,
+      "PrimaryImageAspectRatio": 1,
+      "Artists": [
+        "Hol Baumann",
+        "Master Margherita",
+        "Flooting Grooves feat Dymons",
+        "Sync24",
+        "The Peaking Goddess Collective",
+        "Kali-Frogz",
+        "Kickbong",
+        "Dymons",
+        "Atriohm",
+        "Lucid Picnic",
+        "Palyrria",
+        "Tripswitch feat Tanina and the P.G.C."
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Hol Baumann",
+          "Id": "71420"
+        },
+        {
+          "Name": "Master Margherita",
+          "Id": "71825"
+        },
+        {
+          "Name": "Flooting Grooves feat Dymons",
+          "Id": "71826"
+        },
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        },
+        {
+          "Name": "The Peaking Goddess Collective",
+          "Id": "71827"
+        },
+        {
+          "Name": "Kali-Frogz",
+          "Id": "71828"
+        },
+        {
+          "Name": "Kickbong",
+          "Id": "71829"
+        },
+        {
+          "Name": "Dymons",
+          "Id": "71830"
+        },
+        {
+          "Name": "Atriohm",
+          "Id": "71831"
+        },
+        {
+          "Name": "Lucid Picnic",
+          "Id": "71832"
+        },
+        {
+          "Name": "Palyrria",
+          "Id": "71833"
+        },
+        {
+          "Name": "Tripswitch feat Tanina and the P.G.C.",
+          "Id": "71834"
+        }
+      ],
+      "Composers": [],
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {},
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "PrimaryImageItemId": "4493",
+      "PrimaryImageTag": "4d3472a4e1f4c0d7a980b3e993611e72"
+    },
+    {
+      "Name": "Fahrenheit Project, Part Five",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "124919",
+      "DateCreated": "2026-01-16T14:18:21.0000000Z",
+      "PremiereDate": "2005-01-31T23:00:00.0000000Z",
+      "Genres": [
+        "Ambient",
+        "Downtempo"
+      ],
+      "RunTimeTicks": 43470367350,
+      "ProductionYear": 2005,
+      "IsFolder": true,
+      "Type": "MusicAlbum",
+      "GenreItems": [
+        {
+          "Name": "Ambient",
+          "Id": 66569
+        },
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        }
+      ],
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ChildCount": 11,
+      "PrimaryImageAspectRatio": 1.1210762331838564,
+      "Artists": [
+        "Cell",
+        "Hol Baumann",
+        "Jaia",
+        "H.U.V.A. Network",
+        "Solar Fields",
+        "Aes Dana",
+        "Great Leap Forward",
+        "Carbon Based Lifeforms",
+        "Sync24",
+        "Aural Planet"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Cell",
+          "Id": "71419"
+        },
+        {
+          "Name": "Hol Baumann",
+          "Id": "71420"
+        },
+        {
+          "Name": "Jaia",
+          "Id": "71421"
+        },
+        {
+          "Name": "H.U.V.A. Network",
+          "Id": "71422"
+        },
+        {
+          "Name": "Solar Fields",
+          "Id": "71423"
+        },
+        {
+          "Name": "Aes Dana",
+          "Id": "71424"
+        },
+        {
+          "Name": "Great Leap Forward",
+          "Id": "124920"
+        },
+        {
+          "Name": "Carbon Based Lifeforms",
+          "Id": "71426"
+        },
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        },
+        {
+          "Name": "Aural Planet",
+          "Id": "71427"
+        }
+      ],
+      "Composers": [],
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "BoxRear": "15c8c4be0e541c263c8e0c20b3455949"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "PrimaryImageItemId": "124856",
+      "PrimaryImageTag": "f6a3aceb85859e201ef50de78c0c30e3"
+    }
+  ],
+  "TotalRecordCount": 6
+}

@@ -1,0 +1,195 @@
+{
+  "Items": [
+    {
+      "Name": "Various",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66712",
+      "RunTimeTicks": 99698114290,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "30c4c7acffa4175814eae8db7a887ef1",
+        "Logo": "cd0614a11345aa6f4eb5e3b3fe58ea53"
+      },
+      "BackdropImageTags": [
+        "9e8f7ea7964957b13d1e069d8bd3f10c"
+      ]
+    },
+    {
+      "Name": "Hana",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66722",
+      "RunTimeTicks": 49936025850,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "4ad070493f3eea65132acc5e37d7697c"
+      },
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "Various Artists",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "71290",
+      "RunTimeTicks": 15903344703000,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Logo": "b570915f536851cee2d98245209ae902",
+        "Primary": "85bd78361757d96b93d19ddfcffba73b"
+      },
+      "BackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ]
+    },
+    {
+      "Name": "Solar Fields",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "71423",
+      "RunTimeTicks": 1438258133750,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {},
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "Carbon Based Lifeforms",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "71426",
+      "RunTimeTicks": 636395043780,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {},
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "Vibrasphere",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "71433",
+      "RunTimeTicks": 1049811710410,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {},
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "Behind The Scenes",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "71526",
+      "RunTimeTicks": 130579266660,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "89c6111effa9302ec400da32178e1a76"
+      },
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "Diorama",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "71527",
+      "RunTimeTicks": 534307489570,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Logo": "78b328bade682c88d10b032560e92f75"
+      },
+      "BackdropImageTags": [
+        "3223b02209000462cfc44f2bfe85ac51"
+      ]
+    },
+    {
+      "Name": "Blutengel",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "71544",
+      "RunTimeTicks": 1786735566350,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "71822825d231aee0d424d03a57b26564",
+        "Logo": "dc4502dea0a145bcca54b3c7707d98c2",
+        "Banner": "c07357458631add37f572ec971ea96dd"
+      },
+      "BackdropImageTags": [
+        "5cd53fa1c222fffe2395bae4bbc4a096",
+        "99fb9a8b535b3c87cbe6f7b1558ec833"
+      ]
+    },
+    {
+      "Name": "Solitary Experiments",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "71546",
+      "RunTimeTicks": 1002097071620,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "20ea89ba050a874533dac2ec223b0bef",
+        "Logo": "ea05b19e2a2cbf4d7adb7ea1e5c3259e"
+      },
+      "BackdropImageTags": [
+        "f5ac4ddb100a8959d3ae963851d8c34a"
+      ]
+    }
+  ],
+  "TotalRecordCount": 103
+}

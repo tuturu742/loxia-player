@@ -1,0 +1,46 @@
+[package]
+name = "loxia-cache"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[features]
+test-support = ["loxia-core/test-support"]
+
+[dependencies]
+loxia-core = { path = "../loxia-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+jiff = { workspace = true }
+fs4 = { workspace = true }
+futures = { workspace = true }
+bytes = { workspace = true }
+image = { workspace = true }
+sha2 = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+unicode-segmentation = { workspace = true }
+# `08-05`: `offline_index.rs`'s own `search` — the same engine `04-11`'s inline column filter
+# already uses in `loxia-core` (`nav.rs`), reused here rather than hand-rolling a second
+# substring/fuzzy matcher for the same job.
+nucleo-matcher = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+proptest = { workspace = true }
+pretty_assertions = { workspace = true }
+# `08-04`: `downloads.rs`'s own tests need a *real* async executor to prove
+# `concurrency_limited_to_two` (two fake fetches genuinely overlapping via `buffer_unordered(2)`,
+# not just structurally accepting the argument) rather than a plain `futures::executor::block_on`,
+# which has no timer (`tokio::time::sleep`, used to give the scheduler a window to interleave two
+# fetches) — dev-only, never a production dependency of this crate (`pin`/`unpin` are plain
+# `async fn`s driven by whatever executor the real caller, `crates/loxia`, already runs). Also used
+# by `offline_index.rs`'s own `rebuild_on_pin_and_unpin` test, which drives `Downloads::pin`/`unpin`
+# to completion via a plain current-thread `block_on`. See `docs/13-dependencies.md`.
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "sync", "time"] }
+# Self-dependency with the feature enabled, same idiom `loxia-tui`'s own Cargo.toml established
+# (`07-06`'s decisions.md entry): this task's tests need `loxia_core::test_support::fixtures` for
+# a realistic `Track`, and this is what makes plain `cargo test`/`cargo clippy --all-targets`
+# exercise it without a manual --features flag.
+loxia-core = { path = "../loxia-core", features = ["test-support"] }

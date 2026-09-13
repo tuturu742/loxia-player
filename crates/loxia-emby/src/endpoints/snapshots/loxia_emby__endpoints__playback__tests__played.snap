@@ -1,0 +1,5 @@
+---
+source: crates/loxia-emby/src/endpoints/playback.rs
+expression: snapshot
+---
+Users/user-1/PlayedItems/t1

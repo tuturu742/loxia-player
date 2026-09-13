@@ -1,0 +1,39 @@
+---
+source: crates/loxia-tui/src/widgets/toast.rs
+assertion_line: 247
+expression: rendered
+---
+Buffer {
+    area: Rect { x: 0, y: 0, width: 80, height: 24 },
+    content: [
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                        +3 more                                 ",
+        "                                        ┌──────────────────────────────────────┐",
+        "                                        │event 3                               │",
+        "                                        └──────────────────────────────────────┘",
+        "                                        ┌──────────────────────────────────────┐",
+        "                                        │event 4                               │",
+        "                                        └──────────────────────────────────────┘",
+        "                                        ┌──────────────────────────────────────┐",
+        "                                        │event 5                               │",
+        "                                        └──────────────────────────────────────┘",
+    ],
+    styles: [
+        x: 0, y: 0, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 40, y: 14, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 47, y: 14, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+    ]
+}

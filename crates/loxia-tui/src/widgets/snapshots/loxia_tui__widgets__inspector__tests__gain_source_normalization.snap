@@ -1,0 +1,6 @@
+---
+source: crates/loxia-tui/src/widgets/inspector.rs
+assertion_line: 625
+expression: "replay_gain_source_label(AppliedGain::Normalization(-4.1), Some(-4.1))"
+---
+Emby normalization: -4.1 dB

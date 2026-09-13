@@ -1,0 +1,18 @@
+---
+source: crates/loxia-tui/src/widgets/album_art.rs
+assertion_line: 610
+expression: rendered
+---
+Buffer {
+    area: Rect { x: 0, y: 0, width: 10, height: 5 },
+    content: [
+        "          ",
+        "          ",
+        "          ",
+        "          ",
+        "          ",
+    ],
+    styles: [
+        x: 0, y: 0, fg: Rgb(200, 50, 50), bg: Rgb(200, 50, 50), underline: Reset, modifier: NONE,
+    ]
+}

@@ -1,0 +1,57 @@
+---
+source: crates/loxia-tui/src/widgets/inspector.rs
+assertion_line: 737
+expression: rendered
+---
+Buffer {
+    area: Rect { x: 0, y: 0, width: 40, height: 20 },
+    content: [
+        "              ┌──────────┐              ",
+        "              │          │              ",
+        "              │          │              ",
+        "              │     ♪    │              ",
+        "              │          │              ",
+        "              └──────────┘              ",
+        "Care                                    ",
+        "Boy Harsher                             ",
+        "2019                                    ",
+        "0 tracks, 0:00                          ",
+        "                                        ",
+        "                                        ",
+        "                                        ",
+        "Actions:                                ",
+        "[unbound] Play (Replace Queue)          ",
+        "[unbound] Add to Queue                  ",
+        "[unbound] Insert Next                   ",
+        "[unbound] Instant Mix                   ",
+        "[unbound] Download                      ",
+        "[unbound] Favourite                     ",
+    ],
+    styles: [
+        x: 0, y: 0, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 14, y: 0, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 26, y: 0, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 14, y: 1, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 15, y: 1, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 25, y: 1, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 26, y: 1, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 14, y: 2, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 15, y: 2, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 25, y: 2, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 26, y: 2, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 14, y: 3, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 15, y: 3, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 20, y: 3, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 21, y: 3, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 25, y: 3, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 26, y: 3, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 14, y: 4, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 15, y: 4, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 25, y: 4, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 26, y: 4, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 14, y: 5, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 26, y: 5, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 0, y: 13, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 8, y: 13, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+    ]
+}

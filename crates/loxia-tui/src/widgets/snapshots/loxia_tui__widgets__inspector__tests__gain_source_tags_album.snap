@@ -1,0 +1,6 @@
+---
+source: crates/loxia-tui/src/widgets/inspector.rs
+assertion_line: 617
+expression: "replay_gain_source_label(AppliedGain::Tags(ReplayGainMode::Album), Some(-6.2))"
+---
+ReplayGain (album): -6.2 dB
