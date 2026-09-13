@@ -1,0 +1,405 @@
+{
+  "Items": [
+    {
+      "Name": "Synchromystic",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "63151",
+      "RunTimeTicks": 4565942860,
+      "IndexNumber": 6,
+      "IsFolder": false,
+      "Type": "Audio",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Androcell"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Androcell",
+          "Id": "80187"
+        }
+      ],
+      "Composers": [],
+      "Album": "Entheomythic",
+      "AlbumId": "80189",
+      "AlbumArtist": "Androcell",
+      "AlbumArtists": [
+        {
+          "Name": "Androcell",
+          "Id": "80187"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "33132a9cd945747a0ef44a142ec5ad1d"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Synchronize",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "95296",
+      "RunTimeTicks": 3032133330,
+      "IndexNumber": 5,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71994",
+      "ParentBackdropItemId": "71994",
+      "ParentBackdropImageTags": [
+        "0e8a13a883744d531de82b666acf131b"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Mind.In.A.Box"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Mind.In.A.Box",
+          "Id": "71994"
+        }
+      ],
+      "Composers": [],
+      "Album": "Memories",
+      "AlbumId": "95333",
+      "AlbumPrimaryImageTag": "aac6b492a1b5d53ad67982c7ab45b33f",
+      "AlbumArtist": "Mind.In.A.Box",
+      "AlbumArtists": [
+        {
+          "Name": "Mind.In.A.Box",
+          "Id": "71994"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "4663df612da42ae4b860dc2f81b82925"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "d413e228e777ea92cb4a4f57a620e19a",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Sync2n",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "110874",
+      "RunTimeTicks": 5292663270,
+      "IndexNumber": 10,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Carbon Based Lifeforms"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Carbon Based Lifeforms",
+          "Id": "71426"
+        }
+      ],
+      "Composers": [],
+      "Album": "Seeker",
+      "AlbumId": "111100",
+      "AlbumPrimaryImageTag": "2fa088de409293f57be1787b275af2d8",
+      "AlbumArtist": "Carbon Based Lifeforms",
+      "AlbumArtists": [
+        {
+          "Name": "Carbon Based Lifeforms",
+          "Id": "71426"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "08ededc24031e1c5392bbd80ab364422"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Feel Happiness",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "62497",
+      "RunTimeTicks": 2133420410,
+      "IndexNumber": 9,
+      "IsFolder": false,
+      "Type": "Audio",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Eguana"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "Composers": [],
+      "Album": "Synchronicity",
+      "AlbumId": "80083",
+      "AlbumArtist": "Eguana",
+      "AlbumArtists": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "ad8231eba48171b732daa5a7a26195f2"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Believe Me",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "62500",
+      "RunTimeTicks": 2115918370,
+      "IndexNumber": 2,
+      "IsFolder": false,
+      "Type": "Audio",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Eguana"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "Composers": [],
+      "Album": "Synchronicity",
+      "AlbumId": "80083",
+      "AlbumArtist": "Eguana",
+      "AlbumArtists": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "d60a930f4450b8e4f3c811f9d498395a"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Sad Story",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "62502",
+      "RunTimeTicks": 2447151020,
+      "IndexNumber": 4,
+      "IsFolder": false,
+      "Type": "Audio",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Eguana"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "Composers": [],
+      "Album": "Synchronicity",
+      "AlbumId": "80083",
+      "AlbumArtist": "Eguana",
+      "AlbumArtists": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "4c1908612778e66da77902abea7d819f"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "My Sweetheart",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "62503",
+      "RunTimeTicks": 2764016330,
+      "IndexNumber": 5,
+      "IsFolder": false,
+      "Type": "Audio",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Eguana"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "Composers": [],
+      "Album": "Synchronicity",
+      "AlbumId": "80083",
+      "AlbumArtist": "Eguana",
+      "AlbumArtists": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "a74fc614e4faa83145222da8da9677a6"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Night Hugs",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "62504",
+      "RunTimeTicks": 2229551020,
+      "IndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Eguana"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "Composers": [],
+      "Album": "Synchronicity",
+      "AlbumId": "80083",
+      "AlbumArtist": "Eguana",
+      "AlbumArtists": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "4d592940d9ea92cb7a7f04e8463d0e4b"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Your Lips",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "62505",
+      "RunTimeTicks": 2924930610,
+      "IndexNumber": 7,
+      "IsFolder": false,
+      "Type": "Audio",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Eguana"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "Composers": [],
+      "Album": "Synchronicity",
+      "AlbumId": "80083",
+      "AlbumArtist": "Eguana",
+      "AlbumArtists": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "9f0ac98c04feb5dce448de48aa1d16f6"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Never Leave Me",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "62498",
+      "RunTimeTicks": 2564702040,
+      "IndexNumber": 8,
+      "IsFolder": false,
+      "Type": "Audio",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Eguana"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "Composers": [],
+      "Album": "Synchronicity",
+      "AlbumId": "80083",
+      "AlbumArtist": "Eguana",
+      "AlbumArtists": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "da572181fce04a71c0edb52c01bbc394"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    }
+  ],
+  "TotalRecordCount": 18
+}

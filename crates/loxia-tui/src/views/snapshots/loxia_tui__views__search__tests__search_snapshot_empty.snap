@@ -1,0 +1,44 @@
+---
+source: crates/loxia-tui/src/views/search.rs
+expression: rendered
+---
+Buffer {
+    area: Rect { x: 0, y: 0, width: 100, height: 24 },
+    content: [
+        "┌SEARCH────────────────────────────────────────────────────────────────────────────────────────────┐",
+        "│xyz█                                                                                              │",
+        "└──────────────────────────────────────────────────────────────────────────────────────────────────┘",
+        "ARTISTS (0)                                                                                         ",
+        "ALBUMS (0)                                                                                          ",
+        "TRACKS (0)                                                                                          ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+        "                                                                                                    ",
+    ],
+    styles: [
+        x: 0, y: 0, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 1, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 99, y: 1, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 0, y: 3, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 11, y: 3, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 0, y: 4, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 10, y: 4, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 0, y: 5, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 10, y: 5, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+    ]
+}

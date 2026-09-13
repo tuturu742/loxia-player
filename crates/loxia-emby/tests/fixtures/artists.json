@@ -1,0 +1,184 @@
+{
+  "Items": [
+    {
+      "Name": ":Waijdan:",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "127674",
+      "RunTimeTicks": 6933159190,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {},
+      "BackdropImageTags": [],
+      "ChildCount": 3
+    },
+    {
+      "Name": ":Wumpscut:",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "75567",
+      "RunTimeTicks": 610604722410,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Logo": "d6433d7b4f7b21b7fa1c002a33dc84fc",
+        "Primary": "6ddcd325bb3f0a40308b1c138a0f3ef8"
+      },
+      "BackdropImageTags": [
+        "405a4b9a24cdb8b66fb313fc60f5d02f"
+      ],
+      "ChildCount": 223
+    },
+    {
+      "Name": "[:SITD:]",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "72470",
+      "RunTimeTicks": 27074132970,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {},
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "[basementgrrr]",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "123806",
+      "RunTimeTicks": 2232943500,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "8102760844326e804f03c46f787a93e2"
+      },
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "[dialogue]",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "108463",
+      "RunTimeTicks": 10447463340,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {},
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "the [law-rah] collective",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "123779",
+      "RunTimeTicks": 7384293870,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "373ba7edb6814dee07720173f607fda4"
+      },
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "[SNUFF]",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "127845",
+      "RunTimeTicks": 1972506120,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {},
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "[x]-Rx",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "96033",
+      "RunTimeTicks": 2232685710,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "57c5544eb40762c1ee51216c5242cb42"
+      },
+      "BackdropImageTags": [
+        "869bb5c57c3f6606248e82375b239b3c"
+      ]
+    },
+    {
+      "Name": "2kilos &More",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "123801",
+      "RunTimeTicks": 2641498500,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "05fc365baf393f9d71cecc8b384bf928"
+      },
+      "BackdropImageTags": []
+    },
+    {
+      "Name": "2nd Face",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "96061",
+      "RunTimeTicks": 6827624490,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "dbb7a8e1fcc237c592e60d31011a4998"
+      },
+      "BackdropImageTags": []
+    }
+  ],
+  "TotalRecordCount": 2145
+}

@@ -1,0 +1,433 @@
+{
+  "Items": [
+    {
+      "Name": "Broken Hope",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "1606",
+      "RunTimeTicks": 4679575510,
+      "IndexNumber": 2,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentBackdropItemId": "66668",
+      "ParentBackdropImageTags": [
+        "a1fb869dbb08bb2fc1d5923eaadfa469"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Zero Cult"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Zero Cult",
+          "Id": "66677"
+        }
+      ],
+      "Composers": [],
+      "Album": "Nova Natura 3",
+      "AlbumId": "66684",
+      "AlbumArtist": "Side Liner",
+      "AlbumArtists": [
+        {
+          "Name": "Side Liner",
+          "Id": "66668"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "e3a510412fff65922e8164632616c18c"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "We Have Love",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "62499",
+      "RunTimeTicks": 2800848980,
+      "IndexNumber": 6,
+      "IsFolder": false,
+      "Type": "Audio",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Eguana"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "Composers": [],
+      "Album": "Synchronicity",
+      "AlbumId": "80083",
+      "AlbumArtist": "Eguana",
+      "AlbumArtists": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "8e9f9a675523d63c2bf80ebc9df98eb8"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Avatar Of The Horticult",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "61859",
+      "RunTimeTicks": 6137730610,
+      "IndexNumber": 12,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "79958",
+      "ParentBackdropItemId": "79958",
+      "ParentBackdropImageTags": [
+        "4ddbdca99963a24d77ca28130f047992"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Bluetech"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Bluetech",
+          "Id": "79958"
+        }
+      ],
+      "Composers": [],
+      "Album": "Rainforest Reverberation",
+      "AlbumId": "79973",
+      "AlbumArtist": "Bluetech",
+      "AlbumArtists": [
+        {
+          "Name": "Bluetech",
+          "Id": "79958"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "d35d8fc49ebe2f49cd98384d77a1ea82"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "1d5a53a3e03c71599b70ed94d20033d7",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Northern Sunsets",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "96995",
+      "RunTimeTicks": 4882546940,
+      "IndexNumber": 5,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Vibrasphere"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Vibrasphere",
+          "Id": "71433"
+        }
+      ],
+      "Composers": [],
+      "Album": "Selected Downbeats, Volume 1",
+      "AlbumId": "97073",
+      "AlbumPrimaryImageTag": "a23dfed11c14f67768f75b03247c6f4a",
+      "AlbumArtist": "Vibrasphere",
+      "AlbumArtists": [
+        {
+          "Name": "Vibrasphere",
+          "Id": "71433"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "5b05ade8de6620084a5eadecfa1c2fb7"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Honung",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "110930",
+      "RunTimeTicks": 3154266670,
+      "IndexNumber": 4,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "71290",
+      "ParentBackdropItemId": "71290",
+      "ParentBackdropImageTags": [
+        "003226d146a6e773a26a50c4fcac4183"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sunday Brunch"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sunday Brunch",
+          "Id": "111127"
+        }
+      ],
+      "Composers": [],
+      "Album": "Nordic Lounge: An Introduction to Contemporary Nordic Music",
+      "AlbumId": "111124",
+      "AlbumPrimaryImageTag": "a885b911d6a4b685f18e4346f7602a7b",
+      "AlbumArtist": "Various Artists",
+      "AlbumArtists": [
+        {
+          "Name": "Various Artists",
+          "Id": "71290"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "6ff82a1ba59e96fc7383545a2eaa7ac7"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "b570915f536851cee2d98245209ae902",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Ensueno",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "97041",
+      "RunTimeTicks": 4008933330,
+      "IndexNumber": 5,
+      "ParentIndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Vibrasphere"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Vibrasphere",
+          "Id": "71433"
+        }
+      ],
+      "Composers": [],
+      "Album": "Selected Downbeats, Volume 2",
+      "AlbumId": "97076",
+      "AlbumPrimaryImageTag": "ddf478399e001f412ff6bd8720244b17",
+      "AlbumArtist": "Vibrasphere",
+      "AlbumArtists": [
+        {
+          "Name": "Vibrasphere",
+          "Id": "71433"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "12494e6b2c2776c502c78240e6973e4c"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "California Sunshine",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "41000",
+      "RunTimeTicks": 3689796000,
+      "IndexNumber": 8,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "76751",
+      "ParentBackdropItemId": "76751",
+      "ParentBackdropImageTags": [
+        "08d55af70f8ad08530938b6ffaa4eef9"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Abakus"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Abakus",
+          "Id": "76751"
+        }
+      ],
+      "Composers": [],
+      "Album": "That Much Closer to the Sun",
+      "AlbumId": "76757",
+      "AlbumArtist": "Abakus",
+      "AlbumArtists": [
+        {
+          "Name": "Abakus",
+          "Id": "76751"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "bc5c64524c1af8096f960eb64d1c097a"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "5632cc10889788fa02f67deca60aca94",
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Fatigue (Single Edit)",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "40484",
+      "RunTimeTicks": 2981877550,
+      "IndexNumber": 12,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentBackdropItemId": "71904",
+      "ParentBackdropImageTags": [
+        "dffb54c0468c639b2f5c0901b3239bb0"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Thomas Lemmer"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Thomas Lemmer",
+          "Id": "71904"
+        }
+      ],
+      "Composers": [],
+      "Album": "Relieve",
+      "AlbumId": "76668",
+      "AlbumArtist": "Thomas Lemmer",
+      "AlbumArtists": [
+        {
+          "Name": "Thomas Lemmer",
+          "Id": "71904"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "18b0562bbbe642fcfcc33d31e2188c9d"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Ljus, Den Yttersta G\u00e5van",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "2276",
+      "RunTimeTicks": 492669390,
+      "IndexNumber": 5,
+      "IsFolder": false,
+      "Type": "Audio",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Porn Sword Tobacco"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Porn Sword Tobacco",
+          "Id": "71171"
+        }
+      ],
+      "Composers": [],
+      "Album": "New Exclusive Olympic Heights",
+      "AlbumId": "71173",
+      "AlbumArtist": "Porn Sword Tobacco",
+      "AlbumArtists": [
+        {
+          "Name": "Porn Sword Tobacco",
+          "Id": "71171"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "101371fb6ef26deadeee33faa7ce4093"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    },
+    {
+      "Name": "Appearance (Serenity Mix)",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "41212",
+      "RunTimeTicks": 3352816330,
+      "IndexNumber": 4,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentLogoItemId": "76782",
+      "ParentBackdropItemId": "76782",
+      "ParentBackdropImageTags": [
+        "61cf74b20455cdf7087cf5e2f6e3adf0"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Koan"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Koan",
+          "Id": "76782"
+        }
+      ],
+      "Composers": [],
+      "Album": "Serenity Side A.",
+      "AlbumId": "76798",
+      "AlbumArtist": "Koan",
+      "AlbumArtists": [
+        {
+          "Name": "Koan",
+          "Id": "76782"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "bed928265d1783322262fec210c8c540"
+      },
+      "BackdropImageTags": [],
+      "ParentLogoImageTag": "444a22f3ba7d262d4d369842c1171848",
+      "MediaType": "Audio"
+    }
+  ],
+  "TotalRecordCount": 10
+}

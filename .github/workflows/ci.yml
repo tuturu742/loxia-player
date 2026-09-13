@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # dtolnay/rust-toolchain@stable installs a toolchain, but rustup transparently overrides
+      # it with rust-toolchain.toml's pinned channel on the first `cargo`/`rustc` invocation
+      # inside this checkout, so the effective toolchain is always the one pinned in the repo.
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+
+      - name: cargo fmt --check
+        run: cargo fmt --all -- --check
+
+      - name: cargo clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: No direct crossterm/time dependency
+        # Both are required transitively (crossterm via ratatui-crossterm, time via
+        # ratatui-widgets and our own tracing-appender), so cargo-deny can't ban them outright —
+        # see deny.toml and docs/13-dependencies.md rule 1. This is the enforcement mechanism for
+        # "never a direct dependency" instead.
+        run: |
+          set -euo pipefail
+          if grep -rEn '^(crossterm|time)( |=)' crates/*/Cargo.toml; then
+            echo "::error::a crate declared crossterm or time as a direct dependency; use ratatui::crossterm and jiff instead"
+            exit 1
+          fi
+
+      - name: No duplicate tokio/reqwest/ratatui/image versions
+        # cargo-deny's multiple-versions check is graph-wide and can't single out specific crate
+        # names (see deny.toml), so these four — whose types cross our own crate boundaries — are
+        # checked directly instead. `cargo tree -i <name>` errors out on an ambiguous (duplicated)
+        # name rather than listing the versions, so this uses `--duplicates` instead, matched only
+        # at column 0 (the default tree-drawing prefix indents every nested/reverse-dependency
+        # line, so an unindented match is a genuine top-level duplicate-block header).
+        run: |
+          set -euo pipefail
+          hits=$(cargo tree --workspace -e normal --duplicates 2>/dev/null \
+            | grep -E "^(tokio|reqwest|ratatui|image) v" || true)
+          if [ -n "$hits" ]; then
+            echo "::error::duplicate versions found for a crate that must be single-versioned:"
+            echo "$hits"
+            exit 1
+          fi
+
+      - name: Fixture secret scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="crates/loxia-emby/tests/fixtures"
+          if [ -d "$dir" ]; then
+            fail=0
+            # Scoped to actual token-bearing field/query-param names, not "any long hex string" —
+            # real Emby responses are legitimately full of 32-char hex Ids, Etags, ImageTags, and
+            # PresentationUniqueKeys, which are indistinguishable from a token by shape alone. A
+            # blanket hex-length check fails on every real fixture; see docs/12-decisions.md.
+            while IFS= read -r -d '' f; do
+              if grep -Eq '"AccessToken"\s*:\s*"[^"]+"' "$f"; then
+                echo "::error file=$f::fixture contains a non-empty AccessToken value"
+                fail=1
+              fi
+              if grep -Eiq '"(access_token|api_key|x-emby-token|x-mediabrowser-token)"\s*:\s*"[^"]+"' "$f"; then
+                echo "::error file=$f::fixture contains a non-empty token-shaped field"
+                fail=1
+              fi
+              if grep -Eiq '[?&](api_key|token)=[0-9a-zA-Z]+' "$f"; then
+                echo "::error file=$f::fixture contains an api_key/token query parameter"
+                fail=1
+              fi
+              if grep -Eq '\b(10\.[0-9]{1,3}|192\.168|172\.(1[6-9]|2[0-9]|3[0-1]))\.[0-9]{1,3}\.[0-9]{1,3}\b' "$f"; then
+                echo "::error file=$f::fixture contains a private (RFC1918) IP address"
+                fail=1
+              fi
+            done < <(find "$dir" -type f \( -name '*.json' -o -name '*.lrc' \) -print0)
+            exit $fail
+          fi
+
+      - name: cargo deny check
+        run: cargo deny check
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: cargo test --workspace (incl. examples)
+        run: cargo test --workspace --lib --bins --tests --examples
+
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: cargo build --release --workspace
+        run: cargo build --release --workspace

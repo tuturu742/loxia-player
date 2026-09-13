@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0b10" />
+      <stop offset="100%" stop-color="#121520" />
+    </linearGradient>
+
+    <!-- Neon Cyan to Magenta Gradient -->
+    <linearGradient id="accent-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00e5ff" />
+      <stop offset="100%" stop-color="#8000ff" />
+    </linearGradient>
+
+    <linearGradient id="accent-grad-2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff007f" />
+      <stop offset="100%" stop-color="#7928ca" />
+    </linearGradient>
+
+    <!-- Subtle Glow Filter -->
+    <filter id="neon-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Container Base -->
+  <rect width="512" height="512" rx="112" fill="url(#bg-grad)" stroke="#1f2438" stroke-width="4" />
+
+  <!-- Outer Sound Ring -->
+  <circle cx="256" cy="216" r="140" fill="none" stroke="#1e2338" stroke-width="6" stroke-dasharray="12 8" />
+  <circle cx="256" cy="216" r="110" fill="none" stroke="#161a2b" stroke-width="2" />
+
+  <!-- Crossed Beak / Soundwave Graphic Emblem -->
+  <g filter="url(#neon-glow)" transform="translate(0, -10)">
+    <path d="M 170 270 L 170 230 L 256 120 L 330 250 L 305 250 L 256 155 L 195 270 Z" fill="url(#accent-grad-1)" />
+    <path d="M 342 270 L 342 230 L 256 120 L 182 250 L 207 250 L 256 155 L 317 270 Z" fill="url(#accent-grad-2)" opacity="0.85" />
+
+    <!-- Equalizer Spectrum Bars -->
+    <rect x="220" y="220" width="8" height="45" rx="4" fill="#00e5ff" />
+    <rect x="234" y="200" width="8" height="65" rx="4" fill="#00e5ff" />
+    <rect x="248" y="180" width="8" height="85" rx="4" fill="#ff007f" />
+    <rect x="262" y="195" width="8" height="70" rx="4" fill="#ff007f" />
+    <rect x="276" y="215" width="8" height="50" rx="4" fill="#7928ca" />
+    <rect x="290" y="230" width="8" height="35" rx="4" fill="#7928ca" />
+  </g>
+
+  <!-- Brand Typography -->
+  <text x="256" y="415" font-family="'JetBrains Mono', 'Fira Code', 'SF Pro Display', monospace" font-size="52" font-weight="900" letter-spacing="12" fill="#ffffff" text-anchor="middle">LOXIA</text>
+  <text x="256" y="450" font-family="'Inter', 'SF Pro Text', sans-serif" font-size="16" font-weight="600" letter-spacing="4" fill="#00e5ff" text-anchor="middle" opacity="0.9">EMBY TUI CLIENT</text>
+</svg>

@@ -1,0 +1,57 @@
+[package]
+name = "loxia-player"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+build = "build.rs"
+
+[dependencies]
+loxia-core = { path = "../loxia-core" }
+loxia-emby = { path = "../loxia-emby" }
+loxia-audio = { path = "../loxia-audio" }
+loxia-cache = { path = "../loxia-cache" }
+loxia-tui = { path = "../loxia-tui" }
+tokio = { workspace = true }
+futures = { workspace = true }
+ratatui = { workspace = true }
+clap = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-appender = { workspace = true }
+anyhow = { workspace = true }
+souvlaki = { workspace = true }
+notify-rust = { workspace = true }
+# `10-12`: the WebSocket remote-control connection (`workers::network`'s own extension) — the
+# same locked version `loxia-emby` already uses for `ws.rs`'s pure message-parsing half.
+tokio-tungstenite = { workspace = true }
+# `10-12`: jittered reconnect backoff (`rand::random::<f64>()`) — already a workspace dependency
+# for `loxia-core`'s seeded shuffle; this is its first use in the `loxia` binary crate itself.
+rand = { workspace = true }
+# `10-01`: `workers::network`'s own `FetchImage` handling decodes off the async runtime thread
+# (`tokio::task::spawn_blocking`), proving `docs/07-ui-spec.md` §11's "decoding happens off the
+# main thread" for real, ahead of whichever task actually wires an `ArtCache` to consume it.
+image = { workspace = true }
+
+[build-dependencies]
+# `loxia-audio`'s own build.rs fix (`docs/12-decisions.md`, task `05-03`) only ever applies to
+# *its own* compiled artifacts — `rustc-link-arg` (the rpath) does not propagate to a dependent
+# package's final binary, only `rustc-link-lib`/`rustc-link-search` do. Since `loxia` is the
+# actual final binary linking libmpv (transitively via `loxia-audio`), it needs the identical
+# probe+rpath itself, or it links fine but fails to *start* on a non-standard libmpv install
+# (discovered by running `cargo test -p loxia-player` after `05-06` wired `loxia-audio` in as a real
+# dependency for the first time).
+pkg-config = "0.3"
+
+[dev-dependencies]
+tempfile = { workspace = true }
+pretty_assertions = { workspace = true }
+tokio = { workspace = true, features = ["test-util"] }
+wiremock = { workspace = true }
+serde_json = { workspace = true }
+# Self-dependency with the feature enabled, same idiom as `loxia-tui`'s own Cargo.toml (`07-06`):
+# `input.rs`'s Now Playing tests need `loxia_core::test_support::fixtures` for a realistic queue,
+# and this is what makes plain `cargo test`/`cargo clippy --all-targets` exercise it without a
+# manual --features flag.
+loxia-core = { path = "../loxia-core", features = ["test-support"] }

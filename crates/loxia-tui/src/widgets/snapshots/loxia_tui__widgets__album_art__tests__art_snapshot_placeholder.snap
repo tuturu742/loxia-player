@@ -1,0 +1,26 @@
+---
+source: crates/loxia-tui/src/widgets/album_art.rs
+assertion_line: 630
+expression: rendered
+---
+Buffer {
+    area: Rect { x: 0, y: 0, width: 10, height: 5 },
+    content: [
+        "┌────────┐",
+        "│        │",
+        "│    ♪   │",
+        "│        │",
+        "└────────┘",
+    ],
+    styles: [
+        x: 0, y: 0, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 1, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 9, y: 1, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 2, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 5, y: 2, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 6, y: 2, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 9, y: 2, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 3, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 9, y: 3, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+    ]
+}

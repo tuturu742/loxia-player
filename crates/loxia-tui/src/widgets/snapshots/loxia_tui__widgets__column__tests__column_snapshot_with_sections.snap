@@ -1,0 +1,38 @@
+---
+source: crates/loxia-tui/src/widgets/column.rs
+expression: rendered
+---
+Buffer {
+    area: Rect { x: 0, y: 0, width: 30, height: 10 },
+    content: [
+        "┌Albums──────────────────────┐",
+        "│Comfortable Void        2012│",
+        "│Source                  2007│",
+        "│── APPEARS ON (2) ──────────│",
+        "│Fahrenheit Project, Pa… 2005│",
+        "│Fahrenheit Project, Pa… 2006│",
+        "│                            │",
+        "│                            │",
+        "│                            │",
+        "└────────────────────────────┘",
+    ],
+    styles: [
+        x: 0, y: 0, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 1, fg: Indexed(15), bg: Indexed(4), underline: Reset, modifier: NONE,
+        x: 29, y: 1, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 2, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 2, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 3, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 3, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 4, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 4, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 5, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 5, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 6, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 6, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 7, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 7, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 8, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 29, y: 8, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+    ]
+}

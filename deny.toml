@@ -1,0 +1,89 @@
+# cargo-deny policy for loxia. See docs/11-packaging.md §7 and docs/13-dependencies.md.
+#
+# loxia itself is GPL-3.0-or-later and dynamically links the LGPL-2.1 libmpv at runtime (not as a
+# Rust dependency — libmpv2 is the MIT/Apache-2.0 Rust binding, mpv itself is a system library).
+# A dependency sneaking in an incompatible licence must fail CI here, not surface at release time.
+
+[graph]
+all-features = false
+no-default-features = false
+
+[advisories]
+# No blanket ignores. Each ignored advisory must carry an inline reason and a review date, e.g.:
+# { id = "RUSTSEC-0000-0000", reason = "no fix available yet; reviewed 2026-07-21, low impact for
+#   our usage because ..." }
+ignore = []
+yanked = "deny"
+
+[licenses]
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-3.0",
+    "Zlib",
+    "MPL-2.0",
+    "CC0-1.0",
+    # Our own crates declare `license.workspace = true` -> "GPL-3.0-or-later" (not bare "GPL-3.0").
+    "GPL-3.0-or-later",
+    "LGPL-2.1",
+    # Not a code licence: covers webpki-roots' CA certificate bundle data (Mozilla-sourced),
+    # pulled transitively for rustls root verification. Permissive by design.
+    "CDLA-Permissive-2.0",
+]
+confidence-threshold = 0.9
+
+[licenses.private]
+ignore = false
+
+[bans]
+# Graph-wide, not per-crate: cargo-deny can't express "deny only for these specific crates" here.
+# Third-party crates duplicate transitive deps like `rand` and `syn` routinely and harmlessly (see
+# docs/13-dependencies.md rule 5), so a hard "deny" at this level would fail CI on things we don't
+# control. The crates that structurally must never duplicate — tokio, reqwest, ratatui, image,
+# because their types cross our own crate boundaries — are enforced by a dedicated grep step in
+# .github/workflows/ci.yml's `lint` job instead.
+multiple-versions = "warn"
+wildcards = "allow"
+highlight = "all"
+workspace-default-features = "allow"
+external-default-features = "allow"
+allow-workspace = true
+
+deny = [
+    { crate = "openssl", reason = "loxia is rustls-only; see docs/13-dependencies.md rule 2" },
+    { crate = "openssl-sys", reason = "loxia is rustls-only; see docs/13-dependencies.md rule 2" },
+    { crate = "native-tls", reason = "loxia is rustls-only; see docs/13-dependencies.md rule 2" },
+    { crate = "chrono", reason = "superseded by jiff; see docs/12-decisions.md §1" },
+    { crate = "fs2", reason = "superseded by fs4 (last released 2018); see docs/12-decisions.md §1" },
+    { crate = "fuzzy-matcher", reason = "superseded by nucleo-matcher (last released 2020); see docs/12-decisions.md §1" },
+    { crate = "libmpv", reason = "abandoned, targets a pre-0.35 mpv ABI; superseded by libmpv2; see docs/12-decisions.md §1" },
+    # `time` and `crossterm` are NOT banned here even though both are superseded *for our own
+    # code* (by jiff and by ratatui::crossterm respectively): both are unavoidable transitive
+    # dependencies — `time` via ratatui-widgets and our own tracing-appender, `crossterm` via
+    # ratatui-crossterm — and cargo-deny's ban is graph-wide, so banning either name outright
+    # fails the build. "Never a direct dependency of a loxia crate" is enforced by the
+    # `grep -rE "^(time|crossterm) " crates/*/Cargo.toml` check in CI instead.
+]
+
+skip = [
+    # ratatui-image pins its own rand (^0.8.5); proptest pins its own (^0.9). Neither crosses a
+    # loxia crate boundary, so the duplication is inert — see docs/13-dependencies.md rule 5.
+    { crate = "rand@0.8.7", reason = "pulled by ratatui-image; harmless, no type crosses a loxia boundary" },
+    { crate = "rand@0.9.5", reason = "pulled by proptest (dev-dependency); harmless" },
+    # rand_chacha@0.9.0 is not listed separately: skipping rand@0.9.5 already prunes it from the
+    # duplicate-detection graph (it's exclusively rand@0.9.5's own dependency), so an explicit
+    # entry for it is redundant and cargo-deny reports it as an unmatched skip.
+    { crate = "rand_chacha@0.3.1", reason = "pulled alongside rand 0.8 by ratatui-image; harmless" },
+    { crate = "rand_core@0.6.4", reason = "pulled alongside rand 0.8 by ratatui-image; harmless" },
+    { crate = "rand_core@0.9.5", reason = "pulled alongside rand 0.9 by proptest; harmless" },
+]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

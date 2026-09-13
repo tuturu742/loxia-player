@@ -1,0 +1,51 @@
+---
+source: crates/loxia-tui/src/modals/confirm.rs
+assertion_line: 153
+expression: "draw_at(80, 20, &state)"
+---
+Buffer {
+    area: Rect { x: 0, y: 0, width: 80, height: 20 },
+    content: [
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "          ┌CONFIRM───────────────────────────────────────────────────┐          ",
+        "          │reset every keybinding to its default? this cannot be     │          ",
+        "          │undone.                                                   │          ",
+        "          │              [Enter] confirm    [Esc] cancel             │          ",
+        "          └──────────────────────────────────────────────────────────┘          ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+    ],
+    styles: [
+        x: 0, y: 0, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 10, y: 7, fg: Indexed(11), bg: Reset, underline: Reset, modifier: NONE,
+        x: 70, y: 7, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 10, y: 8, fg: Indexed(11), bg: Reset, underline: Reset, modifier: NONE,
+        x: 11, y: 8, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 69, y: 8, fg: Indexed(11), bg: Reset, underline: Reset, modifier: NONE,
+        x: 70, y: 8, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 10, y: 9, fg: Indexed(11), bg: Reset, underline: Reset, modifier: NONE,
+        x: 11, y: 9, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 69, y: 9, fg: Indexed(11), bg: Reset, underline: Reset, modifier: NONE,
+        x: 70, y: 9, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 10, y: 10, fg: Indexed(11), bg: Reset, underline: Reset, modifier: NONE,
+        x: 11, y: 10, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 25, y: 10, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 56, y: 10, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 69, y: 10, fg: Indexed(11), bg: Reset, underline: Reset, modifier: NONE,
+        x: 70, y: 10, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 10, y: 11, fg: Indexed(11), bg: Reset, underline: Reset, modifier: NONE,
+        x: 70, y: 11, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+    ]
+}

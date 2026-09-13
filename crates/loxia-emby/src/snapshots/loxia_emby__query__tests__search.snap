@@ -1,0 +1,5 @@
+---
+source: crates/loxia-emby/src/query.rs
+expression: snapshot_pairs(&search)
+---
+Fields=Genres,DateCreated,MediaSources,UserData,ProductionYear,PremiereDate,Overview,ParentId,ArtistItems,AlbumArtists,ChildCount,RunTimeTicks&IncludeItemTypes=Audio&Limit=50&Recursive=true&SearchTerm=boy harsher&StartIndex=0

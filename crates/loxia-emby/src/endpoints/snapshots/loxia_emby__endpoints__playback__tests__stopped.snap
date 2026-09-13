@@ -1,0 +1,10 @@
+---
+source: crates/loxia-emby/src/endpoints/playback.rs
+expression: snapshot
+---
+Sessions/Playing/Stopped
+{
+  "ItemId": "t1",
+  "PlaySessionId": "session-1",
+  "PositionTicks": 2000000000
+}

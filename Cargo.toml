@@ -1,0 +1,65 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+version      = "0.1.0"
+edition      = "2024"
+rust-version = "1.97.1"
+license      = "GPL-3.0-or-later"
+repository   = "https://github.com/tuturu742/loxia-player"
+authors      = ["loxia contributors"]
+
+[workspace.dependencies]
+# Async runtime & networking
+tokio = { version = "1.53", features = ["rt-multi-thread", "macros", "sync", "time", "fs", "io-util", "signal"] }
+reqwest = { version = "0.13", default-features = false, features = ["json", "query", "stream", "rustls"] }
+tokio-tungstenite = { version = "0.30", features = ["rustls-tls-webpki-roots"] }
+rustls = "0.23"
+futures = "0.3"
+bytes = "1.12"
+
+# Serialization & config
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+toml = "1.1"
+
+# TUI & terminal graphics
+ratatui = "0.30.2"
+ratatui-image = { version = "11.0.6", default-features = false, features = ["crossterm"] }
+image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
+
+# Audio backend
+libmpv2 = "6.0"
+
+# Cross-platform OS integrations
+souvlaki = "0.8"
+notify-rust = "4.18"
+dirs = "6.0"
+
+# Utilities
+nucleo-matcher = "0.3"
+jiff = { version = "0.2", features = ["serde"] }
+fs4 = { version = "1.1", features = ["sync"] }
+rand = "0.10"
+rand_chacha = "0.10"
+uuid = { version = "1.24", features = ["v4", "serde"] }
+unicode-width = "0.2"
+unicode-segmentation = "1.13"
+strum = { version = "0.28", features = ["derive"] }
+thiserror = "2.0"
+anyhow = "1.0"
+clap = { version = "4.6", features = ["derive", "env"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+tracing-appender = "0.2"
+sha2 = "0.11"
+gethostname = "1.1"
+smallvec = "1.15"
+
+# Dev dependencies
+insta = "1.48"
+wiremock = "0.6"
+proptest = "1.11"
+tempfile = "3.27"
+pretty_assertions = "1.4"

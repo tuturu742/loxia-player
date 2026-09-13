@@ -1,0 +1,12 @@
+---
+source: crates/loxia-emby/src/endpoints/playback.rs
+expression: snapshot
+---
+Sessions/Playing/Progress
+{
+  "IsPaused": false,
+  "ItemId": "t1",
+  "PlayMethod": "DirectStream",
+  "PlaySessionId": "session-1",
+  "PositionTicks": 900000000
+}

@@ -1,0 +1,5 @@
+---
+source: crates/loxia-emby/src/query.rs
+expression: snapshot_pairs(&artists_list)
+---
+Fields=Genres,DateCreated,MediaSources,UserData,ProductionYear,PremiereDate,Overview,ParentId,ArtistItems,AlbumArtists,ChildCount,RunTimeTicks&Limit=200&ParentId=lib1&Recursive=true&SortBy=SortName&SortOrder=Ascending&StartIndex=0

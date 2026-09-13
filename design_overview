@@ -1,0 +1,550 @@
+# Master Design Document: `loxia`
+**A Terminal Music Client for Emby**  
+*Part of the Fringillidae terminal suite alongside `pyrrhula`.*
+
+---
+
+## 1. Executive Summary & Architecture Principles
+
+`loxia` is a cross-platform, keyboard-driven Terminal User Interface (TUI) music client for Emby media servers. Built in Rust for Linux, macOS, and Windows, it combines the tactile horizontal browsing experience of **macOS Finder (Miller Columns)** with bit-perfect audio playback, dual-tier caching, and comprehensive library management.
+
+### Core Principles
+* **LLM / Vibe-Coding Optimized:** Clean, modular state machine structure built using idiomatic Rust (`ratatui`, `crossterm`, `tokio`, `souvlaki`, `notify-rust`, and `libmpv`).
+* **Bit-Perfect & Lossless Audio Engine:** Uncompressed FLAC stream fetching, zero-delay gapless pre-buffering, cross-platform hardware passthrough (ALSA / WASAPI Exclusive / CoreAudio), hot-swappable output devices, adjustable crossfading (0–10s), and an integrated 10-band equalizer.
+* **Smart Discography Browsing:** Collaboration filtering ("Appears On" albums), dual-mode queueing, instant radio generation, multi-field sorting profiles, non-destructive queue shuffling, visual multi-selection, and an in-UI keybinding remapper.
+* **Offline Resiliency & Cache Engine:** Dual-tier cache (Rolling LRU + Permanent Offline Downloads), transcode quality profiles (Direct Play FLAC <-> 320k/192k/96k MP3/Opus), and local play-count/scrobble queuing during network dropouts.
+* **Session Persistence & Mouse Control:** Automatically saves and restores play queue, track position, active tab, and shuffle state on restart, with full trackpad/mouse scroll and click-to-seek support.
+* **Flexible Network & Proxy Support:** Arbitrary custom HTTP header injection for servers behind reverse proxies, security gateways, or zero-trust access layers, alongside multi-server profiles.
+* **Native Cross-Platform Distribution:** Pre-built native installers (`.msi` for Windows, `.dmg`/`.pkg` for macOS), package manager integration (Homebrew, Arch AUR), and zero-compilation portable binaries generated via `cargo-dist`.
+
+---
+
+## 2. Navigation Architecture & Layout Engine
+
+The interface is structured into three primary zones: a **Persistent Left Sidebar**, a **Dynamic Center Canvas** (Miller Columns or Active View), and a **Persistent Bottom Player & Audio Inspector**.
+
+```text
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                                Persistent Top Header Bar                               │
+├───────────────┬────────────────────────────────────────────────────────────────────────┤
+│               │                                                                        │
+│ Left Sidebar  │                        Dynamic Center Canvas                           │
+│  (Nav Tabs)   │                  (Miller Columns / Now Playing / Zen)                  │
+│               │                                                                        │
+├───────────────┴────────────────────────────────────────────────────────────────────────┤
+│                      Persistent Bottom Player & Audio Inspector                        │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 2.1 Left Sidebar Navigation Tabs & Jump Shortcuts
+Users can cycle tabs sequentially (`Tab` / `Shift + Tab`) or jump instantly using `Alt + 1` through `Alt + 9`:
+
+1. `Now Playing` (`Alt + 1`): 2-pane view containing the active Queue (with History sub-tab toggle `h`) and detailed Track Inspector with lyrics.
+2. `Favourites` (`Alt + 2`): Direct access to favorited Artists, Albums, and Tracks queried via Emby's `Filters=IsFavorite` endpoint.
+3. `Search` (`Alt + 3`): Real-time library search bar with categorized results (Artist, Album, Track).
+4. `Playlists` (`Alt + 4`): Saved Emby playlists expanding into tracklists with in-place editing.
+5. `Artists` (`Alt + 5`): Miller Column view starting at the Artist level.
+6. `Albums` (`Alt + 6`): Miller Column view starting at the Album level.
+7. `Genres` (`Alt + 7`): Miller Column view starting at Genres -> Artists -> Albums.
+8. `Folders` (`Alt + 8`): Direct directory tree navigation via Miller Columns.
+9. `Settings` (`Alt + 9`): Connection management, audio output driver configuration, desktop notifications, cache limits, themes, sort profiles, equalizer curves, and interactive keymapping.
+
+### 2.2 Miller Columns (Sliding Window Navigation)
+Drilling right (`->` or `l`) pushes navigation columns horizontally from left to right.
+
+* **Fixed Width Window:** Displays a maximum of **3 active data columns** simultaneously (plus the tab sidebar on the left and the metadata inspector on the right).
+* **Sliding Window:** Drilling deeper than 3 levels (e.g., `Folders` -> `Gothic` -> `Darkwave` -> `Bands` -> `Track`) smoothly scrolls older parent columns off-screen to the left, displaying a parent path indicator (`…/Darkwave/`).
+* **Metadata Inspector Pane:** The rightmost pane always acts as an inspector displaying detailed metadata for the highlighted item in the active column.
+
+### 2.3 "Appears On" & Collaboration Filtering Rules
+In the **Albums** column for a selected artist, releases are divided into two distinct visual sections separated by unselectable headers:
+
+1. `── ALBUMS ──`: Primary releases where the selected artist is the main Album Artist.
+2. `── APPEARS ON ──`: Compilations, soundtracks, or featured collaborations where the selected artist contributes to specific tracks.
+
+#### Queue Logic Rules
+* **Hitting `Enter` or `a` on an Artist or "Appears On" Album:** Queues **only tracks featuring that specific artist**, skipping tracks by other artists on the same compilation.
+* **Hitting `Shift + Enter` or `A` on an Artist or "Appears On" Album:** Queues the **entire record in full context**, preserving the complete compilation tracklist.
+* **Visual Highlighting:** When inspecting an "Appears On" album, tracks featuring the active artist are highlighted in high-contrast accent colors, while third-party tracks appear dimmed.
+
+---
+
+## 3. UI Wireframes & Layout Specs
+
+### 3.1 Miller Columns View with Visual Multi-Select Mode (`v`)
+
+```text
+┌─ TABS ───────┬─ ARTISTS ────┬─ ALBUMS / APPEARS ON ──────────────┬─ TRACKS (Visual Select Mode) ──────┬─ METADATA INSPECTOR ──┐
+│ Now Playing  │ Automatic X  │ ── ALBUMS (2) ───────────────────  │ [X] 01. Tears              │ 3 Tracks Selected     │
+│ Favourites   │ ▶ Boy Harsher│ ▶ Care (2019)                      │ [ ] 02. Country Girl       │                       │
+│ Search       │ Cold Cave    │   Yr Body Is Nothing (2016)        │ [X] 03. Motion             │ Total Time: 12:55     │
+│ Playlists    │ DAF          │ ── APPEARS ON (2) ───────────────  │ [X] 04. Electric           │                       │
+│ ▶ Artists    │ Linea Aspera │   Synthwave Comp Vol. 1 (2020)     │ [ ] 05. Soft Pain          │ Actions:              │
+│ Albums       │ Lebanon      │   Adult Swim Singles (2021)        │                                    │ [a] Queue Selected    │
+│ Genres       │              │                                    │ Press [v] or [Space] to toggle     │ [Ctrl+P] Add Playlist │
+└──────────────┴──────────────┴────────────────────────────────────┴────────────────────────────────────┴───────────────────────┘
+│ ▶ Motion — Boy Harsher (Care)                                                                                                 │
+│ 01:24 [████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 03:31                                                        │
+│ 🎚 FLAC 16-bit / 44.1 kHz  │  Bitrate: 1012 kbps  │  Output: ALSA (hw:0,0)  │  EQ: Active [Darkwave]                               │
+└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 3.2 Now Playing Tab with History Sub-View (`Alt + 1` / `h`)
+
+```text
+┌─ NAVIGATION ─┬─ PLAY QUEUE / HISTORY [Press 'h' for History] ────┬─ NOW PLAYING ──────────────────────────────────────────────┐
+│              │ ── RECENTLY PLAYED HISTORY (Last 50) ───────────  │  Boy Harsher — Motion                                      │
+│ ▶ Now Playing│ • 14:20  Boy Harsher — Motion             │  Album: Care (2019) | Genre: Darkwave                      │
+│   Favourites │ • 14:16  Lebanon Hanover — Gallowdance    03:12 │                                                            │
+│   Search     │ • 14:12  She Past Away — Kasvetli Kutlama 04:15 │  01:24 [████████████████████████████░░░░░░░░░░░] 03:31     │
+│   Playlists  │ • 14:09  Molchat Doma — Sudno             02:21 │  ⏮  ⏯  ⏭    🔀 [ON]  🔁                                    │
+│   Artists    │ • 14:05  The Soft Moon — Far              03:40 │                                                            │
+│   Albums     │                                                   │  SYNCED LYRICS:                                            │
+│   Genres     │ [a] Re-queue Track  [f] Toggle Favorite           │  [01:12.10] I see you in the dark                          │
+│   Folders    │                                                   │  ▶ [01:24.00] Moving through the emotion                  │
+└──────────────┴───────────────────────────────────────────────────┴────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 3.3 Universal Help Cheat Sheet Overlay (`?`)
+
+```text
+┌─ LOXIA KEYBOARD CHEAT SHEET [Context: Miller Columns] ──────────────────────────────┐
+│                                                                                     │
+│  NAVIGATION                  PLAYBACK & QUEUE              AUDIO & DSP              │
+│  ──────────                  ────────────────              ───────────              │
+│  h / ←   : Column Left       Space : Play / Pause          e : 10-Band Equalizer    │
+│  l / →   : Column Right      s     : Toggle Shuffle        r : ReplayGain Mode      │
+│  j / ↓   : Item Down         a     : Queue Artist          Ctrl+B : Bit-Perfect     │
+│  k / ↑   : Item Up           A     : Queue Full Context    Shift+O: Audio Output    │
+│  /       : Inline Search     v     : Visual Multi-Select   Shift+T: Sleep Timer     │
+│  Alt+1..9: Jump to Tab       d     : Download for Offline  q : Cycle Quality Profile│
+│                                                                                     │
+│  [ Press ? or Esc to close ]                                                        │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 3.4 Save Queue / Selection to Playlist Overlay (`Shift + P` / `Ctrl + P`)
+
+```text
+┌─ SAVE QUEUE AS PLAYLIST ─────────────────────────────────────────────────────────────────────────────┐
+│                                                                                                      │
+│  Tracks to save: 14 tracks (Active Queue)                                                            │
+│                                                                                                      │
+│  Target Playlist : [ Create New Playlist...                        ▼ ]                              │
+│  Playlist Name   : [ Late Night Darkwave Synth                     ]                                │
+│  Overview/Desc   : [ Deep synth tracks for post-midnight coding    ]                                │
+│                                                                                                      │
+│  [X] Auto-sort tracks using active Queue Sort Profile before saving                                  │
+│                                                                                                      │
+│  [ Enter ] Save Playlist       [ Esc ] Cancel                                                        │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 3.5 Audio Device Quick-Picker Modal (`Shift + O`)
+
+```text
+┌─ SELECT AUDIO OUTPUT DEVICE ─────────────────────────────────────────────────────────────────────────┐
+│                                                                                                      │
+│  Active Engine: libmpv                                                                               │
+│  ─────────────────────────────────────────────────────────────────────────────────────────────────── │
+│  ▶ • ALSA: Direct Hardware Passthrough (hw:0,0) [Bit-Perfect Mode]                                  │
+│    • PipeWire: Default System Output Sink (Shared)                                                   │
+│    • PulseAudio: USB Headphones DAC                                                                  │
+│                                                                                                      │
+│  [ Enter ] Hot-Swap Device       [ Esc ] Cancel                                                      │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 3.6 Sleep & Shutdown Timer Modal (`Shift + T`)
+
+```text
+┌─ SLEEP & SHUTDOWN TIMER ─────────────────────────────────────────────────────────────────────────────┐
+│                                                                                                      │
+│  Stop playback after:                                                                                │
+│  [ ] 15 Minutes   [ ] 30 Minutes   [ ] 60 Minutes                                                    │
+│  [ ] End of Current Track                                                                            │
+│  [X] End of Active Queue / Current Album (3 tracks remaining)                                        │
+│                                                                                                      │
+│  Options:                                                                                            │
+│  [X] Fade out audio smoothly over last 10 seconds                                                    │
+│  [ ] Close Loxia application when finished                                                           │
+│                                                                                                      │
+│  [ Enter ] Start Timer       [ Esc ] Cancel                                                          │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 3.7 Zen / Focus Mode (`z`)
+
+Activated by pressing `z`. Hides all navigation columns to display a minimalist focus view centered around artwork, progress metrics, and lyrics.
+
+```text
+┌─ ZEN FOCUS VIEW ──────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                                                               │
+│       ┌────────────────────────┐      Boy Harsher — Motion                                                                    │
+│       │                        │      Album: Care (2019)                                                                      │
+│       │   [ Kitty / Sixel      │                                                                                              │
+│       │     Album Art ]        │      LYRICS                                                                                  │
+│       │                        │      [01:12.10] I see you in the dark                                                        │
+│       └────────────────────────┘      ▶ [01:24.00] Moving through the emotion                                                 │
+│                                       [01:31.50] Soft light, heavy sound                                                      │
+│                                                                                                                               │
+│ 01:24 [██████████████████████████████████████████████████████████████████████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 03:31     │
+│  ▂ ▄ ▅ ▆ ▇ █ ▇ ▆ ▅ ▄ ▂   ▂ ▄ ▅ ▆ ▇ █ ▇ ▆ ▅ ▄ ▂   ▂ ▄ ▅ ▆ ▇ █ ▇ ▆ ▅ ▄ ▂  (Spectrum Analyzer)                                    │
+│ 🎚 FLAC 24-bit / 96.0 kHz  │  Bitrate: 2840 kbps  │  Output: WASAPI Exclusive (Bit-Perfect)                                        │
+└───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 3.8 10-Band Graphic Equalizer Overlay (`e`)
+
+```text
+┌─ EQUALIZER MODAL [Preset: Darkwave / EBM] ──────────────────────────────────────────────────────────── [Status: ACTIVE] ─┐
+│                                                                                                                         │
+│  +12dB ┤       ██                          ██                                                                           │
+│   +6dB ┤   ██  ██  ██                  ██  ██  ██                                                                       │
+│    0dB ┼───██──██──██──██──██──██──██──██──██──██─────────────────────────────────────────────────────────────────────── │
+│   -6dB ┤               ██  ██  ██  ██                                                                                   │
+│  -12dB ┤                                                                                                                │
+│        └─┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐                                                                      │
+│         31  63  125 250 500  1k  2k  4k  8k  16k                                                                        │
+│         Hz  Hz  Hz  Hz  Hz  Hz  Hz  Hz  Hz  Hz                                                                          │
+│                                                                                                                         │
+│  [←/→] Select Band   [↑/↓] Adjust Gain (+/-0.5dB)   [p] Cycle Presets   [b] Bypass EQ   [Esc/e] Close Modal                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 4. Comprehensive Feature List
+
+### 4.1 Playback, Audio Engine & Cache
+* **Direct FLAC Streaming & Transcoding (`q`):** Stream uncompressed FLAC or cycle quality profiles (320k / 192k / 96k MP3/Opus) on metered networks.
+* **Dual-Tier Cache Engine:**
+  * **Rolling LRU Cache:** Automatically buffers active playback streams to `~/.cache/loxia/tracks/` with auto-eviction at a user-defined max limit (e.g., 5 GB).
+  * **Permanent Downloads (`d`):** Pins tracks, albums, or playlists to permanent storage (`~/.local/share/loxia/downloads/`) for full offline listening.
+* **0ms Gapless & Crossfading (0–10s):** Support for gapless transitions or smooth volume crossfading between tracks.
+* **Bit-Perfect Hardware Mode (`Ctrl + B`):** Passthrough locking ALSA, WASAPI Exclusive, or CoreAudio directly.
+* **Audio Device Quick-Picker (`Shift + O`):** Instant modal to hot-swap physical output devices mid-song.
+* **10-Band Graphic Equalizer (`e`):** Live ISO frequency tuning (31Hz to 16kHz) with factory presets and custom user profile saving.
+* **Smart ReplayGain Normalization (`r`):** Switchable between **Album Mode**, **Track Mode**, and **Off**.
+
+### 4.2 Queue, Selection, History & Playlists
+* **Session State Persistence:** Automatically saves play queue, track position, active tab, and shuffle state on exit (`~/.local/state/loxia/session.json`) and restores them on launch.
+* **Visual Multi-Select Mode (`v` / `Space`):** Vim-style selection mode to highlight multiple non-sequential tracks for bulk queueing (`a`), play-next insertion (`n`), or playlist assignment (`Ctrl + P`).
+* **Listening History (`h` inside Now Playing):** Sub-view tracking the last 50 played tracks with playback timestamps.
+* **Favourites Tab (`Alt + 2`):** Direct browsing view for starred Artists, Albums, and Tracks.
+* **Save Queue / Selection to Playlist (`Shift + P` / `Ctrl + P`):** Export active queue or highlighted items directly to Emby playlists.
+* **Non-Destructive Shuffle / Unshuffle (`s`):** Permutes upcoming queue without altering current track or losing original un-shuffled state.
+* **Multi-Criteria Sort Profiles (`o`):** Stack up to 4 criteria rules (`Name`, `Artist`, `Album Artist`, `Album`, `Year`, `Track #`, `Genre`, `Date Added`) with independent `ASC`/`DESC` directions.
+
+### 4.3 Discovery, Interface & Aesthetics
+* **Universal Help Modal (`?`):** Context-aware keyboard cheat sheet overlay.
+* **Full Terminal Mouse Support:** Click seekbar to skip track position, scroll trackpad through lists/columns, and click tabs/items.
+* **Desktop Toast Notifications:** Native OS pop-ups (`notify-rust`) on track change displaying track name, artist, album, and thumbnail.
+* **Direct Tab Jumps (`Alt + 1` .. `Alt + 9`):** Jump instantly to any left sidebar navigation tab.
+* **Zen Focus Mode (`z`):** Minimalist view with high-res artwork (Kitty/Sixel), lyrics, progress metrics, and ASCII spectrum analyzer.
+* **7 Visual Themes:** `default_terminal` (transparent/ANSI), `far_blue`, `darcula`, `cyberpunk_neon`, `amber_crt`, `green_crt`, and `oled_black`.
+
+### 4.4 System Integration, Network & Offline Resiliency
+* **Offline Scrobble Sync Buffer:** Caches playback events locally during network dropouts, auto-syncing play counts to Emby once reconnected.
+* **Multi-Server Profile Support:** Store and switch between multiple Emby server configurations.
+* **Arbitrary Custom Headers:** Injects custom HTTP headers (`CF-Access-Client-Id`, custom tokens, etc.) into every REST request and WebSocket stream.
+* **In-UI Keybinding Remapper:** Remap any action directly within the UI with conflict detection.
+* **Cross-Platform Media Keys (`souvlaki`):** Hardware media key integration (MPRIS2, SMTC, CoreAudio).
+
+---
+
+## 5. Distribution & Packaging Strategy
+
+`loxia` uses `cargo-dist` alongside automated CI/CD pipelines to build, package, and release pre-compiled binaries and installers for all major operating systems upon every tag release.
+
+```text
+                                GitHub Release Matrix
+                                          │
+            ┌─────────────────────────────┼─────────────────────────────┐
+            ▼                             ▼                             ▼
+      Windows Target                macOS Target                  Linux Target
+  ┌───────────────────┐         ┌───────────────────┐         ┌───────────────────┐
+  │ • loxia-setup.msi │         │ • loxia-v0.1.0.dmg│         │ • loxia-bin (AUR) │
+  │   (Bundles DLLs)  │         │ • Homebrew Tap    │         │ • loxia.tar.gz    │
+  │ • loxia-win.zip   │         │ • loxia-mac.tar.gz│         │ • Homebrew Linux  │
+  └───────────────────┘         └───────────────────┘         └───────────────────┘
+```
+
+### 5.1 Windows Packaging
+* **Graphical Installer (`.msi`):** Built via WiX in `cargo-dist`. Embeds `mpv-1.dll` in `C:\Program Files\Loxia\` as a separate dynamic library so users do not need to manage C-libraries manually, and appends the directory to the system `PATH`.
+* **Portable Archive (`.zip`):** Standalone zip file containing `loxia.exe` and `mpv-1.dll` for portable USB drives or non-admin systems.
+* **Package Managers:** Scoop bucket manifest and WinGet submission.
+
+### 5.2 macOS Packaging
+* **Disk Image (`.dmg`) & Package (`.pkg`):** Drag-and-drop `.dmg` disk image containing `Loxia.app` launcher wrapper, and a standard `.pkg` installer placing the binary in `/usr/local/bin/loxia`.
+* **Homebrew Tap:** Official custom tap repo (`brew tap your-username/tap && brew install loxia`).
+* **Dependency Requirement:** Relies on system `mpv` via Homebrew (`brew install mpv`).
+
+### 5.3 Linux Packaging
+* **Arch User Repository (AUR):** `loxia-bin` PKGBUILD fetching pre-compiled GitHub release binaries.
+* **Portable Tarball (`.tar.gz`):** Standalone static/dynamically linked binary distribution.
+* **Homebrew for Linux:** Supported via the same Homebrew tap formula.
+
+---
+
+## 6. Master Keybinding & Action Matrix
+
+All keybindings are fully customizable within the UI and persisted to `config.toml`.
+
+| Category | Default Binding | Action Name | Description |
+| :--- | :--- | :--- | :--- |
+| **System & Help** | `?` | `ToggleHelpModal` | Open / Close context-sensitive **Help Cheat Sheet** |
+| **Playback** | `Space` / `p` | `PlayPause` | Toggle playback play/pause |
+| | `h` / `l` or `←` / `→` | `SeekBackward` / `SeekForward` | Seek playback position -5s / +5s |
+| | `j` / `k` or `↓` / `↑` | `MoveDown` / `MoveUp` | Move selection down / up in active column |
+| | `Backspace` / `Esc` | `PopColumn` | Step out one Miller column level |
+| **Selection & Devices**| `v` | `ToggleVisualSelect` | Toggle Vim-style **Visual Multi-Select Mode** |
+| | `Shift + O` | `OpenDevicePicker` | Open **Audio Output Device Switcher** modal |
+| | `Shift + T` | `OpenSleepTimer` | Open **Sleep & Shutdown Timer** modal |
+| | `d` | `DownloadItem` | Pin selected item for **Offline Download** |
+| | `q` | `CycleQualityProfile` | Cycle quality mode (Direct Play <-> Transcode) |
+| **Tab Jumps** | `Alt + 1` | `JumpTabNowPlaying` | Jump directly to **Now Playing** tab |
+| | `Alt + 2` | `JumpTabFavourites` | Jump directly to **Favourites** tab |
+| | `Alt + 3` | `JumpTabSearch` | Jump directly to **Search** tab |
+| | `Alt + 4` | `JumpTabPlaylists` | Jump directly to **Playlists** tab |
+| | `Alt + 5` | `JumpTabArtists` | Jump directly to **Artists** tab |
+| | `Alt + 6` | `JumpTabAlbums` | Jump directly to **Albums** tab |
+| | `Alt + 7` | `JumpTabGenres` | Jump directly to **Genres** tab |
+| | `Alt + 8` | `JumpTabFolders` | Jump directly to **Folders** tab |
+| | `Alt + 9` | `JumpTabSettings` | Jump directly to **Settings** tab |
+| **Queue & Sort** | `s` | `ToggleShuffle` | Non-destructively **Shuffle / Unshuffle** queue |
+| | `o` | `OpenSortMenu` | Select or apply a **Sort Profile** to active queue |
+| | `Enter` / `a` | `QueueArtistOnly` | Queue selection (**Artist-only** filtering on comps) |
+| | `Shift + Enter` / `A`| `QueueFullContext` | Queue selection (**Full album / compilation** context) |
+| | `i` / `n` | `InsertNext` | Insert selection as **Play Next** |
+| | `m` | `InstantMix` | Generate **Instant Mix Radio** from selection |
+| **Playlists** | `Shift + P` | `SaveQueueAsPlaylist` | Save current play queue as a new/existing playlist |
+| | `Ctrl + P` | `AddToPlaylist` | Add selected item (Track/Album/Artist) to a playlist |
+| | `d` | `RemoveFromPlaylist` | Remove selected track from playlist (Inside Playlists tab) |
+| | `Shift + D` | `DeletePlaylist` | Delete selected playlist entirely (Inside Playlists tab) |
+| **Navigation** | `Tab` / `Shift + Tab`| `NextTab` / `PrevTab` | Cycle active left sidebar tab |
+| | `/` | `FuzzySearch` | Open inline search bar for active column |
+| | `g` then `a` | `GoToArtist` | Jump Miller columns to active track's **Artist** |
+| | `g` then `l` | `GoToAlbum` | Jump Miller columns to active track's **Album** |
+| **Audio & DSP** | `e` | `ToggleEqualizer` | Open / Close 10-Band Equalizer Modal |
+| | `Ctrl + B` | `ToggleBitPerfect` | Toggle **Bit-Perfect Exclusive** audio output mode |
+| | `r` | `CycleReplayGain` | Cycle ReplayGain mode (Album / Track / Off) |
+| | `+` / `-` | `VolumeUp` / `VolumeDown` | Raise / lower master volume |
+| **Views & Meta** | `z` | `ToggleZenMode` | Toggle minimalist **Zen Focus View** |
+| | `l` | `ToggleLyrics` | Toggle **Synced Lyrics Pane** |
+| | `f` | `ToggleFavorite` | Toggle favorite status on selected item |
+| | `1` – `5` | `SetRating` | Set star rating (1 to 5) on selected item |
+
+---
+
+## 7. Configuration Schema (`config.toml`)
+
+```toml
+active_server = "remote_proxy"
+
+[[servers]]
+id = "remote_proxy"
+name = "Remote Emby Server"
+url = "[https://emby.yourdomain.com](https://emby.yourdomain.com)"
+user_id = "e8837bc1-ad67-520e-8cd2-f629e3155721"
+access_token = "9a8b7c6d5e4f3a2b1c"
+
+[servers.custom_headers]
+"CF-Access-Client-Id" = "97e2aac120121f902df8.access"
+"CF-Access-Client-Secret" = "e5f6g7h8i9j0123456789abcdef0123456789abcdef0123456789abcdef01234"
+"X-Custom-Auth" = "secret_value"
+
+[[servers]]
+id = "local_lan"
+name = "Local LAN Server"
+url = "[http://192.168.1.100:8096](http://192.168.1.100:8096)"
+user_id = "a1122334-bb55-6677-8899-00aabbccdd"
+access_token = "1a2b3c4d5e6f"
+
+[servers.custom_headers]
+
+[audio]
+output_driver = "auto"            # "auto", "alsa", "wasapi", or "coreaudio"
+device_id = "auto"                # e.g., "alsa/hw:0,0" or "wasapi/exclusive"
+bit_perfect = true
+crossfade_sec = 0                 # 0 = gapless, 1..10 = seconds of crossfade
+default_replaygain = "album"      # "album", "track", or "off"
+buffer_size_ms = 2000
+
+[cache]
+enabled = true
+rolling_max_gb = 5.0
+download_dir = "auto"
+cache_dir = "auto"
+
+[transcode]
+mode = "direct"                   # "direct", "transcode_high" (320k), "transcode_med" (192k), "transcode_low" (96k)
+target_codec = "mp3"              # "mp3", "aac", or "opus"
+download_uncompressed = true      # Always download raw FLAC when pinning offline files
+
+[ui]
+theme = "cyberpunk_neon"           # "default_terminal", "far_blue", "darcula", "cyberpunk_neon", "amber_crt", "green_crt", "oled_black"
+album_art_protocol = "kitty"      # "kitty", "sixel", or "off"
+show_spectrum_analyzer = true
+desktop_notifications = true
+enable_mouse = true               # Full mouse click, seek, and trackpad scroll support
+restore_session = true            # Restores queue, timestamp, and tab state on launch
+
+[sorting]
+default_queue_profile = "chronological_discog"
+
+[[sorting.profiles]]
+name = "chronological_discog"
+rules = [
+  { field = "album_artist", direction = "asc" },
+  { field = "year", direction = "asc" },
+  { field = "album", direction = "asc" },
+  { field = "track_number", direction = "asc" }
+]
+
+[[sorting.profiles]]
+name = "release_chronology"
+rules = [
+  { field = "year", direction = "desc" },
+  { field = "album", direction = "asc" },
+  { field = "track_number", direction = "asc" }
+]
+
+[equalizer]
+enabled = true
+active_preset = "darkwave_ebm"
+
+[[equalizer.custom_presets]]
+name = "night_listening_warm"
+gains = [2.0, 2.0, 1.0, 0.0, 0.0, -1.0, -1.5, -2.0, -3.0, -4.0]
+
+[keybindings]
+play_pause = "Space"
+next_track = "Char('n')"
+prev_track = "Char('p')"
+toggle_help = "Char('?')"
+toggle_visual_select = "Char('v')"
+open_device_picker = "Char('O')"
+open_sleep_timer = "Char('T')"
+download_item = "Char('d')"
+cycle_quality = "Char('q')"
+toggle_shuffle = "Char('s')"
+open_sort_menu = "Char('o')"
+queue_artist_only = "Char('a')"
+queue_full_context = "Char('A')"
+insert_next = "Char('i')"
+instant_mix = "Char('m')"
+save_queue_as_playlist = "Char('P')"
+add_to_playlist = "Modifiers(CONTROL) + Char('p')"
+jump_tab_now_playing = "Modifiers(ALT) + Char('1')"
+jump_tab_favourites = "Modifiers(ALT) + Char('2')"
+jump_tab_search = "Modifiers(ALT) + Char('3')"
+jump_tab_playlists = "Modifiers(ALT) + Char('4')"
+jump_tab_artists = "Modifiers(ALT) + Char('5')"
+jump_tab_albums = "Modifiers(ALT) + Char('6')"
+jump_tab_genres = "Modifiers(ALT) + Char('7')"
+jump_tab_folders = "Modifiers(ALT) + Char('8')"
+jump_tab_settings = "Modifiers(ALT) + Char('9')"
+go_to_artist = "Modifiers(CONTROL) + Char('a')"
+go_to_album = "Modifiers(CONTROL) + Char('l')"
+open_equalizer = "Char('e')"
+toggle_bit_perfect = "Modifiers(CONTROL) + Char('b')"
+toggle_zen_mode = "Char('z')"
+toggle_lyrics = "Char('l')"
+```
+
+---
+
+## 8. Cargo Dependencies Reference (`Cargo.toml`)
+
+```toml
+[package]
+name = "loxia"
+version = "0.1.0"
+edition = "2021"
+authors = ["loxia contributors"]
+description = "A terminal music client for Emby"
+
+[dependencies]
+# Async Runtime & Networking
+tokio = { version = "1.38", features = ["full"] }
+reqwest = { version = "0.12", features = ["json", "stream"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# TUI & Terminal Graphics
+ratatui = "0.26"
+crossterm = "0.27"
+ratatui-image = "1.0"
+
+# Audio Backend & DSP
+libmpv = "2.0"
+
+# Cross-Platform OS Integrations
+souvlaki = "0.7"     # Cross-platform media keys (MPRIS2, SMTC, CoreAudio NowPlaying)
+notify-rust = "4.11" # Native OS desktop notifications
+dirs = "5.0"         # Cross-platform config & data directories (~/.config, AppData, etc.)
+
+# Utilities
+fuzzy-matcher = "0.3"
+toml = "0.8"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+```
+
+---
+
+## 9. Branding Reference & SVG Logo (`logo.svg`)
+
+### 9.1 Terminal Boot Banner (ASCII / Unicode)
+TBD
+### 9.2 Vector SVG App Icon (`logo.svg`)
+TBD
+
+---
+
+## 10. Open Source Compliance, `libmpv` Bundling & Disclaimers
+
+### 10.1 Legal Compliance & Dynamic Linking Guidelines
+`loxia` links against `libmpv` using runtime dynamic linking. When bundling pre-built binaries (specifically `mpv-1.dll` on Windows), distribution MUST adhere to the terms of the **GNU Lesser General Public License (LGPL) v2.1 or later**:
+
+1. **Dynamic Separation:** `mpv-1.dll` must remain a standalone dynamic library inside the installation directory (`C:\Program Files\Loxia\` or portable release zip). It must never be statically embedded or compiled directly into the `loxia.exe` binary, ensuring users can replace or upgrade the library file independently.
+2. **License Distribution:** Every pre-compiled installer or distribution archive must include a copy of the LGPL license file (`LICENSE.LGPL` / `COPYING.LGPL`).
+3. **Source Code Availability:** Documentation and release manifests must provide a clear pointer to the official upstream `mpv` source repository (https://github.com/mpv-player/mpv).
+
+### 10.2 Third-Party Attribution & Legal Notice
+The following text must be bundled in `THIRD_PARTY_LICENSES.md` and accessible via the in-UI Settings / About view:
+
+```text
+================================================================================
+THIRD-PARTY SOFTWARE NOTICE: libmpv
+================================================================================
+
+This application includes and links dynamically against pre-compiled binaries 
+from the mpv project (libmpv), licensed under the GNU Lesser General Public 
+License (LGPL) v2.1 or later.
+
+  • Copyright: © mpv project contributors.
+  • Source Code: [https://github.com/mpv-player/mpv](https://github.com/mpv-player/mpv)
+
+NO WARRANTY DISCLAIMER:
+libmpv and loxia are distributed in the hope that they will be useful, but 
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public 
+License for complete details.
+================================================================================
+```

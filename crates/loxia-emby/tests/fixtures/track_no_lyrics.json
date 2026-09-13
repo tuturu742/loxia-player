@@ -1,0 +1,135 @@
+{
+  "Items": [
+    {
+      "Name": "Comfortable Void",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "1517",
+      "Container": "mp3",
+      "MediaSources": [
+        {
+          "Chapters": [],
+          "Protocol": "File",
+          "Id": "mediasource_1517",
+          "Path": "/redacted/path.flac",
+          "Type": "Default",
+          "Container": "mp3",
+          "Size": 16422912,
+          "Name": "01 - Comfortable Void",
+          "IsRemote": false,
+          "HasMixedProtocols": false,
+          "RunTimeTicks": 4089730610,
+          "SupportsTranscoding": true,
+          "SupportsDirectStream": true,
+          "SupportsDirectPlay": true,
+          "IsInfiniteStream": false,
+          "RequiresOpening": false,
+          "RequiresClosing": false,
+          "RequiresLooping": false,
+          "SupportsProbing": true,
+          "MediaStreams": [
+            {
+              "Codec": "mp3",
+              "TimeBase": "1/14112000",
+              "DisplayTitle": "MP3 stereo",
+              "IsInterlaced": false,
+              "ChannelLayout": "stereo",
+              "BitRate": 320000,
+              "Channels": 2,
+              "SampleRate": 44100,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Type": "Audio",
+              "Index": 0,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            },
+            {
+              "Codec": "mjpeg",
+              "ColorSpace": "bt470bg",
+              "Comment": "Cover (front)",
+              "TimeBase": "1/90000",
+              "IsInterlaced": false,
+              "BitDepth": 8,
+              "RefFrames": 1,
+              "IsDefault": false,
+              "IsForced": false,
+              "IsHearingImpaired": false,
+              "Height": 531,
+              "Width": 600,
+              "RealFrameRate": 90000,
+              "Profile": "Progressive",
+              "Type": "EmbeddedImage",
+              "AspectRatio": "200:177",
+              "Index": 1,
+              "IsExternal": false,
+              "IsTextSubtitleStream": false,
+              "SupportsExternalStream": false,
+              "Protocol": "File",
+              "PixelFormat": "yuvj444p",
+              "Level": -99,
+              "ExtendedVideoType": "None",
+              "ExtendedVideoSubType": "None",
+              "ExtendedVideoSubTypeDescription": "None",
+              "AttachmentSize": 0
+            }
+          ],
+          "Formats": [],
+          "Bitrate": 321251,
+          "RequiredHttpHeaders": {},
+          "AddApiKeyToDirectStreamUrl": false,
+          "ReadAtNativeFramerate": false,
+          "DefaultAudioStreamIndex": 0,
+          "ItemId": "1517"
+        }
+      ],
+      "RunTimeTicks": 4089730610,
+      "Size": 16422912,
+      "Bitrate": 321251,
+      "IndexNumber": 1,
+      "IsFolder": false,
+      "Type": "Audio",
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "Album": "Comfortable Void",
+      "AlbumId": "66666",
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {
+        "Primary": "b5c337196f424120db4c461f07de005f"
+      },
+      "BackdropImageTags": [],
+      "MediaType": "Audio"
+    }
+  ],
+  "TotalRecordCount": 1
+}

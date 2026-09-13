@@ -1,0 +1,41 @@
+{
+  "Items": [
+    {
+      "Name": "Synchronicity",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "80083",
+      "RunTimeTicks": 22178481640,
+      "IsFolder": true,
+      "Type": "MusicAlbum",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "PrimaryImageAspectRatio": 1,
+      "Artists": [
+        "Eguana"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "Composers": [],
+      "AlbumArtist": "Eguana",
+      "AlbumArtists": [
+        {
+          "Name": "Eguana",
+          "Id": "66702"
+        }
+      ],
+      "ImageTags": {},
+      "BackdropImageTags": [],
+      "PrimaryImageItemId": "62504",
+      "PrimaryImageTag": "4d592940d9ea92cb7a7f04e8463d0e4b"
+    }
+  ],
+  "TotalRecordCount": 1
+}

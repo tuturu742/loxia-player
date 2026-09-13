@@ -1,0 +1,109 @@
+{
+  "Items": [
+    {
+      "Name": "Comfortable Void",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66666",
+      "DateCreated": "2023-12-03T21:27:34.0000000Z",
+      "Genres": [
+        "Downtempo"
+      ],
+      "RunTimeTicks": 46433959180,
+      "ProductionYear": 2012,
+      "IsFolder": true,
+      "Type": "MusicAlbum",
+      "GenreItems": [
+        {
+          "Name": "Downtempo",
+          "Id": 66614
+        }
+      ],
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ChildCount": 10,
+      "PrimaryImageAspectRatio": 1.1299435028248588,
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {},
+      "BackdropImageTags": [],
+      "PrimaryImageItemId": "1517",
+      "PrimaryImageTag": "b5c337196f424120db4c461f07de005f"
+    },
+    {
+      "Name": "Source",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66667",
+      "DateCreated": "2023-12-03T21:27:35.0000000Z",
+      "Genres": [
+        "Ambient"
+      ],
+      "RunTimeTicks": 42273959200,
+      "ProductionYear": 2007,
+      "IsFolder": true,
+      "Type": "MusicAlbum",
+      "GenreItems": [
+        {
+          "Name": "Ambient",
+          "Id": 66569
+        }
+      ],
+      "ParentBackdropItemId": "66665",
+      "ParentBackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ],
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ChildCount": 11,
+      "PrimaryImageAspectRatio": 1.1214953271028036,
+      "Artists": [
+        "Sync24"
+      ],
+      "ArtistItems": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "Composers": [],
+      "AlbumArtist": "Sync24",
+      "AlbumArtists": [
+        {
+          "Name": "Sync24",
+          "Id": "66665"
+        }
+      ],
+      "ImageTags": {},
+      "BackdropImageTags": [],
+      "PrimaryImageItemId": "1525",
+      "PrimaryImageTag": "2f865b3251bee439df1d57dc5b1702f3"
+    }
+  ],
+  "TotalRecordCount": 2
+}

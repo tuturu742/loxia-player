@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="loxia-mono-title loxia-mono-desc">
+  <title id="loxia-mono-title">loxia</title>
+  <desc id="loxia-mono-desc">Simplified single-colour crossbill mark: two crossed mandibles above a cursor bar.</desc>
+
+  <!--
+    Simplified variant for small sizes (16 and 32 px), monochrome favicons, and
+    the terminal glyph. Uses currentColor so it inherits from its context.
+    The head is reduced to a solid disc and the eye is cut out rather than drawn,
+    because at 16 px a stroked eye fills in and reads as a smudge.
+  -->
+  <g fill="currentColor">
+    <!-- head with the eye knocked out -->
+    <path fill-rule="evenodd"
+          d="M205 148 a104 104 0 1 1 0 208 a104 104 0 1 1 0 -208 z
+             M238 200 a24 24 0 1 0 0 48 a24 24 0 1 0 0 -48 z"/>
+
+    <!-- crossed mandibles, thickened for legibility at small sizes -->
+    <path d="M262 206 Q352 232 434 288 L418 320 Q340 268 254 254 Z"/>
+    <path d="M254 250 Q340 238 418 186 L434 218 Q352 274 262 300 Z"/>
+
+    <!-- cursor bar -->
+    <rect x="150" y="394" width="212" height="26" rx="13"/>
+  </g>
+</svg>

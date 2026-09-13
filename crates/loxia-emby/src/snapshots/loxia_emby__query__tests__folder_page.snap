@@ -1,0 +1,5 @@
+---
+source: crates/loxia-emby/src/query.rs
+expression: snapshot_pairs(&folder_page)
+---
+Fields=Genres,DateCreated,MediaSources,UserData,ProductionYear,PremiereDate,Overview,ParentId,ArtistItems,AlbumArtists,ChildCount,RunTimeTicks&Limit=200&ParentId=folder1&StartIndex=200

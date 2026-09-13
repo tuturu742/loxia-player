@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="loxia-title loxia-desc">
+  <title id="loxia-title">loxia</title>
+  <desc id="loxia-desc">A stylised crossbill head whose crossed mandibles form a terminal prompt, above a cursor bar.</desc>
+
+  <defs>
+    <linearGradient id="upper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF5C9A"/>
+      <stop offset="1" stop-color="#FF2D6F"/>
+    </linearGradient>
+    <linearGradient id="lower" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#5CE7F5"/>
+      <stop offset="1" stop-color="#22C8DC"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FF2D6F"/>
+      <stop offset="1" stop-color="#22C8DC"/>
+    </linearGradient>
+  </defs>
+
+  <!-- tile -->
+  <rect width="512" height="512" rx="112" fill="#0B0E14"/>
+  <rect x="6" y="6" width="500" height="500" rx="106" fill="none" stroke="#1C2230" stroke-width="12"/>
+
+  <!-- head -->
+  <circle cx="205" cy="252" r="104" fill="#E8ECF4"/>
+  <!-- nape, giving the head a bird silhouette rather than a ball -->
+  <path d="M126 184 q-38 42 -30 96 q4 30 22 52 q-52 -50 -40 -110 q6 -28 48 -38 z" fill="#E8ECF4"/>
+
+  <!-- crossed mandibles: the upper descends, the lower ascends, crossing near x=345 -->
+  <path d="M266 214 Q352 236 428 290 L416 312 Q342 264 260 252 Z" fill="url(#upper)"/>
+  <path d="M260 250 Q342 240 416 194 L428 216 Q352 270 266 292 Z" fill="url(#lower)"/>
+
+  <!-- eye -->
+  <circle cx="238" cy="222" r="19" fill="#0B0E14"/>
+  <circle cx="245" cy="215" r="6.5" fill="#FFFFFF" opacity="0.92"/>
+
+  <!-- cursor bar -->
+  <rect x="150" y="394" width="212" height="26" rx="13" fill="url(#bar)"/>
+</svg>

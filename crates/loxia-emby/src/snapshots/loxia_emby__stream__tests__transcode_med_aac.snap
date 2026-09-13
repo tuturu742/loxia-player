@@ -1,0 +1,5 @@
+---
+source: crates/loxia-emby/src/stream.rs
+expression: placeholder_token(med.as_str())
+---
+http://192.168.1.1:8096/emby/Audio/t1/stream.m4a?audioCodec=aac&audioBitRate=192000&maxAudioChannels=2&api_key=TOKEN_PLACEHOLDER

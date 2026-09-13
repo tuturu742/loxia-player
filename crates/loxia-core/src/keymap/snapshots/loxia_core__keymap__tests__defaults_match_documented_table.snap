@@ -1,0 +1,95 @@
+---
+source: crates/loxia-core/src/keymap/mod.rs
+assertion_line: 514
+expression: "rows.join(\"\\n\")"
+---
++ -> volume_up
+- -> volume_down
+. -> toggle_item
+/ -> open_filter
+= -> volume_up
+? -> toggle_help
+A -> queue_full_context
+G -> go_to_bottom
+H -> toggle_history
+J -> lyrics_scroll_down
+K -> lyrics_scroll_up
+L -> toggle_lyrics
+M -> toggle_mute
+O -> open_device_picker
+P -> save_queue_as_playlist
+R -> cycle_repeat
+S -> stop
+T -> open_sleep_timer
+V -> select_all
+X -> delete_playlist
+[ -> seek_back5
+] -> seek_forward5
+_ -> volume_down
+a -> queue_artist_only
+alt+0 -> jump_tab10
+alt+1 -> jump_tab1
+alt+2 -> jump_tab2
+alt+3 -> jump_tab3
+alt+4 -> jump_tab4
+alt+5 -> jump_tab5
+alt+6 -> jump_tab6
+alt+7 -> jump_tab7
+alt+8 -> jump_tab8
+alt+9 -> jump_tab9
+backspace -> pop_column
+ctrl+c -> quit
+ctrl+d -> half_page_down
+ctrl+down -> move_track_down
+ctrl+p -> add_to_playlist
+ctrl+q -> quit
+ctrl+r -> refresh
+ctrl+u -> half_page_up
+ctrl+up -> move_track_up
+d -> toggle_download
+down -> move_down
+e -> toggle_equalizer
+end -> go_to_bottom
+enter -> queue_artist_only
+esc -> cancel
+f -> toggle_favorite
+f1 -> toggle_help
+f10 -> jump_tab10
+f2 -> jump_tab2
+f3 -> jump_tab3
+f4 -> jump_tab4
+f5 -> jump_tab5
+f6 -> jump_tab6
+f7 -> jump_tab7
+f8 -> jump_tab8
+f9 -> jump_tab9
+g a -> go_to_artist
+g g -> go_to_top
+g l -> go_to_album
+h -> nav_left
+home -> go_to_top
+i -> insert_next
+j -> move_down
+k -> move_up
+l -> nav_right
+left -> nav_left
+m -> instant_mix
+n -> next_track
+o -> open_sort_menu
+p -> prev_track
+pagedown -> half_page_down
+pageup -> half_page_up
+q -> cycle_quality_profile
+r -> cycle_replay_gain
+right -> nav_right
+s -> toggle_shuffle
+shift+enter -> queue_full_context
+shift+tab -> prev_tab
+space -> play_pause
+tab -> next_tab
+up -> move_up
+v -> toggle_visual_select
+x -> remove_entry
+z -> toggle_zen_mode
+{ -> seek_back30
+} -> seek_forward30

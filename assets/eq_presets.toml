@@ -1,0 +1,41 @@
+# Factory equalizer presets (docs/05-audio-engine.md §5), embedded into loxia-audio via
+# `include_str!`. Names must exactly match `loxia_core::config::schema::FACTORY_EQ_PRESET_NAMES`
+# — that list is the single source of truth for which names are "factory" (config validation,
+# 01-02, checks a user's custom preset name against it before this file ever gets parsed), not
+# this file; adding or renaming a preset here without updating that list there is a bug, not a
+# style choice.
+#
+# Gains are ten dB values, one per EQ_BANDS_HZ band (31, 63, 125, 250, 500, 1000, 2000, 4000,
+# 8000, 16000 Hz), each within ±12 dB and a multiple of 0.5 dB.
+
+[[presets]]
+name = "flat"
+gains = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+[[presets]]
+name = "darkwave_ebm"
+gains = [3.0, 2.5, 1.0, -1.0, -1.5, -1.0, 0.5, 1.5, 2.0, 1.5]
+
+[[presets]]
+name = "bass_boost"
+gains = [6.0, 5.0, 3.5, 1.5, 0.0, -0.5, -0.5, 0.0, 0.5, 0.5]
+
+[[presets]]
+name = "vocal"
+gains = [-2.0, -1.5, -1.0, 1.0, 3.0, 3.5, 2.5, 1.0, 0.0, -1.0]
+
+[[presets]]
+name = "acoustic"
+gains = [1.0, 1.0, 0.5, 0.0, 0.5, 1.0, 1.5, 1.0, 0.5, 0.0]
+
+[[presets]]
+name = "night_listening_warm"
+gains = [2.0, 2.0, 1.0, 0.0, 0.0, -1.0, -1.5, -2.0, -3.0, -4.0]
+
+[[presets]]
+name = "loudness"
+gains = [5.0, 4.0, 2.0, 0.0, -1.0, -1.0, 0.0, 2.0, 3.5, 4.5]
+
+[[presets]]
+name = "classical"
+gains = [1.0, 1.0, 0.5, 0.0, 0.0, 0.0, 0.5, 1.0, 1.5, 2.0]

@@ -1,0 +1,25 @@
+{
+  "Items": [
+    {
+      "Name": "Sync24",
+      "ServerId": "ffffffffffffffffffffffffffffffff",
+      "Id": "66665",
+      "RunTimeTicks": 107203507500,
+      "IsFolder": true,
+      "Type": "MusicArtist",
+      "UserData": {
+        "PlaybackPositionTicks": 0,
+        "PlayCount": 0,
+        "IsFavorite": false,
+        "Played": false
+      },
+      "ImageTags": {
+        "Primary": "10b5d57b9b89e24a1c622cf3c6c8e44a"
+      },
+      "BackdropImageTags": [
+        "011a305a36859954be7f112b5b7f46cf"
+      ]
+    }
+  ],
+  "TotalRecordCount": 1
+}

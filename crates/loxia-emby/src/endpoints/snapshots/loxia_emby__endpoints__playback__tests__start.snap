@@ -1,0 +1,11 @@
+---
+source: crates/loxia-emby/src/endpoints/playback.rs
+expression: snapshot
+---
+Sessions/Playing
+{
+  "CanSeek": true,
+  "ItemId": "t1",
+  "PlaySessionId": "session-1",
+  "PositionTicks": 0
+}

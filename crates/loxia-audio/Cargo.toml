@@ -1,0 +1,52 @@
+[package]
+name = "loxia-audio"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+build = "build.rs"
+
+[features]
+test-support = ["loxia-core/test-support"]
+# Gates every test that touches a real mpv instance (`docs/05-audio-engine.md` §3's own
+# acceptance list) — not run in CI, since it requires a real libmpv the CI image may not have.
+mpv-tests = []
+
+[dependencies]
+loxia-core = { path = "../loxia-core" }
+libmpv2 = { workspace = true }
+# `libmpv2` does not wrap `mpv_request_log_messages` (its own doc comment on `create_client`
+# calls it "unimplemented") — needed to route mpv's internal logging into `tracing`
+# (`docs/05-audio-engine.md` §3). `Mpv::ctx` is a public `NonNull<mpv_handle>`, so the raw FFI
+# call is made directly against it; see `docs/12-decisions.md`. Already in the dependency graph
+# transitively (as `libmpv2`'s own sys crate) — this just names the exact same version directly.
+libmpv2-sys = "4.0"
+thiserror = { workspace = true }
+tracing = { workspace = true }
+# `09-03`: parses `assets/eq_presets.toml` (embedded via `include_str!`) into
+# `loxia_core::config::EqPreset` via a local `PresetsFile` wrapper struct — that wrapper needs its
+# own `#[derive(Deserialize)]`, hence the direct `serde` dependency below.
+toml = { workspace = true }
+serde = { workspace = true }
+# Exception recorded in docs/13-dependencies.md rule 7 and docs/12-decisions.md §9:
+# `AudioBackend::subscribe()` returns a tokio::sync::mpsc channel, so this crate names
+# the channel *type* only. Pinned to the same version as the workspace lock, but with
+# only the `sync` feature — not the full runtime feature set `loxia` (the binary) uses.
+tokio = { version = "1.53", default-features = false, features = ["sync"] }
+
+[build-dependencies]
+# `libmpv2-sys`'s own build.rs emits a bare `cargo:rustc-link-lib=mpv` with no search path,
+# assuming libmpv sits in the linker's default path — true for a typical distro package, but not
+# e.g. a Homebrew-on-Linux install, where the linker otherwise fails with "unable to find
+# library -lmpv". Probing via pkg-config adds the right `-L` when needed; a no-op (falls through
+# to the default search path) if pkg-config or the .pc file isn't present.
+pkg-config = "0.3"
+
+[dev-dependencies]
+proptest = { workspace = true }
+pretty_assertions = { workspace = true }
+# `mpv-tests`' header-arrival integration test: a local server asserting a custom header actually
+# reached mpv's own HTTP request.
+tiny_http = "0.12"
+# `09-03`: `eq.rs`'s own `filter_string_snapshot`/`band_command_snapshot`.
+insta = { workspace = true }

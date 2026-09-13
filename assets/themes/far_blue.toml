@@ -1,0 +1,20 @@
+# far_blue — a deep, cool blue dark theme.
+name = "far_blue"
+ascii_only = false
+
+[roles]
+bg = "#0d1b2a"
+fg = "#e0e6ed"
+dim = "#5c7290"
+accent = "#4fa8ff"
+accent_alt = "#7dd3fc"
+selection_bg = "#1b3a5c"
+selection_fg = "#ffffff"
+border = "#2a4a6b"
+border_focus = "#4fa8ff"
+header_bg = "#132b40"
+success = "#5eead4"
+warning = "#fbbf24"
+error = "#f87171"
+progress_filled = "#4fa8ff"
+progress_empty = "#1b3a5c"

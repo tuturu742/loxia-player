@@ -1,0 +1,6 @@
+---
+source: crates/loxia-audio/src/eq.rs
+assertion_line: 80
+expression: "filter_string(&curve([0.0; 10]))"
+---
+lavfi=[anequalizer=c0 f=31 w=21.92 g=0.0 t=1|c0 f=63 w=44.55 g=0.0 t=1|c0 f=125 w=88.39 g=0.0 t=1|c0 f=250 w=176.78 g=0.0 t=1|c0 f=500 w=353.55 g=0.0 t=1|c0 f=1000 w=707.11 g=0.0 t=1|c0 f=2000 w=1414.21 g=0.0 t=1|c0 f=4000 w=2828.43 g=0.0 t=1|c0 f=8000 w=5656.85 g=0.0 t=1|c0 f=16000 w=11313.71 g=0.0 t=1]
