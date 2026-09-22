@@ -23,6 +23,7 @@ target
 # loxia-specific
 /dist
 *.pending-snap
+*.snap.new
 .DS_Store
 
 # A developer's real server credentials must never be committed. loxia itself never writes
@@ -30,7 +31,6 @@ target
 # guards against one being dropped at the repo root by hand during local testing.
 /config.toml
 /loxia-player.log
-
 
 # Python bytecode cache from scripts/*.py
 __pycache__/

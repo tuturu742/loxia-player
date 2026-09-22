@@ -1,18 +1,24 @@
-# Implementation map
+# Traceability
 
-This map routes system responsibilities to their current implementation areas.
+This map routes a contributor from a system concern to the owning implementation area.
 
-| Responsibility | Primary location | Related reference |
-|---|---|---|
-| Domain state, actions, reducers, effects | `crates/loxia-core/src` | [`04-state-and-input.md`](04-state-and-input.md) |
-| Configuration, paths, themes | `crates/loxia-core/src/config`, `paths.rs`, `theme.rs` | [`02-data-model.md`](02-data-model.md) |
-| Emby REST, WebSocket, stream URLs | `crates/loxia-emby/src` | [`03-emby-api.md`](03-emby-api.md) |
-| Playback and libmpv integration | `crates/loxia-audio/src` | [`05-audio-engine.md`](05-audio-engine.md) |
-| Cache, downloads, offline index, session data | `crates/loxia-cache/src` | [`06-cache-and-offline.md`](06-cache-and-offline.md) |
-| Rendering, widgets, views, modals | `crates/loxia-tui/src` | [`07-ui-spec.md`](07-ui-spec.md) |
-| Runtime, dispatch, terminal, workers | `crates/loxia-player/src` | [`01-architecture.md`](01-architecture.md) |
-| Automated checks | `justfile`, `.github/workflows/ci.yml`, crate tests | [`10-testing-and-ci.md`](10-testing-and-ci.md) |
-| Dependency policy | workspace manifests and `deny.toml` | [`13-dependencies.md`](13-dependencies.md) |
+| Concern | Primary location |
+| :-- | :-- |
+| Actions, effects, events, reducers, and application state | `crates/loxia-core/src` |
+| Configuration schema, migration, validation, and paths | `crates/loxia-core/src/config`, `crates/loxia-core/src/paths.rs` |
+| Key chords and default bindings | `crates/loxia-core/src/keymap` |
+| Queue ordering, shuffle, and appears-on logic | `crates/loxia-core/src/queue` |
+| Emby authentication, requests, DTOs, streams, and retries | `crates/loxia-emby/src` |
+| Playback and libmpv control | `crates/loxia-audio/src` |
+| Cache, downloads, offline index, and session data | `crates/loxia-cache/src` |
+| Terminal rendering, views, widgets, and modals | `crates/loxia-tui/src` |
+| Process bootstrap, event dispatch, workers, and terminal lifecycle | `crates/loxia-player/src` |
+| Bundled themes | `assets/themes` |
+| Factory equalizer presets | `assets/eq_presets.toml` |
+| CI checks | `.github/workflows/ci.yml` |
+| Developer commands | `justfile` |
 
-The source tree and tests remain authoritative when this map and implementation differ. Behavioural
-documentation corrections are recorded in [`12-decisions.md`](12-decisions.md).
+The reference documents use the same ownership boundaries: architecture is in
+[`01-architecture.md`](01-architecture.md), external transport is in
+[`03-emby-api.md`](03-emby-api.md), and dependency policy is in
+[`13-dependencies.md`](13-dependencies.md).

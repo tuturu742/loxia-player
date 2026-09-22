@@ -1,26 +1,32 @@
-# Cache and offline data
+# Cache and offline operation
 
-`loxia-cache` owns local storage formats and cache maintenance.
+`loxia-cache` owns local data that survives a process restart. It keeps filesystem policy outside
+the pure application core.
 
-## Stored data
+## Stored concerns
 
-The crate contains modules for cache layout, manifests, LRU eviction, downloads, offline indexes,
-scrobble buffering, and session persistence. It keeps filesystem concerns outside `loxia-core`.
+| Module | Responsibility |
+| :-- | :-- |
+| `layout` | Cache directory layout and safe path construction |
+| `manifest` | Cached-media metadata |
+| `lru` | Eviction policy |
+| `downloads` | Permanent download tracking |
+| `offline_index` | Browsable offline media index |
+| `scrobble` | Deferred playback-report records |
+| `session` | Restored application session data |
+| `error` | Cache-specific errors |
 
-Downloads and cached media use the layout and manifest modules to locate content and account for
-storage. The LRU module selects evictable cached content. Permanent downloads remain distinct from
-evictable cache entries.
+Cache data is distinct from user configuration. `loxia_core::paths` selects the per-platform
+locations, while `loxia-cache` defines the files and records placed beneath them.
 
-## Offline operation
+## Offline behaviour
 
-The offline index stores browseable metadata for locally available content. Connectivity state in
-`loxia-core` determines whether reducers request remote work or use local data. Pending scrobbles
-persist until the network worker can submit them.
+The runtime uses connectivity state to decide whether a request can use an available local record
+or requires the Emby client. Downloaded and cached media remain available through the cache APIs;
+network-only operations return through the normal effect/event path when connectivity is restored.
 
-Session persistence records restorable application state through the cache boundary. Reducers
-continue to operate on domain state and effects rather than directly opening files.
+Cache writes, reads, eviction, session persistence, and deferred scrobbling run in workers rather
+than reducers. Reducers only express the requested operation and update state from returned events.
 
-## Ownership
-
-`loxia-player` cache and download workers execute storage effects. `loxia-tui` renders storage and
-connectivity state but does not manipulate storage directly.
+See [`02-data-model.md`](02-data-model.md) for configuration ownership and
+[`09-traceability.md`](09-traceability.md) for the modules that implement each offline concern.

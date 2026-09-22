@@ -1,30 +1,35 @@
-# Packaging and licensing
+# Packaging and diagnostics
 
-loxia is licensed under `GPL-3.0-or-later`.
+loxia is distributed as the `loxia-player` binary. The workspace package metadata identifies the
+project as GPL-3.0-or-later and records its repository and Rust version requirements.
 
-## Current distribution surface
+## Runtime dependency
 
-The workspace builds the `loxia-player` executable. The executable owns terminal setup, runtime
-bootstrap, diagnostics, and workers. Playback links to libmpv through `libmpv2`; platforms require
-a usable libmpv installation or packaged library.
+The production audio backend dynamically links libmpv through `libmpv2`. Linux distributions
+normally provide it with their mpv package; macOS users can install it with Homebrew; and the
+Windows installer supplies `mpv-1.dll`. Startup diagnostics report a platform-specific installation
+hint when the library is absent.
 
-Brand assets live in `assets/`. `logo.svg` is the full-colour mark and `logo-mono.svg` is the
-single-colour small-size variant. Theme assets and factory equalizer presets are source-controlled
-runtime assets.
+## Assets
 
-## Third-party notices
+Bundled themes live in `assets/themes`. Factory equalizer presets live in
+`assets/eq_presets.toml`. Branding assets live in `assets/logo.svg` and
+`assets/logo-mono.svg`; their visual-use guidance is in `assets/BRANDING.md`.
 
-[`../THIRD_PARTY_LICENSES.md`](../THIRD_PARTY_LICENSES.md) records bundled or linked third-party
-licensing information and the locked Rust dependency licence report. Regenerate its dependency
-section with:
+## Licensing
+
+`LICENSE` contains the project licence. `THIRD_PARTY_LICENSES.md` records linked and bundled
+third-party licences from the locked dependency graph. It is regenerated with:
 
 ```text
 cargo deny list --format human --layout crate
 ```
 
-when the lockfile changes.
+The dependency rules that support packaging and licence review are in
+[`13-dependencies.md`](13-dependencies.md).
 
-## Release work
+## Diagnostics
 
-Packaging automation and platform installers are not part of the current implementation. Their
-planned work is captured in [`ROADMAP.md`](ROADMAP.md).
+`loxia-player` includes bootstrap and doctor support for environment diagnostics. Runtime logs
+avoid tokens and stream URLs. Audio, network, and cache errors expose stable user-facing messages
+while preserving structured details for diagnostics.

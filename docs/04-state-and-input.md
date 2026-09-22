@@ -1,30 +1,40 @@
 # State, actions, and input
 
-`loxia-core` models application behaviour as pure state transitions.
+The application state machine lives in `loxia-core`. It separates user intent, state transitions,
+side effects, and external results.
 
-## Actions, events, and effects
+## Actions, effects, and events
 
-`action` defines user and application intents. Reducers in `reducer` consume actions and events,
-update `AppState`, and produce effects. `effect` describes I/O work for the runtime; `event`
-describes completed work and external updates.
+`Action` represents an input or requested operation. Reducers consume an action and current
+`AppState`, update state, and emit `Effect` values for work outside the core. Workers execute
+effects and return `Event` values. The runtime feeds those events back through the same reducer
+path.
 
-This separation keeps navigation, queue operations, modal behaviour, player state, settings, and
-connectivity testable without a terminal, network, audio device, or filesystem.
+Reducer modules are grouped by concern: `connectivity`, `modal`, `nav`, `player`, `queue`,
+`session`, and `settings`.
 
-## Keymaps
+## Key maps
 
-The `keymap` module parses key chords, resolves bindings, validates conflicts, and supplies the
-default keymap. UI text obtains bindings through `KeyMap::hint_for(ActionId)` rather than embedding
-literal keys, so remapped actions remain visible in hints and help.
+`ActionId` identifies bindable actions. `KeyMap` parses configured chords, resolves contexts,
+detects conflicts, and exposes bindings through `hint_for(ActionId)`. UI text obtains key hints
+from this method instead of embedding literal keys, so customised bindings appear consistently.
 
-Input handling in `loxia-player` converts terminal events into keymap lookups and actions.
-`loxia-tui` may use hit testing for mouse interaction, but it also emits the same action layer.
+Default bindings live in `loxia_core::keymap::defaults`. Parsing, resolution, and validation live in
+`keymap::parse`, `keymap::resolve`, and `keymap::validate`. The default-binding snapshot verifies
+that the documented binding table and the implementation remain aligned.
+
+## Input routing
+
+`loxia-player::input` translates terminal events into actions. `loxia-tui` contributes hit targets
+for mouse interaction but does not mutate application state directly. Modal and focused-view
+contexts determine which configured chord resolves to an action.
 
 ## Queue and playback state
 
-Queue transformations live in `loxia-core::queue`; reducer code decides when playback effects,
-network requests, cache operations, and UI updates occur. Audio worker events update player state
-without making libmpv types part of the core state model.
+Queue operations are represented in `loxia_core::queue` and reduced by `reducer::queue`.
+Playback state is represented by `state::player` and reduced by `reducer::player`. The player and
+queue views render their action hints through the current key map; a configured default binding
+therefore remains visible in empty-queue and now-playing UI states.
 
-See [`05-audio-engine.md`](05-audio-engine.md) for the audio boundary and
-[`07-ui-spec.md`](07-ui-spec.md) for presentation.
+See [`07-ui-spec.md`](07-ui-spec.md) for the presentation layer and
+[`12-decisions.md`](12-decisions.md) §9 for documented behaviour changes.

@@ -1,27 +1,32 @@
 # Data model and configuration
 
-`loxia-core` contains the domain data shared by every workspace crate.
+`loxia-core` owns the data that represents the application independently of I/O and rendering.
 
-## Domain data
+## Domain model
 
-The `model` module defines identifiers, library items, artwork, audio metadata, playback metadata,
-and lyrics. Queue ordering and queue transformations live in `queue`; discography grouping lives in
-`discography`.
+The `model` module contains strongly typed identifiers and media values for artists, albums, tracks,
+playlists, images, lyrics, audio devices, audio formats, and playback metadata. `ItemId` and related
+identifier types avoid passing unclassified Emby strings through the application.
 
-The application state is split into focused submodules under `state`, including navigation, player,
-queue, search, favourites, settings, modals, and toasts. Reducers update those substates through
-the action and event types described in [`04-state-and-input.md`](04-state-and-input.md).
+`state` holds the current application state. Its modules cover navigation, player state, queues,
+search, favourites, settings, modals, and toast notifications. Reducers own transitions between
+these values.
 
 ## Configuration
 
-The `config` module owns the configuration schema, defaults, validation, migration, and file I/O
-boundary types. Configuration is TOML and uses typed sections rather than unstructured maps.
+`loxia_core::config` parses and validates the user configuration. The schema includes server
+profiles, interface preferences, cache settings, audio settings, transcoding settings, key bindings,
+sorting profiles, equalizer presets, and ReplayGain settings. Configuration migration lives in
+`config::migrate`; validation and defaults live in `config::schema`.
 
-The audio configuration includes playback and ReplayGain settings. Equalizer presets use ten gains
-whose frequencies are exposed as `EQ_BANDS_HZ`. Factory preset data is embedded from
-`assets/eq_presets.toml`.
+The application resolves platform-specific configuration and data directories through
+`loxia_core::paths`. The repository does not contain a user configuration file. Local test
+configuration belongs in the platform location selected by that module.
 
-Theme definitions are TOML files in `assets/themes`. The shipped names are:
+## Themes
+
+`loxia_core::theme` loads theme definitions from the embedded theme assets. The bundled theme names
+are:
 
 - `amber_crt`
 - `cyberpunk_neon`
@@ -31,10 +36,13 @@ Theme definitions are TOML files in `assets/themes`. The shipped names are:
 - `green_crt`
 - `oled_black`
 
-## Paths
+Theme roles include foreground, background, borders, selection, status, and progress colours.
+`default_terminal` uses terminal palette values and preserves a reset background.
 
-`loxia-core::paths` resolves platform-appropriate configuration, cache, data, and log locations.
-Repository-root `config.toml` is not an application configuration location and is ignored to avoid
-accidentally committing credentials.
+## Persistence
 
-Storage formats and offline data are described in [`06-cache-and-offline.md`](06-cache-and-offline.md).
+`loxia-cache` persists cache metadata, downloads, offline browsing data, queued scrobbles, and
+session data. The persisted representations are implementation details of that crate; callers use
+its layout, manifest, session, and index APIs rather than constructing filesystem paths themselves.
+
+See [`06-cache-and-offline.md`](06-cache-and-offline.md) for cache ownership and offline behaviour.

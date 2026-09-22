@@ -1,30 +1,36 @@
 # Terminal user interface
 
-`loxia-tui` renders `loxia-core` state with ratatui.
+`loxia-tui` renders application state with Ratatui. It is a presentation crate: it reads state and
+key-map hints and returns render metadata or actions, but it does not perform network, audio, or
+filesystem work.
 
-## Layout and views
+## Layout and rendering
 
-The root renderer combines layout, styling, text helpers, header, sidebar, player bar, content
-views, inspectors, and modal layers. Views include browsing, folders, genres, favourites,
-playlists, search, now playing, settings, and zen mode.
+`layout` computes the root regions. `render` draws the application frame, and `style` maps
+`loxia-core` theme roles to Ratatui styles. `text` contains display helpers and `hit` records mouse
+targets.
 
-Miller-style browsing uses reusable column widgets. Widgets also provide album art, lyrics,
-progress, section headers, toasts, and contextual inspectors.
+The interface includes navigation, media browsing, search, favourites, playlists, genres, folders,
+now-playing, settings, and zen presentation. Those screens live under `views`.
 
-## Modals
+## Reusable components
 
-The modal modules present confirmations, device selection, equalizer controls, help, keymap editing,
-playlist saving, sleep timers, and sort-profile editing. Modal state remains in `loxia-core`; the
-TUI renders it and sends actions in response to input.
+The `widgets` module contains shared UI components including album art, columns, headers,
+inspectors, lyrics, player controls, progress, section headers, sidebars, and toasts. `modals`
+contains confirmations, device selection, equalizer controls, help, key-map editing, playlist
+saving, sleep timer controls, and sort-profile editing.
 
 ## Themes
 
-Themes are loaded from the TOML files in `assets/themes` and represented by
-`loxia-core::theme`. The built-in theme names are listed in [`02-data-model.md`](02-data-model.md).
-Themes define named roles instead of allowing views to hardcode terminal colours.
+The TUI renders the theme names defined in [`02-data-model.md`](02-data-model.md). CRT themes use
+ASCII-safe presentation where their theme configuration requests it. `default_terminal` preserves
+the terminal's background and palette choices.
 
-## Input and accessibility
+## Interaction
 
-Keyboard bindings resolve through `KeyMap` and action identifiers. Rendered binding hints use
-`KeyMap::hint_for(ActionId)`, allowing user bindings to replace defaults consistently. Mouse hit
-maps supplement the keyboard interface rather than defining a separate behaviour model.
+Rendered key hints come from `KeyMap::hint_for(ActionId)`. Mouse targets map to actions through the
+hit map. The input and reducer rules are described in
+[`04-state-and-input.md`](04-state-and-input.md).
+
+Snapshot tests cover layout, widgets, modals, views, and every bundled theme. They describe stable
+rendered output rather than a separate source of behaviour.

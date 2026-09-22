@@ -1,17 +1,15 @@
 # Testing and CI
 
-The workspace uses unit tests, integration tests, property tests, HTTP fixtures, and insta snapshots.
-
-## Local checks
-
-Run the workspace checks with:
+The workspace uses unit tests, integration tests, snapshots, property tests, and manual checks.
+The normal local verification command is:
 
 ```text
 just check-all
 ```
 
-The CI workflow runs formatting, Clippy with warnings denied, dependency-policy checks, fixture
-secret scanning, and the workspace test suite. Contributors can also run:
+## Required automated checks
+
+Contributors run the following checks before opening a pull request:
 
 ```text
 cargo fmt --all -- --check
@@ -20,16 +18,26 @@ cargo test --workspace
 cargo doc --workspace --no-deps
 ```
 
-## Test boundaries
+CI runs formatting and Clippy checks, enforces selected dependency constraints, scans Emby fixtures
+for credentials and private addresses, and runs the workspace test suite.
 
-`loxia-core` tests exercise pure state, reducers, keymaps, queues, configuration, and models.
-`loxia-emby` tests use fixtures and request mocking. `loxia-audio` normally uses `MockEngine`;
-tests that require a real libmpv installation are gated by the `mpv-tests` feature. `loxia-tui`
-uses snapshot tests for layouts, widgets, views, and modals.
+## Test support
+
+`loxia-core::test_support` provides fixtures and scenarios for deterministic state tests.
+`loxia-audio::MockEngine` supports playback tests without audio hardware. Emby tests use local JSON
+fixtures and request snapshots. TUI tests use Insta snapshots for stable rendering checks.
+
+Real libmpv integration tests are gated behind the `mpv-tests` feature because they require an
+installed libmpv library. They complement, rather than replace, the ordinary workspace test suite.
+
+## Snapshot workflow
+
+A `.snap.new` file is a rejected candidate produced by a failing Insta assertion. It is not source
+material and is ignored by Git. A snapshot change is accepted only after reviewing the behavioural
+change and updating the corresponding `.snap` file intentionally.
 
 ## Documentation checks
 
-Public Rust API documentation builds with `cargo doc --workspace --no-deps`. Documentation links
-inside this directory point only to surviving reference documents. Dependency changes follow
-[`13-dependencies.md`](13-dependencies.md), and behaviour-changing documentation corrections are
-recorded under §9 of [`12-decisions.md`](12-decisions.md).
+Public crate and module documentation must remain current. `cargo doc --workspace --no-deps` checks
+intra-documentation links. Documentation that describes changed behaviour is updated in the same
+change and recorded in [`12-decisions.md`](12-decisions.md) §9.

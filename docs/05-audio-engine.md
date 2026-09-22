@@ -1,36 +1,41 @@
 # Audio engine
 
-`loxia-audio` provides playback behind the `AudioBackend` trait.
+`loxia-audio` provides playback behind the `AudioBackend` trait. The application communicates with
+this trait through `AudioCommand` and receives asynchronous `AudioEvent` values.
 
-## Backend contract
+## Backends
 
-`AudioBackend` accepts `AudioCommand` values and exposes an unbounded receiver of `AudioEvent`
-values. The production backend is `mpv::handle::MpvEngine`; `MockEngine` provides deterministic
-test control without libmpv or an audio device.
+`MpvEngine` is the production backend and owns libmpv integration. `MockEngine` is deterministic
+and supports tests without an audio device or libmpv installation. Both implement `AudioBackend`.
 
-Commands cover loading, preloading, transport controls, seeking, volume and mute, equalizer state,
-ReplayGain mode, output-device selection, enumeration, and shutdown. Events report status,
-position, format, track endings, devices, buffering, volume, and errors.
+The backend accepts commands to load, preload, play, pause, stop, seek, change volume or mute
+state, configure ReplayGain and equalizer settings, enumerate devices, select a device, and shut
+down. It reports status, positions, formats, buffering, track endings, device lists, volume state,
+and errors.
 
 ## libmpv integration
 
-The mpv backend owns its mpv handle and translates the backend contract to mpv options, properties,
-commands, and callbacks. It enables gapless playlist behaviour and prefetching, receives position
-updates at a bounded rate, and reports playback state through `AudioEvent`.
+The `mpv` module centralises libmpv option and property names in `mpv::props`. `mpv::handle`
+translates commands and receives libmpv events. `mpv::filters` applies equalizer filters. The
+backend enables mpv playlist prefetching for next-track preloading and uses the normal system audio
+output unless a test explicitly selects the null output.
 
-Stream URLs use `RedactedUrl` so debug output does not expose authentication query parameters.
-Headers are passed at the load boundary rather than retained in application state.
+The binary reports a platform-specific installation hint when libmpv is unavailable.
 
 ## Equalizer and ReplayGain
 
-The equalizer uses ten ISO-band frequencies exposed by `EQ_BANDS_HZ`. `eq` builds an FFmpeg
-`anequalizer` graph wrapped by mpv's `lavfi` bridge. Gain values clamp to the supported ±12 dB
-range in 0.5 dB increments. Factory presets come from `assets/eq_presets.toml`.
+The equalizer uses ten ISO bands defined by `EQ_BANDS_HZ`. Factory presets are embedded from
+`assets/eq_presets.toml`: `flat`, `darkwave_ebm`, `bass_boost`, `vocal`, `acoustic`,
+`night_listening_warm`, `loudness`, and `classical`.
 
-ReplayGain modes map to mpv's `replaygain` values. Gain selection is shared with
-`loxia-core::state::player`, allowing reducers and the audio backend to agree on the applied gain.
+The production filter path uses mpv's `af` property with a `lavfi`-wrapped `anequalizer` graph.
+ReplayGain maps the configured `Album`, `Track`, and `Off` modes to mpv properties and resolves
+embedded gain metadata before normalisation fallback.
 
-## Devices and testing
+## Devices
 
-Audio devices use `AudioDevice` domain values and are grouped through helpers in `loxia-core`.
-Real-mpv tests are gated behind the `mpv-tests` feature; normal workspace tests use the mock backend.
+Device labels and grouping are pure `loxia-core` model functions. The audio backend asks mpv for
+available devices and applies the selected device identifier.
+
+See [`12-decisions.md`](12-decisions.md) for implementation choices that differ from an earlier
+design assumption.
