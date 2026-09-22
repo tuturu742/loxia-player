@@ -1,4 +1,3 @@
 # Roadmap
 
-The canonical list of work that is planned but not shipped is maintained in
-[ROADMAP.md](ROADMAP.md).
+The canonical list of planned, unshipped work is [ROADMAP.md](ROADMAP.md).
