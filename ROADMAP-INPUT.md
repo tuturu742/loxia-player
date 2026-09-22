@@ -1,0 +1,12 @@
+- Packaging: set up cargo-dist for release binaries.
+- Packaging: build and publish signed release binaries for supported platforms.
+- Packaging: Windows installer/package; bundle `mpv-1.dll`; install icons and branding assets.
+- Packaging: macOS package; distribute a signed/notarized application bundle with libmpv handling.
+- Packaging: Linux distribution packages/channels, including distro packages and standalone release archives.
+- Packaging: release signing, checksums, provenance, and release automation.
+- Packaging: document supported installation and distribution channels.
+- Packaging: generate PNG icon sizes, `.ico`, `.icns`, and the ASCII boot banner from branding assets.
+- Packaging: ensure third-party licence notices and dependency licence reports are generated and shipped with release artifacts.
+- Packaging: add release-oriented doctor checks for runtime dependencies and installation problems.
+- Unshipped packaging work referenced by `docs/11-packaging.md` must be reconciled with the actual release process before implementation.
+- Any remaining roadmap items from `docs/08-roadmap.md` need to be rewritten into a future-maintained roadmap rather than restored as a pre-written implementation plan.
