@@ -33,7 +33,7 @@ loxia is an unreleased source-build project under active development. Its curren
 
 ## Requirements
 
-- Rust **1.97.1**, using the Rust **2024 edition**.
+- Rust **1.85.0**, using the Rust **2024 edition**.
 - A native libmpv installation, including mpv development headers and `pkg-config`.
 - An Emby server with a music library and credentials for an Emby user.
 
@@ -63,7 +63,7 @@ brew install mpv pkg-config
 Install the required Rust toolchain with [rustup](https://rustup.rs/) if it is not already available:
 
 ```sh
-rustup toolchain install 1.97.1
+rustup toolchain install 1.85.0
 ```
 
 ## Install
@@ -134,27 +134,27 @@ password = "your-emby-password"
 theme = "default_terminal"
 ```
 
-Select a shipped theme by setting `ui.theme`, for example:
+Select a shipped theme by setting `[ui].theme` to its theme name, for example:
 
 ```toml
 [ui]
 theme = "cyberpunk_neon"
 ```
 
-See [the state and input reference](docs/04-state-and-input.md) for the default keybindings and keymap format.
+See the [state and input reference](docs/04-state-and-input.md) for the keyboard controls and keymap behaviour.
 
 ## Architecture
 
 | Crate | Responsibility |
 |---|---|
-| `loxia-core` | Pure domain state, reducers, queue logic, configuration, keymaps, and effect definitions. |
-| `loxia-emby` | Emby authentication, API client, endpoint access, streaming URLs, and WebSocket communication. |
-| `loxia-cache` | Local cache layout, manifests, downloads, offline index, scrobble buffer, and session persistence. |
-| `loxia-audio` | Audio backend abstraction and libmpv playback, including devices, EQ, gapless playback, and ReplayGain. |
-| `loxia-tui` | Ratatui terminal presentation, views, widgets, themes, modal interfaces, and the `loxia-tui` binary. |
-| `loxia-player` | Application runtime, terminal integration, worker orchestration, and the `loxia-player` binary. |
+| `loxia-core` | Pure domain model, application state, reducers, queue logic, configuration, keymaps, and effect definitions. |
+| `loxia-emby` | Emby authentication, API client, queries, streaming URLs, playback reporting, and server I/O. |
+| `loxia-cache` | Local cache layout, manifests, downloads, offline index, scrobble buffering, and session persistence. |
+| `loxia-audio` | libmpv-backed playback, audio-device handling, gapless preloading, equalizer, and ReplayGain support. |
+| `loxia-tui` | ratatui rendering, views, widgets, modals, themes, and terminal presentation. |
+| `loxia-player` | Runtime bootstrap, input handling, effect dispatch, workers, and wiring for the application. |
 
-`loxia-core` is pure domain logic and defines effects; `loxia-emby` and `loxia-cache` supply I/O; `loxia-audio` plays audio. The `loxia-tui` and `loxia-player` binaries wire those layers together.
+`loxia-core` is pure domain logic and defines effects; `loxia-emby` and `loxia-cache` supply I/O; `loxia-audio` plays audio. The two binaries wire those layers together for terminal use.
 
 ## Documentation
 
