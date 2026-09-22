@@ -1,0 +1,16 @@
+- Packaging: set up cargo-dist for release artifacts.
+- Packaging: publish signed release binaries through the project release channel.
+- Packaging: Windows installer/package, bundle `mpv-1.dll`, install application assets, and code-sign the installer/binaries.
+- Packaging: macOS application/package, bundle libmpv and application assets, sign and notarize release artifacts.
+- Packaging: Linux distribution packages/installers, including dependency handling for libmpv and desktop integration where applicable.
+- Packaging: choose and implement distribution channels for release binaries and installers.
+- Packaging: automate release binary builds for supported platforms.
+- Packaging: add release signing-key/credential handling in CI.
+- Packaging: add packaging-specific license-compliance checks and release-license artifact generation/verification.
+- Packaging: regenerate and maintain third-party licence notices from the locked dependency graph as part of release work.
+- Packaging: generate branding deliverables not currently present: `assets/icons/loxia-{16,32,48,128,256,512}.png`, `assets/icons/loxia.ico`, `assets/icons/loxia.icns`, and `assets/banner.txt`.
+- Packaging: implement runtime version-banner asset substitution for the ASCII banner.
+- Packaging: complete end-user README/user documentation for installation, server setup, playback, offline use, configuration, keybindings, troubleshooting, and platform requirements.
+- Packaging: finish and document the `doctor` subcommand and platform diagnostics/install guidance.
+- Packaging: verify packaged Windows installs recover correctly when bundled `mpv-1.dll` is missing or needs reinstalling.
+- Distribution: define supported platform/architecture matrix and release artifact naming/versioning.
