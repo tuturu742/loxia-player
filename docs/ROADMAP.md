@@ -4,69 +4,58 @@ This file is the single list of work that is planned but not done; anything not 
 
 ## Distribution & packaging
 
-- **Release automation and tagged GitHub releases**  
-  Add a release workflow that builds, verifies, and publishes tagged releases instead of relying solely on the continuous-integration workflow.
+- **Tagged release process and prebuilt binaries.** Publish reproducible release artifacts for supported Windows, macOS, and Linux targets through a tagged release process. The current CI workflow validates the workspace but does not build or upload release binaries.
 
-- **Prebuilt release binaries**  
-  Produce downloadable binaries for supported platforms and architectures, with release artefacts attached to published releases.
+- **Static and musl Linux builds.** Provide a static or musl-oriented Linux distribution where the audio dependency constraints can be documented and supported. No such build target or release artifact exists.
 
-- **Windows distribution**  
-  Provide a Windows installer or package that includes the required runtime dependencies and application assets.
+- **Windows installer.** Package the Windows application and its required runtime dependencies as an installable distribution. There is no Windows packaging configuration or installer artifact.
 
-- **macOS distribution**  
-  Provide a macOS application package or installer with the required runtime dependencies and application assets.
+- **macOS application distribution.** Package loxia for macOS as a distributable application with its runtime dependencies. There is no macOS bundle or distribution process.
 
-- **Debian and Ubuntu packages**  
-  Publish installable Debian-family packages with the binary, assets, desktop integration where applicable, and dependency metadata.
+- **Debian and Ubuntu packages.** Provide maintained Debian-family packages and repository metadata. No Debian control files, package build rules, or published packages exist.
 
-- **Fedora packages**  
-  Provide a Fedora packaging route for installing loxia through the distribution’s package tooling.
+- **Fedora packages.** Provide Fedora packaging and a supported installation channel. No RPM specification or Fedora distribution configuration exists.
 
-- **Arch Linux and AUR packages**  
-  Provide an Arch Linux package definition and, where appropriate, an AUR distribution path.
+- **Arch and AUR packages.** Provide an Arch package definition or AUR distribution path. No PKGBUILD or AUR package exists.
 
-- **Nix packaging**  
-  Add a Nix expression, flake, or other supported Nix installation route.
+- **Nix packaging.** Add a Nix expression, flake, or other supported Nix installation path. The repository contains no Nix packaging files.
 
-- **Homebrew distribution**  
-  Provide a Homebrew formula or tap for macOS and supported Linux Homebrew installations.
+- **Homebrew formula.** Provide a Homebrew formula or tap for macOS and Linux users. No formula or tap is maintained.
 
-- **Container image**  
-  Publish a maintained container image for environments where running the client in a container is appropriate.
+- **Container image.** Publish a container image for environments where running the client in a container is appropriate. No container build definition or image publication process exists.
 
-- **Static and musl builds**  
-  Investigate and provide static or musl-targeted builds where libmpv and the other native dependencies can be supported correctly.
+- **crates.io publishing.** Decide whether the workspace crates should be published and, if so, configure and publish them as supported crates. The workspace has no crates.io publishing process.
 
-- **crates.io publishing**  
-  Decide which workspace crates, if any, are suitable for publication and add the metadata and publishing process required for them.
+- **Shell completions and manual pages.** Generate and install shell-completion files and man pages with packaged distributions. Neither install rules nor generated documentation artifacts exist.
 
-- **Shell completions and man pages**  
-  Generate and install command-line completions and manual pages through supported package and installation routes.
-
-- **Release signing and checksums**  
-  Sign release artefacts where supported and publish checksums or other integrity information alongside them.
+- **Release signing.** Add code signing and verification for distributed binaries and installers. No signing configuration, keys, or verification metadata is part of the release process.
 
 ## Features
 
 ### loxia-core
 
+There is no separately tracked unshipped `loxia-core` feature work.
+
 ### loxia-emby
+
+There is no separately tracked unshipped `loxia-emby` feature work.
 
 ### loxia-audio
 
-- **Bit-perfect output mode**  
-  Restore a supported bit-perfect playback path, including the configuration and device-handling work needed to make its behaviour reliable across platforms.
+- **Bit-perfect output mode.** Restore a supported bit-perfect playback mode, including capability handling and user-facing configuration. The earlier platform-specific approach was removed rather than shipped.
 
 ### loxia-cache
 
+There is no separately tracked unshipped `loxia-cache` feature work.
+
 ### loxia-tui
+
+There is no separately tracked unshipped `loxia-tui` feature work.
 
 ### loxia-player
 
+There is no separately tracked unshipped `loxia-player` feature work.
+
 ## Known gaps
 
-- **Bit-perfect playback limitation**  
-  The current playback path does not provide bit-perfect output. See the deferred-work row for `09-02` in [the decision log](12-decisions.md#9-decision-log).
-
-- **In-place equalizer updates**  
-  Equalizer changes currently use the compatible filter-graph path rather than mpv’s intended runtime filter-command route. See the equalizer row in [the decision log](12-decisions.md#9-decision-log).
+- **Bit-perfect playback is unavailable.** The deferred implementation and the reason the prior approach was removed are recorded in the [bit-perfect decision row](12-decisions.md#9-deviations-from-specification). This remains the user-visible limitation tracked by the `loxia-audio` roadmap entry above.

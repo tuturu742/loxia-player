@@ -1,3 +1,4 @@
-# Historical roadmap
+# Roadmap
 
-See the [canonical roadmap](ROADMAP.md) for work that has not shipped.
+The canonical list of work that is planned but not shipped is maintained in
+[ROADMAP.md](ROADMAP.md).

@@ -23,6 +23,7 @@ target
 # loxia-specific
 /dist
 *.pending-snap
+*.snap.new
 .DS_Store
 
 # A developer's real server credentials must never be committed. loxia itself never writes
