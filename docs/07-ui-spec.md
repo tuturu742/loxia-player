@@ -1,35 +1,34 @@
-# Terminal user interface
+# Terminal UI
 
-`loxia-tui` renders `loxia-core::state::AppState` with ratatui. It owns layout,
-styles, text helpers, views, widgets, modal presentation, and terminal hit
-testing; it does not own reducer or network behaviour.
+`loxia-tui` renders `loxia-core` state with Ratatui. It contains layouts, styles, text helpers,
+hit testing, views, widgets, and modal rendering.
 
-## Presentation structure
+## Views and widgets
 
-- `render` draws the root frame.
-- `layout` assigns terminal regions.
-- `style` maps `loxia_core::theme` roles to ratatui styles.
-- `views` renders library, search, favourites, playlists, folders, genres,
-  now-playing, settings, and zen-mode content.
-- `widgets` renders reusable headers, columns, sidebars, player bars,
-  inspectors, lyrics, album art, progress, section lists, and toasts.
-- `modals` renders confirmation, device picker, equalizer, help, keymap editor,
-  playlist save, sleep timer, and sort-profile dialogs.
-- `hit` maps mouse regions to actions.
+The view modules cover favourites, folders, genres, Miller navigation, now playing, playlists,
+search, settings, and zen mode. Shared widgets render album art, columns, headers, inspectors,
+lyrics, player status, progress, sectioned lists, sidebars, and toasts.
 
-The TUI renders state and dispatches actions. It uses keymap hints supplied by
-the core keymap rather than embedding shortcut strings.
+The renderer composes these pieces from current state. Views do not own network requests, audio
+engines, or mutable domain state.
 
-## Themes
+## Modals
 
-The UI loads the theme role set defined by `loxia-core`. Shipped theme files are
-listed in [`02-data-model.md`](02-data-model.md). Themes marked `ascii_only`
-use ASCII-safe visual alternatives.
+Modal modules provide confirmation, device selection, equalizer editing, help, keymap editing,
+playlist saving, sleep-timer control, and sort-profile editing. Modal state lives in
+`loxia-core::state::modal`; modal interactions produce actions for the normal reducer flow.
 
-## Rendering constraints
+## Themes and text
 
-The renderer adapts to narrow terminals, unavailable images, empty lists,
-loading states, errors, offline status, and active modal focus. Snapshot tests
-cover representative sizes, themes, widgets, views, and modal states. The
-manual workflows in [`14-manual-test-plan.md`](14-manual-test-plan.md) cover
-terminal behaviour that snapshots cannot observe.
+Styles derive from the active `loxia-core::theme` value. The bundled themes are listed in
+`02-data-model.md`. CRT themes use ASCII-safe rendering through their `ascii_only` setting, while
+other themes permit the normal terminal glyph set.
+
+User-visible key hints resolve from the active keymap rather than containing hard-coded key names.
+The help modal therefore reflects customized bindings and reports conflicts consistently.
+
+## Interaction
+
+Terminal input is translated in `loxia-player`, then routed through the same action system used by
+mouse hit testing and modal controls. The UI renders loading, empty, error, and offline states from
+state values supplied by the core and workers.

@@ -1,24 +1,20 @@
 # Source traceability
 
-This map routes a reader from a system concern to its primary implementation.
-The public module documentation and tests remain the detailed source of truth.
+This map routes maintainers from a system concern to its primary implementation area.
 
 | Concern | Primary location |
-|---|---|
-| Workspace composition | `Cargo.toml`, crate `Cargo.toml` files, and [`01-architecture.md`](01-architecture.md) |
-| Domain models and configuration | `crates/loxia-core/src/model`, `config`, and `paths` |
-| Actions, effects, events, and reducers | `crates/loxia-core/src/action.rs`, `effect.rs`, `event.rs`, and `reducer` |
-| Key bindings | `crates/loxia-core/src/keymap` |
-| Queue behaviour | `crates/loxia-core/src/queue` and `state/queue.rs` |
-| Emby protocol adapter | `crates/loxia-emby/src` |
-| Audio playback | `crates/loxia-audio/src` |
-| Cache and offline persistence | `crates/loxia-cache/src` |
-| Terminal rendering | `crates/loxia-tui/src` |
-| Runtime composition and workers | `crates/loxia-player/src` |
-| Themes and factory EQ presets | `assets/themes` and `assets/eq_presets.toml` |
-| Automated checks | `.github/workflows/ci.yml`, `justfile`, and [`10-testing-and-ci.md`](10-testing-and-ci.md) |
-| Recorded design choices | [`12-decisions.md`](12-decisions.md) |
-| Dependency policy | [`13-dependencies.md`](13-dependencies.md) |
+| --- | --- |
+| Configuration, paths, themes, domain model | `crates/loxia-core/src` |
+| Actions, events, effects, state, reducers | `crates/loxia-core/src/{action,event,effect,state,reducer}` |
+| Key parsing, defaults, resolution, validation | `crates/loxia-core/src/keymap` |
+| Queue ordering, shuffle, and appears-on rules | `crates/loxia-core/src/queue` |
+| Emby client and endpoints | `crates/loxia-emby/src` |
+| Audio abstraction, mock, mpv integration, EQ | `crates/loxia-audio/src` |
+| Cache, downloads, offline index, session, scrobbles | `crates/loxia-cache/src` |
+| Rendering, views, widgets, and modals | `crates/loxia-tui/src` |
+| Bootstrap, dispatch, runtime, terminal, workers | `crates/loxia-player/src` |
+| Bundled themes and EQ presets | `assets/themes` and `assets/eq_presets.toml` |
+| CI checks | `.github/workflows/ci.yml` |
 
-Use [`ROADMAP.md`](ROADMAP.md) for work that is not represented by a current
-implementation location.
+The module declarations in crate roots remain the authoritative public maps. This document routes
+readers to code; it does not replace source-level API documentation.

@@ -1,61 +1,58 @@
 # Decisions
 
-This document records implementation choices that affect architecture,
-behaviour, dependency boundaries, or documentation. Source code and tests show
-the exact current mechanics; these entries preserve the reason for choices that
-are not obvious from an API alone.
+This document records decisions that define the current implementation or correct previously
+documented behaviour. New behaviour-changing documentation corrections belong in §9.
 
-## 1. Pure core boundary
+## 1. Core remains I/O-free
 
-`loxia-core` contains no I/O. Network, filesystem, terminal, audio, and
-platform integration remain in adapter crates or `loxia-player`. This keeps
-state transitions deterministic and independently testable.
+`loxia-core` contains domain types, state, reducers, configuration logic, and pure helpers. It does
+not depend on HTTP, terminal rendering, audio backends, or filesystem operations.
 
-## 2. Effects mediate I/O
+## 2. The binary crate owns integration
 
-Reducers emit effects instead of performing side effects. Runtime workers
-execute those effects and send events back through dispatch. The arrangement
-keeps input, rendering, and worker completion on one application state path.
+`loxia-player` owns runtime assembly, dispatch, terminal lifecycle, and workers. This keeps
+integration dependencies out of `loxia-core` and `loxia-tui`.
 
-## 3. Sensitive values are redacted
+## 3. Sensitive transport values stay redacted
 
-Authentication tokens and stream URLs do not appear in ordinary diagnostic
-output. Stream URLs use `RedactedUrl`, and fixtures contain no live
-credentials or private addresses.
+Access tokens and stream URLs do not appear in ordinary diagnostics, error messages, or fixtures.
+`RedactedUrl` provides a boundary type for stream URLs passed to audio code.
 
-## 4. mpv owns playback mechanics
+## 4. Key hints come from the keymap
 
-libmpv provides decoding, output-device interaction, playlist prefetching, and
-playback observation. `loxia-audio` exposes a narrow command/event abstraction
-so the rest of the workspace does not depend on libmpv APIs.
+UI text resolves action hints through `KeyMap::hint_for(ActionId)` rather than embedding default
+keys. Customized bindings and the help modal therefore share one source.
 
-## 5. Equalizer updates reset the filter property
+## 5. Equalizer application uses the mpv `af` property
 
-The production backend applies the `lavfi`-wrapped `anequalizer` graph through
-mpv's `af` property. Real mpv testing showed that the documented
-`af-command` route does not reliably reach the wrapped filter, while resetting
-the property does not restart the track on the tested backend.
+The mpv backend applies the `lavfi`-wrapped `anequalizer` filter chain by resetting `af`. This is
+the working libmpv path used by the implementation; the pure band-command helper remains available
+for testing and future compatibility work.
 
-## 6. Platform labels are runtime data
+## 6. Platform strings do not require platform-specific branches
 
-Audio library installation hints select text through `std::env::consts::OS`
-rather than scattered target-conditional compilation. This preserves the
-project's limited use of platform `cfg` attributes.
+Audio installation hints select strings using `std::env::consts::OS`. This supplies target-specific
+guidance without spreading `#[cfg(target_os)]` branches through audio logic.
 
-## 7. Direct dependency policy is enforced in CI
+## 7. Cache work stays outside reducers
 
-`crossterm` and `time` remain transitive dependencies only. The workspace uses
-ratatui's crossterm re-export and `jiff` for time-oriented data. CI checks
-crate manifests because a graph-wide denial cannot express this distinction.
+Reducers emit effects for cache and persistence work. The cache crate performs filesystem work and
+returns results through normal application events.
 
-## 8. Fixtures are realistic but scrubbed
+## 8. Themes are data files
 
-Emby fixtures retain realistic IDs and response shapes. CI scans only
-token-bearing fields and private addresses, avoiding false positives from
-ordinary Emby identifiers.
+Bundled themes live in `assets/themes/*.toml` and are parsed through the core theme layer. CRT
+themes explicitly request ASCII-only output.
 
 ## 9. Documentation corrections
 
-| Date | Correction | Reason |
-|---|---|---|
-| 2026-09-22 | The reference set identifies `loxia-player` as the runtime executable crate and `loxia-tui` as the presentation crate. | This matches the workspace crate layout and avoids describing the TUI crate as the application process boundary. |
+| Correction | Current behaviour | Reason |
+| --- | --- | --- |
+| Binary crate name and location | The binary package is `loxia-player` in `crates/loxia-player`; references to `loxia` or `crates/loxia` do not describe this workspace. | The Cargo workspace and source tree use `loxia-player`. |
+| Repository-root configuration | A repository-root `config.toml` is ignored and is not a supported configuration location. | User configuration resolves through platform paths, and the ignore rule protects accidental local credentials. |
+| Unimplemented visual audio features | Crossfade and a spectrum analyser are not described as current audio behaviour. | They are planned work recorded in `ROADMAP.md`. |
+
+## 10. Documentation scope
+
+The numbered documents describe current behaviour and source boundaries. Forward-looking work is
+kept in `ROADMAP.md` so reference documents remain useful while the implementation changes.

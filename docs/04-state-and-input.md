@@ -1,37 +1,40 @@
 # State, actions, and input
 
-`loxia-core` implements a reducer-driven application model. The runtime maps
-external input into actions, reducers transform state and emit effects, and
-workers translate effects into I/O before returning events.
+The application uses a reducer-driven state model. Input and worker results enter as actions or
+events, reducers update `AppState`, and reducers emit effects for work outside the pure core.
 
-## Core modules
+## Message flow
 
-| Module | Responsibility |
-|---|---|
-| `action` | User and system intents identified by `ActionId`. |
-| `event` | Results arriving from input, workers, and runtime services. |
-| `effect` | I/O requests emitted by reducers. |
-| `state` | The complete application state and its focused substates. |
-| `reducer` | Pure state transitions for navigation, playback, queue, settings, modals, connectivity, and sessions. |
-| `keymap` | Key chord parsing, resolution, validation, and defaults. |
-| `queue` | Queue construction, sorting, shuffling, and appears-on behaviour. |
+```text
+terminal input / worker result
+            ↓
+     Action or Event
+            ↓
+       core reducers
+            ↓
+ updated AppState + Effects
+            ↓
+ player workers and integrations
+```
 
-## Input
+`loxia-player` owns dispatch and runtime coordination. Its input layer maps terminal input through
+the configured keymap; workers perform network, audio, cache, download, MPRIS, and notification
+work. `loxia-tui` reads state and sends actions rather than mutating state directly.
 
-`loxia-player::input` converts terminal input to key chords and uses
-`loxia_core::keymap::KeyMap` to resolve an `ActionId`. The UI does not hardcode
-key text: it obtains displayed shortcuts through `KeyMap::hint_for`.
+## Key bindings
 
-Default bindings live in `loxia_core::keymap::defaults`. The snapshot named
-`defaults_match_documented_table` protects the correspondence between the
-defaults and the keymap documentation embedded in the source.
+`loxia_core::keymap` parses, resolves, validates, and supplies default bindings. Actions use
+`ActionId` values, not display strings. UI hints resolve through the keymap so custom bindings and
+the help modal remain consistent.
 
-## Effects and workers
+Bindings are contextual where the active view or modal requires it. Validation reports conflicts
+rather than silently picking an unrelated binding.
 
-Effects are declarations, not I/O. `loxia-player` dispatches them to workers
-for audio, network, cache, downloads, MPRIS, and notifications. Workers return
-events, which re-enter the same dispatch path. This keeps reducers testable
-without terminals, sockets, filesystems, or audio devices.
+## Reducers
 
-`AppState` remains suitable for deterministic reducer tests. Test fixtures and
-scenarios live in `loxia_core::test_support`.
+The reducer modules split responsibilities by area: connectivity, modal, navigation, player,
+queue, session, and settings. Reducers remain free of terminal, filesystem, HTTP, and audio-engine
+I/O. Effects express those boundary operations explicitly.
+
+This split makes scenario tests deterministic and keeps UI rendering independent of asynchronous
+worker timing.

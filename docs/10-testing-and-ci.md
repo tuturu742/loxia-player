@@ -1,12 +1,13 @@
-# Testing and continuous integration
+# Testing and CI
 
-The workspace uses unit tests, property tests, fixtures, snapshots, and
-feature-gated integration tests. CI checks formatting, Clippy, dependency
-invariants, fixture safety, tests, and documentation-related build output.
+The workspace uses unit tests, integration tests, snapshots, fixtures, and targeted real-mpv tests
+to protect its behaviour.
 
-## Standard commands
+## Local checks
 
-```sh
+Run the same baseline checks used by CI:
+
+```text
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
@@ -15,27 +16,21 @@ cargo doc --workspace --no-deps
 
 `just check-all` provides the repository's combined local check entry point.
 
-## Test layers
+## Test boundaries
 
-| Layer | Purpose |
-|---|---|
-| `loxia-core` tests | Validate pure state, reducers, parsing, keymaps, queue logic, and domain rules. |
-| `loxia-emby` tests | Validate request construction, DTO conversion, streams, and fixture handling. |
-| `loxia-audio` tests | Validate commands, events, filters, ReplayGain, and mock behaviour. |
-| `loxia-tui` snapshots | Validate rendering at multiple sizes, themes, views, widgets, and modals. |
-| Feature-gated mpv tests | Exercise real libmpv behaviour when `mpv-tests` is enabled. |
+`loxia-core` tests exercise pure state and reducer behaviour. `loxia-audio` uses `MockEngine` for
+deterministic tests; tests requiring a real libmpv instance are gated by the `mpv-tests` feature.
+`loxia-emby` uses fixtures and endpoint-level tests. `loxia-tui` uses snapshots for rendering,
+widgets, views, and modals.
 
-Snapshots use `insta`. HTTP-facing tests use fixtures and `wiremock` where an
-isolated server is required. Property tests use `proptest`.
+Fixtures contain representative server data but no credentials. Snapshot changes require review
+because they describe user-visible output.
 
-## CI invariants
+## CI
 
-The GitHub workflow rejects direct `crossterm` and `time` dependencies in crate
-manifests. It also rejects duplicate normal dependency versions of `tokio`,
-`reqwest`, `ratatui`, and `image`, because their types cross workspace
-boundaries.
+The GitHub workflow checks formatting and Clippy, prevents direct `crossterm` and `time`
+dependencies, detects duplicate versions of boundary-crossing dependencies, and scans Emby fixtures
+for credentials and private addresses.
 
-Fixture scanning rejects non-empty access tokens, token-shaped fields and query
-parameters, and RFC1918 addresses. The policy behind these checks is recorded
-in [`12-decisions.md`](12-decisions.md) and
-[`13-dependencies.md`](13-dependencies.md).
+Dependency policy is documented in `13-dependencies.md`; release and manual checks are covered by
+`11-packaging.md` and `14-manual-test-plan.md`.

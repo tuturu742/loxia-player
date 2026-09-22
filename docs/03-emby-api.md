@@ -1,33 +1,32 @@
-# Emby API adapter
+# Emby API integration
 
-`loxia-emby` is the asynchronous adapter for Emby servers. It keeps HTTP,
-WebSocket, authentication, DTOs, retrying, endpoint details, and stream URL
-construction outside `loxia-core`.
+`loxia-emby` contains the Emby integration boundary. It owns authentication, request construction,
+retry handling, DTO conversion, endpoint modules, stream selection, and WebSocket support.
 
 ## Client structure
 
-- `auth` handles authentication material.
-- `client` owns client setup and request execution.
-- `dto` contains server-response representations and conversions.
-- `endpoints` groups API operations by resource.
-- `query` constructs library and search queries.
-- `retry` applies retry policy.
-- `stream` creates direct-play and transcode stream requests.
-- `ws` handles Emby WebSocket communication.
+`client`, `auth`, `query`, `retry`, `stream`, and `ws` provide shared client services. The `dto`
+module represents server responses, while `endpoints` groups endpoint-specific operations for
+discography, downloads, favourites, images, instant mixes, items, lyrics, playback, playlists,
+probe, and search.
 
-Endpoint modules cover items, search, favourites, playlists, playback,
-discography, images, lyrics, downloads, instant mixes, and probing.
+The endpoint layer returns workspace domain values rather than exposing DTOs to rendering and state
+code. This keeps Emby's wire format at the integration boundary.
 
-## Boundary rules
+## Authentication and privacy
 
-The adapter converts server DTOs to `loxia-core` model types before data reaches
-the reducer. Tokens and stream URLs are sensitive: logging and debug output use
-redacted representations. Network failures become adapter errors and runtime
-events rather than panics.
+Authentication data belongs to configured server profiles. Access tokens and stream URLs are
+treated as sensitive values: diagnostic formatting and user-visible errors do not disclose them.
+Fixture data contains no real tokens or private network addresses; CI checks this invariant.
 
-Playback reporting uses the playback endpoint for start, progress, played, and
-stopped notifications. Stream construction selects direct or transcoded URLs
-from the server playback information and the configured transcode settings.
+## Streaming and playback reporting
 
-Fixtures under `crates/loxia-emby/tests/fixtures` represent scrubbed server
-responses. They contain neither credentials nor private-network addresses.
+The client obtains playback information and stream URLs, then the player coordinates audio loading
+and playback reporting. Playback start, progress, played, and stopped reports use the playback
+endpoint. Stream choices account for direct playback and configured transcoding quality.
+
+## Error handling
+
+`EmbyError` describes failures without exposing credentials. Retry behaviour is centralised so
+endpoint code follows one policy. Network state is represented in core state and rendered by the
+UI instead of being inferred independently by individual views.

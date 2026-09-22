@@ -1,51 +1,51 @@
 # Architecture
 
-loxia is a Rust Cargo workspace for an Emby music client with a terminal user
-interface. The workspace separates pure domain logic from network, audio,
-storage, presentation, and process-boundary code.
+loxia is a Rust Cargo workspace for an Emby music client with a terminal user interface. The
+workspace keeps pure application state separate from I/O, rendering, and process integration.
 
-## Crates
+## Workspace
 
-| Crate | Responsibility |
-|---|---|
-| `loxia-core` | Zero-I/O domain types, configuration, state, reducers, actions, effects, keymaps, themes, and queue logic. |
-| `loxia-emby` | Async Emby REST and WebSocket client, DTO conversion, retrying, queries, and stream URLs. |
-| `loxia-audio` | `AudioBackend` implementations, including the libmpv-backed engine and deterministic mock. |
-| `loxia-cache` | Cache layout, downloads, manifests, LRU data, offline indexes, scrobbles, and sessions. |
-| `loxia-tui` | ratatui rendering, views, widgets, hit testing, and modal presentation. |
-| `loxia-player` | The executable, terminal lifecycle, event loop, dispatch, and runtime workers. |
+| Crate | Directory | Responsibility |
+| --- | --- | --- |
+| `loxia-core` | `crates/loxia-core` | Domain types, configuration, actions, effects, state, reducers, queue logic, key maps, paths, and themes |
+| `loxia-emby` | `crates/loxia-emby` | Emby HTTP, WebSocket, DTO, query, authentication, streaming, and endpoint support |
+| `loxia-audio` | `crates/loxia-audio` | Audio-backend abstraction, libmpv implementation, mock backend, equalizer, ReplayGain, and device helpers |
+| `loxia-cache` | `crates/loxia-cache` | Cache layout, manifests, LRU accounting, downloads, offline index, sessions, and scrobble storage |
+| `loxia-tui` | `crates/loxia-tui` | Ratatui rendering, views, widgets, hit testing, layouts, styles, and modals |
+| `loxia-player` | `crates/loxia-player` | Binary entry point, bootstrap, terminal lifecycle, dispatch loop, runtime, diagnostics, and workers |
 
-## Direction of dependencies
+The binary package and executable crate are both `loxia-player`, located at
+`crates/loxia-player`. The workspace does not contain a `crates/loxia` package.
 
-`loxia-core` is the domain boundary and has no I/O. The adapter crates depend
-on it; it does not depend on them. `loxia-player` composes the adapters and
-drives the application. `loxia-tui` renders `loxia-core` state and does not
-own network or audio connections.
+## Dependency direction
 
-The normal flow is:
+`loxia-core` is the lowest application layer and has no I/O dependencies. The integration crates
+depend on `loxia-core`; `loxia-player` assembles the integrations and drives the application.
+`loxia-tui` renders state and produces actions without owning network or audio backends.
 
 ```text
-terminal / worker event
-        ↓
-input and dispatch
-        ↓
-Action → loxia-core reducer → AppState + Effect
-        ↓
-runtime worker
-        ↓
-Emby, cache, audio, or platform adapter
-        ↓
-Event → dispatch
+loxia-player
+ ├── loxia-tui
+ ├── loxia-audio
+ ├── loxia-cache
+ ├── loxia-emby
+ └── loxia-core
 ```
+
+This direction keeps reducers deterministic and lets tests exercise application behaviour without a
+terminal, server, cache directory, or libmpv installation.
 
 ## Source layout
 
-Public module lists in each crate's `src/lib.rs` are the authoritative map of
-that crate. The following documents describe the principal boundaries:
+The public module declarations in each library crate's `src/lib.rs` are the authoritative module
+map. The binary crate has `src/main.rs` and uses `bootstrap`, `dispatch`, `doctor`, `input`,
+`runtime`, `terminal`, and `workers` modules.
 
-- [`02-data-model.md`](02-data-model.md) describes persistent and domain data.
-- [`03-emby-api.md`](03-emby-api.md) describes the network adapter.
-- [`04-state-and-input.md`](04-state-and-input.md) describes the reducer loop.
-- [`05-audio-engine.md`](05-audio-engine.md) describes playback.
-- [`06-cache-and-offline.md`](06-cache-and-offline.md) describes persistence.
-- [`07-ui-spec.md`](07-ui-spec.md) describes presentation.
+The major `loxia-core` areas are:
+
+- `action`, `event`, and `effect` define the messages crossing the application boundary.
+- `state` holds the rendered application state.
+- `reducer` turns actions and events into state changes and effects.
+- `config`, `keymap`, `model`, `queue`, `theme`, and `paths` provide shared pure services.
+
+See `04-state-and-input.md` for the runtime flow and `09-traceability.md` when locating a feature.

@@ -1,34 +1,28 @@
-# Packaging and distribution
+# Packaging and diagnostics
 
-loxia is licensed under GPL-3.0-or-later. The workspace package metadata lives
-in the root `Cargo.toml`; `loxia-player` is the executable composed from the
-workspace crates.
+The distributable application is the `loxia-player` binary package. It requires a usable libmpv
+installation or platform bundle appropriate to the target.
 
-## Runtime dependency
+## Runtime diagnostics
 
-The production audio backend dynamically uses libmpv. On systems where libmpv
-is not available, the audio layer reports a platform-specific installation
-hint. The audio build script probes `pkg-config` for mpv and adds discovered
-library search paths and rpaths.
+The `doctor` module in `loxia-player` reports environment and dependency information used to
+diagnose startup and media-library problems. Audio-library failures include platform-appropriate
+installation guidance.
 
-The application does not require libmpv for unit tests that use the mock audio
-backend. Tests that instantiate a real mpv engine are gated behind the
-`mpv-tests` feature.
+Logs and diagnostics avoid access tokens and stream URLs. Configuration and cache locations come
+from the platform path helpers rather than the repository checkout.
 
-## Assets
+## Assets and licensing
 
-The distribution includes the SVG branding assets, shipped themes, and factory
-equalizer presets in `assets`. `assets/BRANDING.md` defines the mark's intended
-uses and size constraints.
+`assets/` contains the bundled themes, equalizer presets, and branding assets. `assets/BRANDING.md`
+describes the existing logo assets and their intended use.
 
-## Licence records
+The workspace license is GPL-3.0-or-later. `THIRD_PARTY_LICENSES.md` records third-party licensing
+information for the locked dependency graph and bundled libmpv relationship. Dependency additions
+follow `13-dependencies.md` and the repository's deny policy.
 
-`THIRD_PARTY_LICENSES.md` records third-party licence information for the
-locked dependency graph and libmpv. Regenerate its dependency section with:
+## Release verification
 
-```sh
-cargo deny list --format human --layout crate
-```
-
-The file reflects `Cargo.lock`; dependency changes require corresponding
-licence review and updates to [`13-dependencies.md`](13-dependencies.md).
+Packaging work uses the automated checks in `10-testing-and-ci.md` and the manual scenarios in
+`14-manual-test-plan.md`. Platform packaging details that are not implemented remain in
+`ROADMAP.md`.

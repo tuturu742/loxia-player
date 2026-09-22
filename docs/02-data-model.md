@@ -1,47 +1,31 @@
 # Data model and configuration
 
-`loxia-core` owns domain data. Its models identify media, describe playback and
-audio metadata, represent lyrics and images, and provide the state consumed by
-reducers and the TUI.
+`loxia-core` owns the domain model used by the rest of the workspace. Its `model` module includes
+`audio_meta`, `ids`, `image`, `item`, `lyrics`, and `playback`; in particular,
+`model::image` and `model::playback` are current public model modules.
+
+## Application state
+
+`state::AppState` groups navigation, player, queue, search, favourites, settings, modal, and toast
+state. Reducers update that state in response to `Action` and `Event` values and return `Effect`
+values for work performed outside `loxia-core`.
+
+Identifiers and server-facing items stay in the model layer so the UI, cache, audio, and Emby
+crates share the same values rather than translating private copies.
 
 ## Configuration
 
-The configuration schema lives in `loxia_core::config::schema`; loading,
-validation, defaults, and migration live under `loxia_core::config`.
-Configuration is TOML and is resolved through `loxia_core::paths`.
+Configuration schemas, defaults, migration, validation, and file handling live in
+`loxia_core::config`. The configuration covers server profiles, interface preferences, keybindings,
+audio and equalizer settings, caching, sorting, transcoding, and session-related preferences.
 
-The runtime keeps user data outside the repository. `loxia-core` resolves
-platform-appropriate configuration, cache, and data directories through the
-`dirs`-based path helpers. A repository-root `config.toml` is deliberately
-ignored and is not a supported user configuration location.
-
-Configuration includes server profiles, interface and theme choices, keymap
-overrides, audio settings, cache settings, transcode settings, sorting
-profiles, equalizer presets, and session-related preferences. Schema types and
-their serde names are the authoritative list of keys.
-
-## Media and playback data
-
-The principal model modules are:
-
-| Module | Data |
-|---|---|
-| `model::ids` | Strongly typed Emby and local identifiers. |
-| `model::item` | Music-library items and their relationships. |
-| `model::audio_meta` | Codec, format, device, ReplayGain, and related audio metadata. |
-| `model::playback` | Playback and stream-facing domain data. |
-| `model::lyrics` | Plain and timed lyric representations. |
-| `model::image` | Image references and image requests. |
-
-Application state is divided into focused modules under `loxia_core::state`,
-including navigation, player, queue, search, favourites, settings, modals, and
-toasts. Reducers update that state as described in
-[`04-state-and-input.md`](04-state-and-input.md).
+The per-platform configuration path comes from `loxia_core::paths`. A `config.toml` at the
+repository root is deliberately ignored and is not a supported user configuration location; the
+root-level ignore rule prevents local credentials from being committed accidentally.
 
 ## Themes
 
-Theme definitions are TOML files in `assets/themes`. The shipped theme names
-are:
+The bundled theme names match the TOML files in `assets/themes/`:
 
 - `amber_crt`
 - `cyberpunk_neon`
@@ -51,6 +35,12 @@ are:
 - `green_crt`
 - `oled_black`
 
-`loxia_core::theme` parses and validates their named colour roles. CRT themes
-set `ascii_only = true`; renderers use that signal when selecting terminal
-glyphs.
+`amber_crt` and `green_crt` set `ascii_only = true`. The other bundled themes set it to `false`.
+Theme parsing and role definitions live in `loxia_core::theme`; TUI style conversion lives in
+`loxia-tui`.
+
+## Persistent data
+
+The cache crate owns on-disk cache data, downloads, offline indexes, session data, and deferred
+scrobbles. Configuration is distinct from this operational data. `06-cache-and-offline.md`
+describes the storage responsibilities and failure boundaries.
