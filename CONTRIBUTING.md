@@ -1,34 +1,43 @@
 # Contributing to loxia
 
-This project is built from a pre-written task library, not ad-hoc feature requests.
+## Getting set up
 
-- **What to work on:** pick the lowest-numbered unticked task in `tasks/README.md` whose
-  prerequisites are already ticked. Each task file is self-contained — it states the goal, the
-  exact files to touch, the specification, and the acceptance tests. You should not need to read
-  `design_overview` to execute one.
-- **Background and rationale:** `docs/` is the design blueprint the task library implements.
-  `docs/12-decisions.md` records every place implementation diverged from the original spec, with
-  the reason — read it before touching keybindings or `Cargo.toml`.
+loxia links against system `libmpv`. Install mpv (or the development package that provides
+`libmpv`) for your platform before building.
+
+```sh
+cargo build
+just check-all
+```
+
+## What to work on
+
+Open an issue for the change you want to make, or pick up an existing issue. The planned work is
+listed in [`docs/08-roadmap.md`](docs/08-roadmap.md), and `docs/` is the reference for how the
+system is designed.
+
+[`docs/12-decisions.md`](docs/12-decisions.md) records every deviation from the design. Read it
+before touching keybindings or `Cargo.toml`.
 
 ## Workflow
 
-1. One task = one branch = one PR. Branch name: `feat/<task-id>-<slug>` (e.g.
-   `feat/03-06-reducer-navigation`).
-2. Never cross a crate boundary in a single task unless the task explicitly says to.
-3. Tick the task's checkbox in `tasks/README.md` in the same PR that completes it.
-4. If implementation forces a deviation from `docs/`, fix the doc in the same PR and add a row to
-   `docs/12-decisions.md` §9 explaining what changed and why.
+1. One change = one branch = one PR. Name branches `feat/<slug>` or `fix/<slug>`.
+2. Do not cross a crate boundary in one change unless the change is inherently cross-cutting and
+   the PR description says so.
+3. If implementation forces a deviation from `docs/`, fix the documentation in the same PR and add
+   a row to [`docs/12-decisions.md`](docs/12-decisions.md) §9 explaining what changed and why.
+4. If a change completes a roadmap entry, remove that entry from
+   [`docs/08-roadmap.md`](docs/08-roadmap.md) in the same PR.
 
-## Definition of Done (every task, no exceptions)
+## Definition of Done
 
 - [ ] `cargo fmt --all -- --check` clean
 - [ ] `cargo clippy --workspace --all-targets -- -D warnings` clean
 - [ ] `cargo test --workspace` green
-- [ ] Every named test in the task's Acceptance section exists and passes
+- [ ] New behaviour has a test
 - [ ] Public items documented; the crate's `lib.rs` module list updated
-- [ ] No dependency added that is not in `docs/13-dependencies.md`
-
-Run `just check-all` before opening a PR.
+- [ ] No dependency added that is not in [`docs/13-dependencies.md`](docs/13-dependencies.md)
+- [ ] Run `just check-all` before opening a PR
 
 ## Hard rules
 
