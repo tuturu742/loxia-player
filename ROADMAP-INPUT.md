@@ -1,0 +1,16 @@
+- Packaging/release: set up cargo-dist for loxia-player release binaries.
+- Packaging/release: publish signed release binaries through the project’s distribution channels.
+- Windows packaging: create an installer; bundle `mpv-1.dll`; include application icons and licensing material; document installation and upgrade behaviour.
+- macOS packaging: create a distributable application/package; bundle or declare the libmpv requirement; add code signing and notarization; include icons and licensing material.
+- Linux packaging: provide distribution packages/channels; declare libmpv and other runtime dependencies; install desktop/icon/metadata assets where applicable.
+- Packaging/release: generate platform icon PNG sizes, `.ico`, and `.icns` bundles from the SVG branding assets.
+- Packaging/release: add the ASCII `banner.txt` asset, enforce its width/ASCII/version-placeholder constraints, and render it using the active theme.
+- Packaging/release: add release asset generation, checksums, release notes, and release-binary publication automation.
+- Packaging/release: establish signing-key handling and CI/release credentials for installers and signed binaries.
+- Packaging/release: add license-compliance checks and regenerate/verify third-party license notices against the locked dependency graph.
+- Packaging/release: provide end-user installation, configuration, troubleshooting, and distribution documentation.
+- Packaging/release: verify packaged builds can find or include libmpv on supported platforms.
+- Packaging/release: complete the doctor subcommand’s packaged-install diagnostics and platform-specific remediation guidance.
+- Distribution: decide and implement supported release channels for Windows, macOS, and Linux.
+- Distribution: define upgrade/uninstall behaviour for each installer/package format.
+- Distribution: verify branding assets are installed and selected correctly at platform-native icon sizes.
