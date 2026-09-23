@@ -119,6 +119,8 @@ Every task, no exceptions:
 - [x] `06-06` gapless preloading
 - [x] `06-07` playback reporting wiring
 - [x] `06-08` instant mix
+- [ ] `06-09` TUI queue view and player bar honour `play_order`
+- [ ] `06-10` MPRIS current track, track list and CanGoNext/CanGoPrevious honour `play_order`
 
 ### Phase 07 — Remaining views
 - [x] `07-01` search tab
@@ -159,7 +161,7 @@ Every task, no exceptions:
 - [x] `10-09` sort profile modal
 - [x] `10-10` desktop notifications
 - [x] `10-11` media keys (MPRIS/SMTC)
-- [x] `10-12` websocket remote control
+- [x] `10-12` WebSocket remote control
 - [x] `10-13` toasts and empty states
 
 ### Phase 11 — Settings & keymapper
@@ -173,9 +175,9 @@ Every task, no exceptions:
 
 ### Phase 12 — Packaging & release
 - [ ] `12-01` cargo-dist setup
-- [ ] `12-02` windows packaging
+- [ ] `12-02` Windows packaging
 - [ ] `12-03` macOS packaging
-- [ ] `12-04` linux packaging
+- [ ] `12-04` Linux packaging
 - [ ] `12-05` licence compliance checks
 - [ ] `12-06` branding assets
 - [ ] `12-07` README and user docs
