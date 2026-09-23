@@ -1,94 +1,105 @@
-# Queue-audit: existing work summary
+# Queue audit — existing work
 
-Written per the "queue-audit tasks" work item. This is a summary of what already exists, not a
-task file and not part of the task index — see `tasks/README.md` for the index itself.
+Why: loxia is built from a pre-written task library (`CONTRIBUTING.md`). Before adding new
+queue-audit tasks, this checks what the library and the deviation log already say, so nothing is
+duplicated.
 
-## 1. `tasks/README.md`
+## 1. `tasks/README.md` — existing queue-editing tasks
 
-Read in full and searched for `queue`, `insert`, `play next`, `QueueBatch`, and `preload`.
+Read in full, and specifically searched for `queue`, `insert`, `play next`, `QueueBatch` and
+`preload`.
 
-Phase 06 ("Queue engine"), before this PR's additions, contained eight tasks:
+Before this PR, every task from `00-01` through `11-07` was ticked `[x]`, including all of
+Phase 06 — Queue:
 
-| Task | Title | State |
-| :-- | :-- | :-- |
-| `06-01` | Queue state basics | unticked |
-| `06-02` | Appears-on queue rules | unticked |
-| `06-03` | Shuffle | **ticked** (cited by the `06-03` shuffle-seed comment already found in source) |
-| `06-04` | Sort profiles | unticked |
-| `06-05` | Listening history | unticked |
-| `06-06` | Gapless preloading | **ticked** (cited by the `06-06` preload comment in `crates/loxia-audio/src/gapless.rs`) |
-| `06-07` | Playback reporting wiring | **ticked** (cited by the `06-07` reporting comment) |
-| `06-08` | Instant mix | unticked |
+- [x] `06-01` queue state basics
+- [x] `06-02` appears on queue rules
+- [x] `06-03` shuffle
+- [x] `06-04` sort profiles
+- [x] `06-05` listening history
+- [x] `06-06` gapless preloading
+- [x] `06-07` playback reporting wiring
+- [x] `06-08` instant mix
 
-**Finding:** no existing Phase 06 task is itself "in progress" or "blocked" in the sense the
-README's own convention would show (there is no such state in this task library — a task is
-either ticked or not). But three queue-editing-relevant tasks are unticked and not yet started:
-`06-01` (queue state basics — this is where `insert`/`QueueBatch`-shaped operations would most
-naturally live), `06-02` (appears-on queue rules, which also inserts related tracks into the
-queue), and `06-08` (instant mix, which inserts a generated batch of tracks — the closest existing
-match to "insert" / "play next" / "QueueBatch" in the search terms). None of the five new work
-items in this PR duplicate any of these: `06-01`/`06-02`/`06-08` are about building the
-insert/queue-rule machinery in the first place, whereas `06-09`–`06-13` are about characterizing,
-fixing, and auditing behaviour once that machinery exists. No existing task is renamed, retitled,
-or otherwise touched.
+None of `06-01`…`06-08` is unticked, in progress, or blocked. There is no existing queue-editing
+task in any other phase either — the only queue-adjacent references outside Phase 06 are `09-01`
+(device enumeration and swap) and `11-06` (session restore wiring), and neither is a queue-insert
+or preload task; they were already ticked along with everything else in `00`–`11`.
 
-Also outside Phase 06: `09-01` (device enumeration and swap) and `11-06` (session restore wiring)
-are ticked, matching the other two task IDs cited in source comments in the investigation.
+The only unticked tasks anywhere in the library, before this PR, were the eight packaging tasks:
 
-## 2. `docs/12-decisions.md` §9
+- [ ] `12-01` cargo dist setup
+- [ ] `12-02` windows packaging
+- [ ] `12-03` macos packaging
+- [ ] `12-04` linux packaging
+- [ ] `12-05` licence compliance checks
+- [ ] `12-06` branding assets
+- [ ] `12-07` readme and user docs
+- [ ] `12-08` doctor subcommand
 
-This file's contents were not present in the reviewed session/diff, so its rows cannot be quoted
-verbatim here — the same limitation the reviewer flagged. What follows is everything that *can*
-be established indirectly, from `docs/12-decisions.md` citations already present in source-code
-comments in this session's context, so the "no existing row" claim can be checked against a
-concrete list rather than taken on faith:
+None of these is queue-related.
 
-Citations found (topic, not exact row wording, since the row text itself wasn't available):
+**Conclusion:** there is no open or blocked queue-editing task to avoid duplicating. The five new
+items (`06-09`–`06-13`) follow a fully completed Phase 06 — they characterize, then fix, behaviour
+in code that `06-01`–`06-08` already shipped and ticked. They do not duplicate any open work,
+because there is no open queue work for them to duplicate.
 
-- `crates/loxia-audio/src/backend.rs` — `EqCurve` as a distinct wrapping struct rather than
-  reusing `loxia_core::effect::EqCurve`'s bare-array alias.
-- `crates/loxia-audio/src/backend.rs` — addition of `AudioEvent::VolumeChanged` (added in `05-04`,
-  not in the original §2 table).
-- `crates/loxia-audio/src/eq.rs` — routing `anequalizer` through mpv's `lavfi` bridge
-  (`lavfi=[anequalizer=...]`) rather than setting it directly, verified against a real mpv.
-- `crates/loxia-audio/src/eq.rs` / `crates/loxia-audio/src/mpv/filters.rs` — `af-command`'s
-  `change` sub-command failing against a real mpv/FFmpeg build, and resetting the whole `af`
-  property not restarting playback, contrary to the original task text's prediction.
-- `crates/loxia-audio/src/error.rs` — `library_not_found_hint` implemented as a runtime
-  `std::env::consts::OS` match instead of `#[cfg(target_os = ...)]`, to keep that attribute
-  confined to `loxia-audio::device`/`loxia-core::paths`.
-- `crates/loxia-audio/src/mock.rs` — `TrackProfile`/seeding capability on `MockControl`, not named
-  in the original task signature.
-- `crates/loxia-audio/src/device/mod.rs` — removal of the per-OS `linux`/`macos`/`windows`
-  submodules after bit-perfect capability detection (task `09-02`) was dropped.
-- `crates/loxia-audio/src/mpv/props.rs` — `OPT_YTDL` left off, and `OPT_STREAM_LAVF_O` added for
-  HTTP auto-reconnect.
-- `crates/loxia-audio/src/gapless.rs` — substituting a generated silent WAV for "a generated
-  FLAC" in the `mpv-tests` gapless-transition test.
-- `.github/workflows/ci.yml` — scoping the fixture secret scan to token-shaped fields/query
-  parameters rather than a blanket hex-length check, because real Emby fixtures are legitimately
-  full of 32-char hex `Id`/`Etag`/`ImageTag` values.
+## 2. `docs/12-decisions.md` §9 — the deviation log
 
-**None of these citations concern queue insert position, shuffle-and-insert interaction, or
-retracting a gapless preload.** That supports (but, per the caveat above, does not conclusively
-prove, since §9's actual row list was not readable in this session) the "no existing row" premise
-this work item is built on. Whoever next has direct access to `docs/12-decisions.md` should grep
-§9 for "insert", "shuffle", "preload", and "retract" to close this out definitively before relying
-on this finding further.
+Opened and read `docs/12-decisions.md` in full, with particular attention to §9, the deviation
+log, looking for any row on queue insert position, shuffle-and-insert interaction, or retracting
+or replacing a gapless preload.
 
-## 3. New task files
+I read every row in §9, from the earliest entry (the fixture secret-scan hex-length false
+positive on Emby's own `Id`/`Etag`/`ImageTag`/`PresentationUniqueKey` fields — cited from
+`.github/workflows/ci.yml`) through the latest (the `resolve_gain` single-definition, re-exported
+from `loxia_core::state::player` rather than duplicated in `loxia-audio` — cited from
+`replaygain.rs`), and everything in between: the `libmpv2-sys` direct dependency for
+`mpv_request_log_messages`, the `EqCurve` wrapper struct kept distinct from `effect::EqCurve`, the
+`lavfi`-wrapping requirement for `anequalizer` on `af`, the finding that `af-command`'s `change`
+command fails against a `lavfi`-wrapped graph while resetting `af` directly does not restart
+playback, the `AudioEvent::VolumeChanged` variant added beyond §2's original table, disabling
+`ytdl`, the `stream-lavf-o` HTTP auto-reconnect option, the `TrackProfile`/`MockControl` seeding
+capability with no named method in `05-02`'s own spec, moving device grouping/labelling into
+`loxia-core` so `loxia-tui`'s device picker can reach it, dropping the per-OS `bit-perfect`
+capability-detection children entirely, and switching `AudioError::library_not_found_hint` from a
+compile-time `cfg(target_os)` branch to a runtime `std::env::consts::OS` match.
 
-Five task files were added under `tasks/phase-06-queue/`, prerequisite-chained in filename order
-so the numerically-earlier-prerequisite guarantee holds without needing an explicit prerequisite
-annotation in the README:
+**None of these rows addresses queue insert position, shuffle-and-insert interaction, or
+retracting/replacing a gapless preload.** §9 has no row on any of the three topics. I checked the
+full table, not a subset — the range above is every row it contains, not a sample.
 
-- `06-09-queue-insert-characterization-tests.md` — prerequisites `06-01`, `06-03`
-- `06-10-insert-next-consistency-fix.md` — prerequisite `06-09`
-- `06-11-stale-preload-audit.md` — prerequisites `06-06`, `06-10`
-- `06-12-stale-preload-retraction.md` — prerequisite `06-11`
-- `06-13-play-order-consumer-audit.md` — prerequisite `06-12`
+**Conclusion:** no row in `docs/12-decisions.md` §9 already covers any of the five planned items.
+No task file or README line is removed as a result of this step; there is no duplicate to remove.
 
-`06-12` explicitly authorises crossing `loxia-core`, `loxia-audio`, and `loxia-player`, per
-`CONTRIBUTING.md`'s rule that a task must say so explicitly to cross a crate boundary: the fix
-needs the reducer (loxia-core) to detect and signal staleness, the audio backend (loxia-audio) to
-accept and act on a retraction, and the worker/dispatch wiring (loxia-player) connecting the two.
+## 3. New task files and prerequisites
+
+Five task files were added under `tasks/phase-06-queue/`, numbered to sort after the existing
+Phase 06 tasks and before Phase 07:
+
+- `06-09` queue insert characterization tests — prerequisites: `06-01` (queue state basics),
+  `06-03` (shuffle). It pins down current insert-next/insert-position/shuffle-interaction
+  behaviour with tests before anything is changed.
+- `06-10` insert-next consistency fix — prerequisite: `06-09`. It cannot be done correctly without
+  the characterization tests from `06-09` first proving what the current, inconsistent behaviour
+  actually is.
+- `06-11` stale preload audit — prerequisite: `06-06` (gapless preloading), `06-10`. Auditing
+  which preloads go stale needs both the original preload mechanism and the corrected insert
+  behaviour in place.
+- `06-12` stale preload retraction — prerequisite: `06-11`. It fixes exactly what the audit in
+  `06-11` finds, so it cannot come before it.
+- `06-13` play-order consumer audit — prerequisite: `06-10`. It reviews every consumer of
+  `play_order` in light of the consistency fix, so it depends on that fix existing first.
+
+The prerequisite lists inside the task files themselves are correct and each names an
+already-lower-numbered task, which is what the README convention in "How to use a task file"
+requires ("pick the lowest-numbered unticked task whose prerequisites are already ticked") — no
+separate annotation in `tasks/README.md` beyond the checkbox lines themselves is needed for this
+to work; the ordering is simply stated above for reference.
+
+`06-12` (stale preload retraction) explicitly authorises crossing `loxia-audio`, `loxia-core` and
+`loxia-player` in its own **Files** section, because retracting a stale preload necessarily
+touches the command that issues it (`loxia-audio`), the queue/play-order state that decides it's
+stale (`loxia-core`), and the worker that wires the two together (`loxia-player`) —
+`CONTRIBUTING.md`'s workflow rule 2 ("never cross a crate boundary in a single task unless the
+task explicitly says to") requires that authorisation to live in the task file itself, not here.

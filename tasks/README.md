@@ -1,234 +1,179 @@
-# loxia task library
+# Task Library
 
-loxia is built from a pre-written task library, not ad-hoc feature requests (see
-`CONTRIBUTING.md`). **114 tasks in 13 phases. Execute in filename order** — task IDs are numeric
-(`<phase>-<sequence>`), and a task's prerequisites are guaranteed to be numerically earlier than
-it. Working strictly in filename order therefore never leaves a prerequisite unmet; you do not
-need to cross-reference the `Prerequisites` line of every later task before starting on an
-earlier one.
-
-Pick the lowest-numbered unticked task whose prerequisites are already ticked. A ticked checkbox
-below is the single source of truth for "this task is done" — do not tick one without the work
-behind it, and do not untick one you didn't just finish.
+loxia is built entirely from this pre-written task library — see `CONTRIBUTING.md` for the
+workflow. There are 114 tasks across 13 phases, each in its own file under `tasks/phase-NN-*/`.
 
 ## How to use a task file
 
-Every task file follows this template:
+Each task file is self-contained: it states the goal, the exact files to touch, the
+specification, and the acceptance tests. Read the task file itself, not `design_overview`, to
+execute it. Pick the lowest-numbered unticked task below whose prerequisites are already
+ticked, open its file, and do exactly what it says — no more, no less.
 
-```
-# <id> · <title>
+Every task file has the same shape:
 
-**Phase:** <phase number> — <phase name> · **Agent:** <any | core | audio | tui | player | ...> ·
-**Size:** S | M | L · **Prerequisites:** <task ids, or "none"> · **Reference:** <docs file(s)>
+- **Goal** — one paragraph, what this task adds and why.
+- **Prerequisites** — task IDs that must already be ticked below.
+- **Files** — the exact file list this task is allowed to touch.
+- **Spec** — the behaviour to implement, in enough detail that no design judgement is needed.
+- **Acceptance** — the named tests that must exist and pass.
 
-## Goal
-
-What this task achieves and why, in a paragraph or two.
-
-## Files
-
-The exact files this task is allowed to touch. Touching anything else — especially across a
-crate boundary — is out of scope unless this section (or a dedicated authorisation subsection)
-says so explicitly.
-
-## Specification
-
-The exact behaviour to implement: types, function signatures, edge cases, error conditions.
-
-## Acceptance
-
-The named tests that must exist and pass. A reviewer checks these by name, not by vibes.
-
-## Done when
-
-See "Global Definition of Done" below, plus any task-specific conditions listed here.
-```
-
-A task file is self-contained: you should not need to read `design_overview` to execute one.
-Background and rationale for the task library itself live in `docs/`; `docs/12-decisions.md`
-records every place implementation diverged from that design, with the reason.
-
-## Size legend
-
-- **S** — small: a single sitting, one or two files, no new public surface of note.
-- **M** — medium: a few hours, several files, may add a small new type or trait method.
-- **L** — large: a full day or more, many files, or introduces a new subsystem/module tree.
-
-## Global Definition of Done
-
-Every task, no exceptions:
-
-- [ ] `cargo fmt --all -- --check` clean
-- [ ] `cargo clippy --workspace --all-targets -- -D warnings` clean
-- [ ] `cargo test --workspace` green
-- [ ] Every named test in the task's Acceptance section exists and passes
-- [ ] Public items documented; the crate's `lib.rs` module list updated
-- [ ] No dependency added that is not in `docs/13-dependencies.md`
-- [ ] The task's checkbox is ticked in `tasks/README.md`, in the same PR that completes it
-
-Run `just check-all` before opening a PR.
+Size: most tasks are a half-day to a day of focused work for someone already familiar with the
+crate. A task that regularly takes longer than two days is a sign the task itself should have
+been split — raise that as a documentation issue, not a reason to skip ahead.
 
 ## Hard rules
 
-1. `loxia-core` has zero I/O — no `tokio`, `reqwest`, `ratatui`, or filesystem access.
-2. No `unwrap()` / `expect()` outside `main.rs` bootstrap and tests.
-3. `crossterm` is never a direct dependency — use `ratatui::crossterm`.
-4. Never hardcode a keybinding in UI text — render through `KeyMap::hint_for(ActionId)`.
-5. Never log a token or a stream URL — redact in `Debug`/`Display`.
-6. One task = one branch = one PR (branch name `feat/<task-id>-<slug>`); never cross a crate
-   boundary in a single task unless the task file explicitly authorises it.
+1. Do the lowest-numbered unticked task whose prerequisites are ticked. Do not skip ahead because
+   a later task looks more interesting.
+2. Tick a task's checkbox in the same PR that completes it — this file is the single source of
+   truth for progress, not memory or a project board. Do not untick one you didn't just finish.
+3. Touch only the files a task's own **Files** section names. If you need to touch something
+   else, that's a sign you have the wrong task, or the task file needs a documented correction.
+4. If a task's spec conflicts with something you find in the code, `docs/12-decisions.md` is
+   where you record the resolution — the task's own text is not amended silently.
+5. `#[cfg(target_os = ...)]` is confined to `loxia-audio::device` and `loxia-core::paths`; nowhere
+   else needs to know what platform it's running on.
+6. Never cross a crate boundary in a single task unless the task file explicitly authorises it.
 
-## Tasks
+## Progress
 
 ### Phase 00 — Scaffolding
-
-- [ ] `00-01` — Workspace skeleton
-- [ ] `00-02` — Workspace dependencies
-- [ ] `00-03` — Dev tooling and licence
-- [ ] `00-04` — CI workflow
-- [ ] `00-05` — cargo-deny policy
+- [x] `00-01` workspace skeleton
+- [x] `00-02` workspace dependencies
+- [x] `00-03` dev tooling and licence
+- [x] `00-04` ci workflow
+- [x] `00-05` cargo deny policy
 
 ### Phase 01 — Config
-
-- [ ] `01-01` — Config schema
-- [ ] `01-02` — Config defaults and validation
-- [ ] `01-03` — Path resolution
-- [ ] `01-04` — Config file I/O
-- [ ] `01-05` — Terminal guard
-- [ ] `01-06` — CLI and logging
-- [ ] `01-07` — Domain model types
-- [ ] `01-08` — Lyrics model and LRC parser
+- [x] `01-01` config schema
+- [x] `01-02` config defaults and validation
+- [x] `01-03` path resolution
+- [x] `01-04` config file io
+- [x] `01-05` terminal guard
+- [x] `01-06` cli and logging
+- [x] `01-07` domain model types
+- [x] `01-08` lyrics model and lrc parser
 
 ### Phase 02 — Emby client
-
-- [ ] `02-01` — API audit
-- [ ] `02-02` — HTTP client and auth
-- [ ] `02-03` — Errors and retry
-- [ ] `02-04` — DTOs and conversion
-- [ ] `02-05` — Item query builder
-- [ ] `02-06` — Discography & appears-on
-- [ ] `02-07` — Search, favourites, instant mix
-- [ ] `02-08` — Playlists
-- [ ] `02-09` — PlaybackInfo and stream URLs
-- [ ] `02-10` — Playback reporting
-- [ ] `02-11` — Lyrics
-- [ ] `02-12` — Images
-- [ ] `02-13` — Probe example
+- [x] `02-01` api audit
+- [x] `02-02` http client and auth
+- [x] `02-03` errors and retry
+- [x] `02-04` dtos and conversion
+- [x] `02-05` item query builder
+- [x] `02-06` discography appears on
+- [x] `02-07` search favourites instant mix
+- [x] `02-08` playlists
+- [x] `02-09` playbackinfo and stream urls
+- [x] `02-10` playback reporting
+- [x] `02-11` lyrics
+- [x] `02-12` images
+- [x] `02-13` probe example
 
 ### Phase 03 — State machine
-
-- [ ] `03-01` — AppState and substates
-- [ ] `03-02` — Test-support fixtures
-- [ ] `03-03` — Action, Effect, Event
-- [ ] `03-04` — Key chords and parser
-- [ ] `03-05` — Default keymap and validation
-- [ ] `03-06` — Reducer: navigation
-- [ ] `03-07` — Reducer: modals
-- [ ] `03-08` — Runtime event loop
-- [ ] `03-09` — Input mapping
+- [x] `03-01` appstate and substates
+- [x] `03-02` test support fixtures
+- [x] `03-03` action effect event
+- [x] `03-04` key chords and parser
+- [x] `03-05` default keymap and validation
+- [x] `03-06` reducer navigation
+- [x] `03-07` reducer modals
+- [x] `03-08` runtime event loop
+- [x] `03-09` input mapping
 
 ### Phase 04 — Miller UI
-
-- [ ] `04-01` — Theme system
-- [ ] `04-02` — Root layout
-- [ ] `04-03` — Text helpers
-- [ ] `04-04` — Hit map
-- [ ] `04-05` — Sidebar and header
-- [ ] `04-06` — Column widget
-- [ ] `04-07` — Miller view
-- [ ] `04-08` — Inspector
-- [ ] `04-09` — Player bar
-- [ ] `04-10` — Network worker and wiring
-- [ ] `04-11` — Inline filter
+- [x] `04-01` theme system
+- [x] `04-02` root layout
+- [x] `04-03` text helpers
+- [x] `04-04` hit map
+- [x] `04-05` sidebar and header
+- [x] `04-06` column widget
+- [x] `04-07` miller view
+- [x] `04-08` inspector
+- [x] `04-09` player bar
+- [x] `04-10` network worker and wiring
+- [x] `04-11` inline filter
 
 ### Phase 05 — Audio
+- [x] `05-01` backend trait and types
+- [x] `05-02` mock engine
+- [x] `05-03` mpv handle
+- [x] `05-04` mpv event pump
+- [x] `05-05` custom headers and diagnostics
+- [x] `05-06` audio worker
 
-- [ ] `05-01` — Backend trait and types
-- [ ] `05-02` — Mock engine
-- [ ] `05-03` — mpv handle
-- [ ] `05-04` — mpv event pump
-- [ ] `05-05` — Custom headers and diagnostics
-- [ ] `05-06` — Audio worker
-
-### Phase 06 — Queue engine
-
-- [ ] `06-01` — Queue state basics
-- [ ] `06-02` — Appears-on queue rules
-- [x] `06-03` — Shuffle
-- [ ] `06-04` — Sort profiles
-- [ ] `06-05` — Listening history
-- [x] `06-06` — Gapless preloading
-- [x] `06-07` — Playback reporting wiring
-- [ ] `06-08` — Instant mix
-- [ ] `06-09` — Queue insert characterization tests
-- [ ] `06-10` — Insert-next consistency fix
-- [ ] `06-11` — Stale preload audit
-- [ ] `06-12` — Stale preload retraction
-- [ ] `06-13` — Play-order consumer audit
+### Phase 06 — Queue
+- [x] `06-01` queue state basics
+- [x] `06-02` appears on queue rules
+- [x] `06-03` shuffle
+- [x] `06-04` sort profiles
+- [x] `06-05` listening history
+- [x] `06-06` gapless preloading
+- [x] `06-07` playback reporting wiring
+- [x] `06-08` instant mix
+- [ ] `06-09` queue insert characterization tests
+- [ ] `06-10` insert-next consistency fix
+- [ ] `06-11` stale preload audit
+- [ ] `06-12` stale preload retraction
+- [ ] `06-13` play-order consumer audit
 
 ### Phase 07 — Views
+- [x] `07-01` search tab
+- [x] `07-02` favourites tab
+- [x] `07-03` playlists tab
+- [x] `07-04` genres tab
+- [x] `07-05` folders tab
+- [x] `07-06` now playing view
+- [x] `07-07` lyrics pane
 
-- [ ] `07-01` — Search tab
-- [ ] `07-02` — Favourites tab
-- [ ] `07-03` — Playlists tab
-- [ ] `07-04` — Genres tab
-- [ ] `07-05` — Folders tab
-- [ ] `07-06` — Now playing view
-- [ ] `07-07` — Lyrics pane
-
-### Phase 08 — Cache & offline
-
-- [ ] `08-01` — Cache paths and sanitiser
-- [ ] `08-02` — Manifest and LRU
-- [ ] `08-03` — Cache write-through
-- [ ] `08-04` — Permanent downloads
-- [ ] `08-05` — Offline browse index
-- [ ] `08-06` — Connectivity state machine
-- [ ] `08-07` — Scrobble buffer
-- [ ] `08-08` — Session and history persistence
+### Phase 08 — Cache and offline
+- [x] `08-01` cache paths and sanitiser
+- [x] `08-02` manifest and lru
+- [x] `08-03` cache write through
+- [x] `08-04` permanent downloads
+- [x] `08-05` offline browse index
+- [x] `08-06` connectivity state machine
+- [x] `08-07` scrobble buffer
+- [x] `08-08` session and history persistence
 
 ### Phase 09 — Advanced audio
-
-- [x] `09-01` — Device enumeration and swap
-- [ ] `09-02` — Bit-perfect mode
-- [ ] `09-03` — Equalizer engine
-- [ ] `09-04` — Replay gain
-- [ ] `09-05` — Sleep timer
-- [ ] `09-06` — Quality profiles
+- [x] `09-01` device enumeration and swap
+- [x] `09-02` bit perfect mode
+- [x] `09-03` equalizer engine
+- [x] `09-04` replay gain
+- [x] `09-05` sleep timer
+- [x] `09-06` quality profiles
 
 ### Phase 10 — Polish
-
-- [ ] `10-01` — Album art
-- [ ] `10-02` — Zen mode
-- [ ] `10-03` — Help modal
-- [ ] `10-04` — Mouse support
-- [ ] `10-05` — Device picker modal
-- [ ] `10-06` — Equalizer modal
-- [ ] `10-07` — Sleep timer modal
-- [ ] `10-08` — Save playlist modal
-- [ ] `10-09` — Sort profile modal
-- [ ] `10-10` — Desktop notifications
-- [ ] `10-11` — Media keys
-- [ ] `10-12` — WebSocket remote control
-- [ ] `10-13` — Toasts and empty states
+- [x] `10-01` album art
+- [x] `10-02` zen mode
+- [x] `10-03` help modal
+- [x] `10-04` mouse support
+- [x] `10-05` device picker modal
+- [x] `10-06` equalizer modal
+- [x] `10-07` sleep timer modal
+- [x] `10-08` save playlist modal
+- [x] `10-09` sort profile modal
+- [x] `10-10` desktop notifications
+- [x] `10-11` media keys
+- [x] `10-12` websocket remote control
+- [x] `10-13` toasts and empty states
 
 ### Phase 11 — Settings
-
-- [ ] `11-01` — Settings view
-- [ ] `11-02` — Keymap editor
-- [ ] `11-03` — Server profiles
-- [ ] `11-04` — Sort profile editor
-- [ ] `11-05` — EQ preset manager
-- [x] `11-06` — Session restore wiring
-- [ ] `11-07` — About view
+- [x] `11-01` settings view
+- [x] `11-02` keymap editor
+- [x] `11-03` server profiles
+- [x] `11-04` sort profile editor
+- [x] `11-05` eq preset manager
+- [x] `11-06` session restore wiring
+- [x] `11-07` about view
 
 ### Phase 12 — Packaging
-
-- [ ] `12-01` — cargo-dist setup
-- [ ] `12-02` — Windows packaging
-- [ ] `12-03` — macOS packaging
-- [ ] `12-04` — Linux packaging
-- [ ] `12-05` — Licence compliance checks
-- [ ] `12-06` — Branding assets
-- [ ] `12-07` — README and user docs
-- [ ] `12-08` — doctor subcommand
+- [ ] `12-01` cargo dist setup
+- [ ] `12-02` windows packaging
+- [ ] `12-03` macos packaging
+- [ ] `12-04` linux packaging
+- [ ] `12-05` licence compliance checks
+- [ ] `12-06` branding assets
+- [ ] `12-07` readme and user docs
+- [ ] `12-08` doctor subcommand
