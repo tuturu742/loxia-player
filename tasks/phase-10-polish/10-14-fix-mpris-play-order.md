@@ -1,18 +1,25 @@
-# 10-14 · Fix `play_order` reads in the MPRIS worker
+# 10-14 · Fix MPRIS play-order reads
 
-**Phase / Agent / Size / Prerequisites / Reference**
-Phase 10 — Polish · single-crate (`loxia-player`) · S · prerequisites: `10-11`, `06-03` ·
-Reference: `docs/15-play-order-audit.md` row 9.
+**Phase:** 10 — Polish
+**Agent:** single-crate (`loxia-player`)
+**Size:** S
+**Prerequisites:** `10-11` (media keys), `06-03` (shuffle)
+**Reference:** `docs/15-play-order-audit.md` row 9
 
 ## Goal
 
-`crates/loxia-player/src/workers/mpris.rs` reports the current track, the exposed track list, and
-`CanGoNext`/`CanGoPrevious` by indexing `QueueState::entries` and comparing against
-`entries.len()` directly, instead of going through `QueueState::play_order`. Under a shuffled
-queue this shows the wrong "now playing" metadata to the OS media-key/notification integration,
-exposes the track list to MPRIS clients in the wrong order, and can report `CanGoNext`/
-`CanGoPrevious` incorrectly (e.g. `true` when `play_order` is actually exhausted in that
-direction, or vice versa). When this task is done, all three read through `play_order`.
+`crates/loxia-player/src/workers/mpris.rs` reports the current track and the exposed track list by
+reading/iterating `entries` directly rather than resolving through `play_order`. With shuffle on,
+MPRIS (and the SMTC/CoreAudio equivalents `souvlaki` maps it to) shows the wrong "now playing"
+metadata and the wrong track list. When this task is done, the MPRIS worker's `Metadata` and track
+list both resolve through `play_order` the same way `QueueState::current()` already does.
+
+`CanGoNext`/`CanGoPrevious` were audited separately (`docs/15-play-order-audit.md` row 9) and found
+already correct: `play_order` is always a permutation of `entries`' indices, so
+`play_order.len() == entries.len()` unconditionally, and `QueueState::peek_next()`/
+`peek_previous()` are plain bound-checks against `position` rather than entry-skipping walks, so a
+length-based check against either vec is identical. Nothing in this task changes
+`CanGoNext`/`CanGoPrevious`, and no test for them is added here.
 
 ## Files
 
@@ -20,29 +27,20 @@ direction, or vice versa). When this task is done, all three read through `play_
 
 ## Specification
 
-- The `Metadata` (`xesam:title`, `xesam:artist`, `mpris:trackid`, etc.) sent for the current track
-  must be built from `QueueState::current()` (or equivalently, from `entries[play_order[position]]`),
-  never `entries[position]`.
-- Any exposed ordered track list (e.g. `org.mpris.MediaPlayer2.TrackList`, if implemented) must be
-  built by mapping `play_order` to `entries`, in `play_order`'s order — never `entries` in storage
-  order.
-- `CanGoNext` must be true iff there is a next position in `play_order` (i.e.
-  `position + 1 < play_order.len()`, mirroring `QueueState::peek_next()`'s own bound), not
-  `position + 1 < entries.len()`.
-- `CanGoPrevious` must be true iff there is a previous position in `play_order` (i.e.
-  `position > 0` against `play_order`, mirroring `QueueState::peek_previous()`), not compared
-  against `entries` directly.
-- No behavioural change when shuffle is off.
+- The `MediaMetadata` built for `souvlaki::MediaControls::set_metadata` must be built from
+  `queue.current()` (or an equivalent `play_order`-resolved lookup), never from
+  `queue.entries[queue.position]` or any other direct index into `entries`.
+- Any track list this worker exposes must be built by walking `queue.play_order` and resolving
+  each index into `entries`, in play order, not by iterating `entries` in storage order.
+- `CanGoNext`/`CanGoPrevious` are unchanged by this task.
 
 ## Acceptance
 
-- A new test with a shuffled `QueueState` fixture asserting:
-  - `mpris_metadata_matches_play_order_under_shuffle` — the emitted `Metadata` matches
-    `QueueState::current()`'s item, not `entries[position]`'s.
-  - `mpris_can_go_next_previous_match_play_order_under_shuffle` — `CanGoNext`/`CanGoPrevious`
-    match `QueueState::peek_next()`/`peek_previous()` being `Some`/`None`, including at both ends
-    of a shuffled `play_order` where `entries[position]` would have given a different answer than
-    `play_order[position]`.
+- `mpris_metadata_matches_play_order_under_shuffle` — a `QueueState` fixture with shuffle on (a
+  non-identity `play_order`) produces `MediaMetadata` for `entries[play_order[position]]`, not
+  `entries[position]`.
+- `mpris_track_list_matches_play_order_under_shuffle` — the exposed track list, for the same
+  fixture, is in play order (`play_order`-resolved), not storage order.
 
 ## Done when
 

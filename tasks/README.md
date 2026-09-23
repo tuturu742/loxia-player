@@ -1,6 +1,6 @@
 # loxia — Task Library
 
-109 tasks in 13 phases. **Execute in filename order.** Every task's prerequisites are numerically
+111 tasks in 13 phases. **Execute in filename order.** Every task's prerequisites are numerically
 earlier, so if you always take the lowest unticked task whose prerequisites are ticked, you can
 never be blocked by ordering.
 
@@ -113,14 +113,14 @@ Every task, no exceptions:
 ### Phase 06 — Queue engine
 - [x] `06-01` queue state basics
 - [x] `06-02` appears-on queue rules
-- [x] `06-03` non-destructive shuffle
+- [x] `06-03` shuffle
 - [x] `06-04` sort profiles
 - [x] `06-05` listening history
 - [x] `06-06` gapless preloading
 - [x] `06-07` playback reporting wiring
 - [x] `06-08` instant mix
 
-### Phase 07 — Remaining views
+### Phase 07 — Views
 - [x] `07-01` search tab
 - [x] `07-02` favourites tab
 - [x] `07-03` playlists tab
@@ -128,6 +128,7 @@ Every task, no exceptions:
 - [x] `07-05` folders tab
 - [x] `07-06` now playing view
 - [x] `07-07` lyrics pane
+- [ ] `07-08` fix play order in the TUI queue view and player bar
 
 ### Phase 08 — Cache & offline
 - [x] `08-01` cache paths and sanitiser
@@ -140,14 +141,14 @@ Every task, no exceptions:
 - [x] `08-08` session and history persistence
 
 ### Phase 09 — Advanced audio
-- [x] `09-01` device enumeration and hot-swap
+- [x] `09-01` device enumeration and swap
 - [x] `09-02` bit-perfect mode
 - [x] `09-03` equalizer engine
 - [x] `09-04` replay gain
 - [x] `09-05` sleep timer
 - [x] `09-06` quality profiles
 
-### Phase 10 — Polish & integrations
+### Phase 10 — Polish
 - [x] `10-01` album art
 - [x] `10-02` zen mode
 - [x] `10-03` help modal
@@ -158,11 +159,12 @@ Every task, no exceptions:
 - [x] `10-08` save playlist modal
 - [x] `10-09` sort profile modal
 - [x] `10-10` desktop notifications
-- [x] `10-11` media keys (MPRIS/SMTC)
+- [x] `10-11` media keys
 - [x] `10-12` websocket remote control
 - [x] `10-13` toasts and empty states
+- [ ] `10-14` fix MPRIS play order
 
-### Phase 11 — Settings & keymapper
+### Phase 11 — Settings
 - [x] `11-01` settings view
 - [x] `11-02` keymap editor
 - [x] `11-03` server profiles
@@ -171,12 +173,12 @@ Every task, no exceptions:
 - [x] `11-06` session restore wiring
 - [x] `11-07` about view
 
-### Phase 12 — Packaging & release
-- [ ] `12-01` cargo-dist setup
-- [ ] `12-02` windows packaging
-- [ ] `12-03` macOS packaging
-- [ ] `12-04` linux packaging
-- [ ] `12-05` licence compliance checks
-- [ ] `12-06` branding assets
-- [ ] `12-07` README and user docs
-- [ ] `12-08` doctor subcommand
+### Phase 12 — Packaging
+- [x] `12-01` cargo-dist setup
+- [x] `12-02` Windows packaging
+- [x] `12-03` macOS packaging
+- [x] `12-04` Linux packaging
+- [x] `12-05` licence compliance checks
+- [x] `12-06` branding assets
+- [x] `12-07` README and user docs
+- [x] `12-08` doctor subcommand
