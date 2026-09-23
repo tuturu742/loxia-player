@@ -1,6 +1,6 @@
 # loxia — Task Library
 
-109 tasks in 13 phases. **Execute in filename order.** Every task's prerequisites are numerically
+114 tasks in 13 phases. **Execute in filename order.** Every task's prerequisites are numerically
 earlier, so if you always take the lowest unticked task whose prerequisites are ticked, you can
 never be blocked by ordering.
 
@@ -47,6 +47,7 @@ Every task, no exceptions:
 ## Progress
 
 ### Phase 00 — Scaffolding
+
 - [x] `00-01` workspace skeleton
 - [x] `00-02` workspace dependencies
 - [x] `00-03` dev tooling and licence
@@ -54,6 +55,7 @@ Every task, no exceptions:
 - [x] `00-05` cargo-deny policy
 
 ### Phase 01 — Config, paths & bootstrap
+
 - [x] `01-01` config schema
 - [x] `01-02` config defaults and validation
 - [x] `01-03` path resolution
@@ -64,12 +66,13 @@ Every task, no exceptions:
 - [x] `01-08` lyrics model and LRC parser
 
 ### Phase 02 — Emby client
-- [x] `02-01` API audit against the live server
+
+- [x] `02-01` API audit
 - [x] `02-02` HTTP client and auth
 - [x] `02-03` errors and retry
-- [x] `02-04` DTOs and model conversion
+- [x] `02-04` DTOs and conversion
 - [x] `02-05` item query builder
-- [x] `02-06` discography and the appears-on split
+- [x] `02-06` discography and appears-on
 - [x] `02-07` search, favourites, instant mix
 - [x] `02-08` playlists
 - [x] `02-09` PlaybackInfo and stream URLs
@@ -79,20 +82,22 @@ Every task, no exceptions:
 - [x] `02-13` probe example
 
 ### Phase 03 — State machine core
-- [x] `03-01` AppState and sub-states
+
+- [x] `03-01` AppState and substates
 - [x] `03-02` test-support fixtures
 - [x] `03-03` Action, Effect, Event
-- [x] `03-04` key chords and binding parser
-- [x] `03-05` default keymap and conflict validation
+- [x] `03-04` key chords and parser
+- [x] `03-05` default keymap and validation
 - [x] `03-06` reducer: navigation
 - [x] `03-07` reducer: modals
 - [x] `03-08` runtime event loop
 - [x] `03-09` input mapping
 
-### Phase 04 — Miller columns UI
+### Phase 04 — Miller UI
+
 - [x] `04-01` theme system
 - [x] `04-02` root layout
-- [x] `04-03` text measurement helpers
+- [x] `04-03` text helpers
 - [x] `04-04` hit map
 - [x] `04-05` sidebar and header
 - [x] `04-06` column widget
@@ -102,7 +107,8 @@ Every task, no exceptions:
 - [x] `04-10` network worker and wiring
 - [x] `04-11` inline filter
 
-### Phase 05 — Audio MVP
+### Phase 05 — Audio
+
 - [x] `05-01` backend trait and types
 - [x] `05-02` mock engine
 - [x] `05-03` mpv handle
@@ -111,6 +117,7 @@ Every task, no exceptions:
 - [x] `05-06` audio worker
 
 ### Phase 06 — Queue engine
+
 - [x] `06-01` queue state basics
 - [x] `06-02` appears-on queue rules
 - [x] `06-03` non-destructive shuffle
@@ -119,8 +126,14 @@ Every task, no exceptions:
 - [x] `06-06` gapless preloading
 - [x] `06-07` playback reporting wiring
 - [x] `06-08` instant mix
+- [ ] `06-09` queue-insert characterization tests (prereqs: `06-01`, `06-03`)
+- [ ] `06-10` insert-next consistency fix (prereqs: `06-09`)
+- [ ] `06-11` stale-preload audit (prereqs: `06-06`, `06-10`)
+- [ ] `06-12` stale-preload retraction (prereqs: `06-11`)
+- [ ] `06-13` play-order consumer audit (prereqs: `06-01`, `06-10`)
 
 ### Phase 07 — Remaining views
+
 - [x] `07-01` search tab
 - [x] `07-02` favourites tab
 - [x] `07-03` playlists tab
@@ -130,6 +143,7 @@ Every task, no exceptions:
 - [x] `07-07` lyrics pane
 
 ### Phase 08 — Cache & offline
+
 - [x] `08-01` cache paths and sanitiser
 - [x] `08-02` manifest and LRU
 - [x] `08-03` cache write-through
@@ -140,14 +154,16 @@ Every task, no exceptions:
 - [x] `08-08` session and history persistence
 
 ### Phase 09 — Advanced audio
-- [x] `09-01` device enumeration and hot-swap
+
+- [x] `09-01` device enumeration and swap
 - [x] `09-02` bit-perfect mode
 - [x] `09-03` equalizer engine
 - [x] `09-04` replay gain
 - [x] `09-05` sleep timer
 - [x] `09-06` quality profiles
 
-### Phase 10 — Polish & integrations
+### Phase 10 — Polish
+
 - [x] `10-01` album art
 - [x] `10-02` zen mode
 - [x] `10-03` help modal
@@ -158,11 +174,12 @@ Every task, no exceptions:
 - [x] `10-08` save playlist modal
 - [x] `10-09` sort profile modal
 - [x] `10-10` desktop notifications
-- [x] `10-11` media keys (MPRIS/SMTC)
+- [x] `10-11` media keys
 - [x] `10-12` websocket remote control
 - [x] `10-13` toasts and empty states
 
-### Phase 11 — Settings & keymapper
+### Phase 11 — Settings
+
 - [x] `11-01` settings view
 - [x] `11-02` keymap editor
 - [x] `11-03` server profiles
@@ -172,11 +189,12 @@ Every task, no exceptions:
 - [x] `11-07` about view
 
 ### Phase 12 — Packaging & release
-- [ ] `12-01` cargo-dist setup
-- [ ] `12-02` windows packaging
-- [ ] `12-03` macOS packaging
-- [ ] `12-04` linux packaging
-- [ ] `12-05` licence compliance checks
-- [ ] `12-06` branding assets
-- [ ] `12-07` README and user docs
-- [ ] `12-08` doctor subcommand
+
+- [x] `12-01` cargo-dist setup
+- [x] `12-02` Windows packaging
+- [x] `12-03` macOS packaging
+- [x] `12-04` Linux packaging
+- [x] `12-05` licence compliance checks
+- [x] `12-06` branding assets
+- [x] `12-07` README and user docs
+- [x] `12-08` doctor subcommand
