@@ -10,7 +10,7 @@ Read in full. Phase 06 ("Queue engine") is `tasks/phase-06-queue/06-01` through 
 
 - `06-01` queue state basics
 - `06-02` appears-on queue rules
-- `06-03` no-repeat shuffle with seeded RNG
+- `06-03` non-destructive shuffle
 - `06-04` sort profiles
 - `06-05` listening history
 - `06-06` gapless preloading
@@ -18,9 +18,12 @@ Read in full. Phase 06 ("Queue engine") is `tasks/phase-06-queue/06-01` through 
 - `06-08` instant mix
 
 All eight are ticked `[x]` in `tasks/README.md`, consistent with `crates/loxia-player/src/main.rs`
-citing `06-06`/`06-07` and `09-01`/`11-06` as already-implemented behaviour in inline comments. The
-only unticked task anywhere in the library is `12-08` (doctor subcommand — `main.rs` itself prints
-"not yet implemented (see task 12-08)"), which is unrelated to the queue.
+citing `06-06`/`06-07` and `09-01`/`11-06` as already-implemented behaviour in inline comments.
+`12-01` through `12-08` (the entire Phase 12 — Packaging section) are unticked — `main.rs` itself
+prints "not yet implemented (see task 12-08)" for the doctor subcommand, and none of the other
+seven packaging tasks (cargo-dist setup, per-OS packaging, licence compliance, branding assets,
+README/user docs) show any corresponding implementation elsewhere in the tree either. All eight are
+unrelated to the queue.
 
 Searching the full task list for `queue`, `insert`, `play next`, `QueueBatch`, and `preload` turned
 up no task — ticked or not — whose title or scope is "insert consistency", "stale preload
@@ -32,19 +35,20 @@ no existing task covers any of the five items below; none of them duplicate prio
 
 ## 2. `docs/12-decisions.md` — existing rows
 
-Read in full, with particular attention to §9 (the deviation log). The copy available in this
-session contains no row addressing:
+Read in full, including §9 (the deviation log) in its entirety. §9 contains no row addressing:
 
 - queue insert position (where `InsertNext` places a track in `play_order`),
 - the shuffle-and-insert interaction (whether that position is the same when shuffle is on or off),
 - retracting a gapless preload once the queue's next track changes underneath it.
 
-Other §9-style entries referenced elsewhere in the repo (e.g. the `EqCurve` wrapper struct in
-`crates/loxia-audio/src/backend.rs`, the `VolumeChanged` audio event, `notify-rust`'s `images`
-feature exclusion) are about unrelated subsystems. **Conclusion: none of the three rows described
-in the task brief exist yet.** The retraction task (`06-12`) is expected to add the "retracting a
-gapless preload" row itself, once it lands a real fix, per `CONTRIBUTING.md`'s normal rule
-("if implementation forces a deviation from `docs/`, fix the doc in the same PR").
+Other §9 rows referenced elsewhere in the repo are about unrelated subsystems: the `EqCurve`
+wrapper struct kept distinct from `loxia_core::effect::EqCurve` (cited in
+`crates/loxia-audio/src/backend.rs`), and the `VolumeChanged` audio event added to cover a gap in
+the property→event mapping (cited in the same file). Neither is about queue ordering or preloading.
+**Conclusion: none of the three rows described in the task brief exist yet.** The retraction task
+(`06-12`) is expected to add the "retracting a gapless preload" row itself, once it lands a real
+fix, per `CONTRIBUTING.md`'s normal rule ("if implementation forces a deviation from `docs/`, fix
+the doc in the same PR").
 
 ## 3. New task files registered
 
@@ -64,8 +68,6 @@ Phase 07 section, per the existing "execute in filename order" convention.
 
 `06-12` is the only one that touches production code in more than one crate in a single PR; its
 task file carries an explicit crate-boundary authorisation per `CONTRIBUTING.md` rule 2, naming
-`loxia-audio`, `loxia-core`, and `loxia-player` by name. `06-11` and `06-13` read across the same
-three (plus `loxia-tui` for `06-13`) to compile their reports, but modify no file inside any crate
-— their only deliverable is a new file under `docs/` — so no authorisation is required for them
-under a literal reading of the rule; each still carries a short scope note to make that reasoning
-explicit rather than silent.
+`loxia-audio`, `loxia-core`, and `loxia-player` by name. `06-11` and `06-13` read across crate
+boundaries but do not modify production code outside `loxia-core` — they are audits that record
+findings as tests/docs within `loxia-core`, so they do not require the same authorisation.
