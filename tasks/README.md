@@ -1,8 +1,12 @@
 # loxia — Task Library
 
-109 tasks in 13 phases. **Execute in filename order.** Every task's prerequisites are numerically
+114 tasks in 13 phases. **Execute in filename order.** Every task's prerequisites are numerically
 earlier, so if you always take the lowest unticked task whose prerequisites are ticked, you can
 never be blocked by ordering.
+
+> Five tasks were added to Phase 06 after the original 109-task library was written — `06-09`
+> through `06-13` — to close a queue-insert/preload-consistency gap the original library did not
+> anticipate. See `tasks/queue-audit-findings.md` for what prompted them.
 
 ## How to use a task file
 
@@ -119,8 +123,13 @@ Every task, no exceptions:
 - [x] `06-06` gapless preloading
 - [x] `06-07` playback reporting wiring
 - [x] `06-08` instant mix
+- [ ] `06-09` queue-insert characterization tests
+- [ ] `06-10` fix insert-next consistency
+- [ ] `06-11` stale preload audit
+- [ ] `06-12` stale preload retraction
+- [ ] `06-13` play_order consumer audit
 
-### Phase 07 — Remaining views
+### Phase 07 — Views
 - [x] `07-01` search tab
 - [x] `07-02` favourites tab
 - [x] `07-03` playlists tab
@@ -147,7 +156,7 @@ Every task, no exceptions:
 - [x] `09-05` sleep timer
 - [x] `09-06` quality profiles
 
-### Phase 10 — Polish & integrations
+### Phase 10 — Polish
 - [x] `10-01` album art
 - [x] `10-02` zen mode
 - [x] `10-03` help modal
@@ -162,7 +171,7 @@ Every task, no exceptions:
 - [x] `10-12` websocket remote control
 - [x] `10-13` toasts and empty states
 
-### Phase 11 — Settings & keymapper
+### Phase 11 — Settings
 - [x] `11-01` settings view
 - [x] `11-02` keymap editor
 - [x] `11-03` server profiles
@@ -171,7 +180,7 @@ Every task, no exceptions:
 - [x] `11-06` session restore wiring
 - [x] `11-07` about view
 
-### Phase 12 — Packaging & release
+### Phase 12 — Packaging
 - [ ] `12-01` cargo-dist setup
 - [ ] `12-02` windows packaging
 - [ ] `12-03` macOS packaging
