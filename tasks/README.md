@@ -120,7 +120,7 @@ Every task, no exceptions:
 - [x] `06-07` playback reporting wiring
 - [x] `06-08` instant mix
 
-### Phase 07 — Views
+### Phase 07 — Remaining views
 - [x] `07-01` search tab
 - [x] `07-02` favourites tab
 - [x] `07-03` playlists tab
@@ -148,7 +148,7 @@ Every task, no exceptions:
 - [x] `09-05` sleep timer
 - [x] `09-06` quality profiles
 
-### Phase 10 — Polish
+### Phase 10 — Polish & integrations
 - [x] `10-01` album art
 - [x] `10-02` zen mode
 - [x] `10-03` help modal
@@ -160,11 +160,11 @@ Every task, no exceptions:
 - [x] `10-09` sort profile modal
 - [x] `10-10` desktop notifications
 - [x] `10-11` media keys
-- [x] `10-12` websocket remote control
+- [x] `10-12` WebSocket remote control
 - [x] `10-13` toasts and empty states
 - [ ] `10-14` fix MPRIS play order
 
-### Phase 11 — Settings
+### Phase 11 — Settings & keymapper
 - [x] `11-01` settings view
 - [x] `11-02` keymap editor
 - [x] `11-03` server profiles
@@ -173,12 +173,12 @@ Every task, no exceptions:
 - [x] `11-06` session restore wiring
 - [x] `11-07` about view
 
-### Phase 12 — Packaging
-- [x] `12-01` cargo-dist setup
-- [x] `12-02` Windows packaging
-- [x] `12-03` macOS packaging
-- [x] `12-04` Linux packaging
-- [x] `12-05` licence compliance checks
-- [x] `12-06` branding assets
-- [x] `12-07` README and user docs
-- [x] `12-08` doctor subcommand
+### Phase 12 — Packaging & release
+- [ ] `12-01` cargo-dist setup
+- [ ] `12-02` Windows packaging
+- [ ] `12-03` macOS packaging
+- [ ] `12-04` Linux packaging
+- [ ] `12-05` licence compliance checks
+- [ ] `12-06` branding assets
+- [ ] `12-07` README and user docs
+- [ ] `12-08` doctor subcommand

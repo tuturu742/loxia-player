@@ -1,19 +1,20 @@
-# 07-08 · Fix play-order reads in the TUI queue view and player bar
+# 07-08 · fix play order in the TUI queue view and player bar
 
-**Phase:** 07 — Views
-**Agent:** single-crate (`loxia-tui`)
+**Phase:** 07 — Remaining views
+**Agent:** loxia-tui
 **Size:** S
-**Prerequisites:** `07-06` (now-playing view), `04-09` (player bar), `06-03` (shuffle)
+**Prerequisites:** `07-06` now playing view, `04-09` player bar, `06-03` shuffle
 **Reference:** `docs/15-play-order-audit.md` rows 7–8
 
 ## Goal
 
-`loxia-tui/src/views/now_playing.rs`'s "up next" queue list and
-`loxia-tui/src/widgets/player_bar.rs`'s now-playing title/artist/art lookup both index
-`queue.entries` directly instead of resolving through `queue.play_order`. With shuffle on, both
-show the wrong track. When this task is done, both read sites resolve the current/next entries the
-same way `QueueState::current()`/`peek_next()`/`peek_previous()` already do, and a shuffled-queue
-test proves it.
+`crates/loxia-tui/src/views/now_playing.rs`'s "up next" queue list and
+`crates/loxia-tui/src/widgets/player_bar.rs`'s now-playing title/artist/art lookup both index
+`QueueState::entries` directly instead of resolving through `QueueState::play_order`. When shuffle
+is off, `play_order` is the identity permutation, so this has been invisible; the moment shuffle is
+on, both widgets show the wrong track. When this task is done, both consumers resolve every
+"current", "next", and "up next" track through `play_order` — directly, or via
+`QueueState::current()` / `peek_next()` / `peek_previous()` — and a shuffled-queue test proves it.
 
 ## Files
 
@@ -22,23 +23,25 @@ test proves it.
 
 ## Specification
 
-- The "up next" list body must walk `queue.play_order` starting at `queue.position + 1`
-  (mirroring `QueueState::peek_next()`'s own traversal), resolving each `play_order[i]` to
-  `queue.entries[play_order[i]]` — never iterate or index `queue.entries` directly by list
-  position.
-- `player_bar`'s now-playing title, artist, and album-art lookups must go through
-  `queue.current()` (or an equivalent `play_order`-resolved lookup), never
-  `queue.entries[queue.position]`.
-- No behaviour change when shuffle is off (`play_order` is the identity permutation there), so
-  every existing snapshot for both files must still pass unmodified.
+- `now_playing.rs`'s "up next" list body must walk `queue.play_order` starting at (or after)
+  `queue.position`, resolving each visited `play_order` entry into `queue.entries` to get the item
+  to render, rather than iterating `queue.entries` in storage order or indexing it directly by
+  list row.
+- `player_bar.rs`'s now-playing title, artist, and album-art lookup must resolve the current track
+  via `queue.current()` (or the equivalent `entries[play_order[position]]` resolution), never
+  `entries[position]`.
+- Neither file may derive an `entries` index from `position` without first resolving it through
+  `play_order`.
 
 ## Acceptance
 
-- `now_playing_snapshot_queue_under_shuffle` — a `QueueState` fixture with shuffle on (a
-  non-identity `play_order`) renders the "up next" list in play order, not storage order.
-- `player_bar_snapshot_playing_under_shuffle` — the same shuffled fixture shows the title/artist
-  of `entries[play_order[position]]`, not `entries[position]`.
-- Every pre-existing snapshot test in both files still passes.
+- `now_playing_snapshot_queue_under_shuffle`: a `QueueState` built with a non-identity `play_order`
+  renders the "up next" list in `play_order` order, not `entries` storage order.
+- `player_bar_snapshot_playing_under_shuffle`: a `QueueState` built with a non-identity
+  `play_order` renders the title/artist of `entries[play_order[position]]`, not
+  `entries[position]`.
+- Existing snapshot tests for both widgets remain green (identity-permutation queues render
+  unchanged).
 
 ## Done when
 

@@ -28,21 +28,28 @@ and `mpris`, then read every hit plus its call sites.
 - **`loxia-core` helpers are correct.** `QueueState::current()`, `peek_next()`, `peek_previous()`,
   and the `PlaybackReport`-building reducer code all resolve through `play_order`, and neither
   `peek_next()` nor `peek_previous()` skips entries — they are bound-checks against `position`, not
-  walks that can diverge from a length-based check. No core fix is needed, so no core diff and no
-  `report_item_matches_play_order_under_shuffle` test is added by this task — there is nothing in
-  `loxia-core` for that test to guard against regressing that isn't already covered by the existing
-  shuffle/queue tests exercising `current()` / `peek_next()` / `peek_previous()`.
-- **Two consumer sites outside `loxia-core` need fixes**, in the two crates named in the task
-  brief:
-  - `loxia-tui`: the queue view (`views/now_playing.rs`) and `widgets/player_bar.rs` (rows 7–8).
-  - `loxia-player`: the MPRIS worker's current-track metadata and exposed track list
-    (`workers/mpris.rs`, row 9) — but *not* its `CanGoNext`/`CanGoPrevious`, which are already
-    correct for the reason given in row 9's verdict and do not need a follow-up fix or test.
+  walks that can diverge from a length-based check. No core fix is required by this task's brief:
+  fixing a core helper was optional here, conditioned on "if a core helper is wrong", and none is,
+  so no core code changes and no `report_item_matches_play_order_under_shuffle`-style core test are
+  added by this task.
+- **Two consumers outside core are wrong**, and are registered as separate, single-crate follow-up
+  tasks rather than fixed here, per the brief's instruction that this task changes nothing outside
+  `loxia-core`:
+  - `crates/loxia-tui/src/views/now_playing.rs` (the queue list body, row 7) and
+    `crates/loxia-tui/src/widgets/player_bar.rs` (the now-playing title/artist/art lookup, row 8)
+    both index `queue.entries` directly instead of walking or resolving through
+    `queue.play_order`. Tracked as
+    `tasks/phase-07-views/07-08-fix-play-order-in-tui-queue-and-player-bar.md`
+    (Phase 07 — Remaining views), which cites rows 7 and 8 above and names concrete
+    shuffled-queue snapshot tests.
+  - `crates/loxia-player/src/workers/mpris.rs`'s current-track `Metadata` and reported track list
+    (row 9) both index `entries` directly rather than resolving through `play_order`; only its
+    `CanGoNext`/`CanGoPrevious` computation happens to already be correct under shuffle, for the
+    reason given in the table. Tracked as
+    `tasks/phase-10-polish/10-14-fix-mpris-play-order.md` (Phase 10 — Polish & integrations),
+    which cites row 9 above and names a `report_item_matches_play_order_under_shuffle`-style
+    regression test plus a `CanGoNext`/`CanGoPrevious` regression test to lock in that they stay
+    correct while the `Metadata`/track-list bug is fixed.
 
-This task changes nothing outside `loxia-core` and makes no fixes itself, per its own scope.
-Follow-up single-crate fix tasks for the two wrong sites are registered directly in
-`tasks/README.md` (unticked `07-08` under Phase 07 — Views, and unticked `10-14` under Phase 10 —
-Polish) and given their own task files:
-
-- `tasks/phase-07-views/07-08-fix-play-order-in-tui-queue-and-player-bar.md`
-- `tasks/phase-10-polish/10-14-fix-mpris-play-order.md`
+Neither follow-up task is done as part of this audit — each is scoped to the single crate its bug
+lives in, so it can be picked up independently once its listed prerequisites are ticked.
