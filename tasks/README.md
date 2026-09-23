@@ -1,6 +1,6 @@
 # loxia — Task Library
 
-109 tasks in 13 phases. **Execute in filename order.** Every task's prerequisites are numerically
+111 tasks in 13 phases. **Execute in filename order.** Every task's prerequisites are numerically
 earlier, so if you always take the lowest unticked task whose prerequisites are ticked, you can
 never be blocked by ordering.
 
@@ -113,7 +113,7 @@ Every task, no exceptions:
 ### Phase 06 — Queue engine
 - [x] `06-01` queue state basics
 - [x] `06-02` appears-on queue rules
-- [x] `06-03` non-destructive shuffle
+- [x] `06-03` shuffle
 - [x] `06-04` sort profiles
 - [x] `06-05` listening history
 - [x] `06-06` gapless preloading
@@ -128,6 +128,7 @@ Every task, no exceptions:
 - [x] `07-05` folders tab
 - [x] `07-06` now playing view
 - [x] `07-07` lyrics pane
+- [ ] `07-08` fix play order in the TUI queue view and player bar
 
 ### Phase 08 — Cache & offline
 - [x] `08-01` cache paths and sanitiser
@@ -140,7 +141,7 @@ Every task, no exceptions:
 - [x] `08-08` session and history persistence
 
 ### Phase 09 — Advanced audio
-- [x] `09-01` device enumeration and hot-swap
+- [x] `09-01` device enumeration and swap
 - [x] `09-02` bit-perfect mode
 - [x] `09-03` equalizer engine
 - [x] `09-04` replay gain
@@ -158,9 +159,10 @@ Every task, no exceptions:
 - [x] `10-08` save playlist modal
 - [x] `10-09` sort profile modal
 - [x] `10-10` desktop notifications
-- [x] `10-11` media keys (MPRIS/SMTC)
-- [x] `10-12` websocket remote control
+- [x] `10-11` media keys
+- [x] `10-12` WebSocket remote control
 - [x] `10-13` toasts and empty states
+- [ ] `10-14` fix MPRIS play order
 
 ### Phase 11 — Settings & keymapper
 - [x] `11-01` settings view
@@ -173,9 +175,9 @@ Every task, no exceptions:
 
 ### Phase 12 — Packaging & release
 - [ ] `12-01` cargo-dist setup
-- [ ] `12-02` windows packaging
+- [ ] `12-02` Windows packaging
 - [ ] `12-03` macOS packaging
-- [ ] `12-04` linux packaging
+- [ ] `12-04` Linux packaging
 - [ ] `12-05` licence compliance checks
 - [ ] `12-06` branding assets
 - [ ] `12-07` README and user docs
