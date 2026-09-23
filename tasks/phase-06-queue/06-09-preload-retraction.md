@@ -1,60 +1,61 @@
-# 06-09 — Retract a stale gapless preload after a queue edit
+# 06-09 — Preload retraction
 
 ## Status
 
-Not started. Filed as the fix for the bug **confirmed** by
-`tasks/confirm-or-refute-the-stale-gapless-preload-after-a-queue-edit.md` — read that finding
-first; this task exists specifically because the bug was not refuted.
+Confirmed necessary. See
+`tasks/confirm-or-refute-the-stale-gapless-preload-after-a-queue-edit.md` for the investigation:
+a `Preload` already sent to mpv for a queue entry that a subsequent queue edit demotes from
+"next" is never retracted, and mpv will still play it back to back with the current track once it
+ends (`gapless-audio`/`prefetch-playlist`). The queue reducer's own `play_order` is unaffected and
+correct in isolation — the divergence is between the reducer's queue state and mpv's *playlist*
+state, which is mutated only by additive commands.
 
-## Problem
+## Mechanism (re-derived from the actual code, not presumed)
 
-`reducer::queue::preload_effects` (`crates/loxia-core/src/reducer/queue.rs`) sends
-`AudioCommand::Preload` for `play_order[position + 1]` and records the target in
-`PlayerState.last_preloaded` (`crates/loxia-core/src/state/player.rs`) so it is never re-sent for
-the same entry. `mpv::handle::apply_command` (`crates/loxia-audio/src/mpv/handle.rs`) turns that
-into an **append** to mpv's own internal playlist, per `crates/loxia-audio/src/gapless.rs`'s
-module doc: `Preload` appends "instead of replacing the current file". Nothing removes that
-appended entry if the queue is edited (insert-next, remove-next, reorder, clear) before it is ever
-played, because `AudioCommand` (`crates/loxia-audio/src/backend.rs`) has no variant capable of
-expressing "forget that preload" — its full variant list is `Load`, `Preload`, `Play`, `Pause`,
-`Stop`, `Seek`, `SetVolume`, `SetMute`, `SetEq`, `SetReplayGain`, `SetDevice`,
-`EnumerateDevices`, `Shutdown`.
+- `crates/loxia-audio/src/backend.rs::AudioCommand` has no variant that removes or replaces an
+  already-appended file — `Preload` only appends (confirmed against mpv's own `loadfile ... append`
+  in `mpv::handle::apply_command`, and against the "appending... instead of replacing" module doc
+  in `gapless.rs`).
+- `crates/loxia-core/src/reducer/queue.rs::preload_effects` guards against *re-sending* a
+  `Preload` for the same target via `PlayerState.last_preloaded`, but has no path that compares
+  the *previous* value of `last_preloaded` against the *new* "next" target to detect that the
+  previously-preloaded entry needs to be undone.
+- `crates/loxia-player/src/workers/audio.rs`'s effect→command translation is stateless per call —
+  it does not remember which `entry_id` a previous `Preload` was for, so it has nowhere to hang a
+  retraction even if the core emitted one.
 
-Net effect: mpv's playlist and `loxia-core`'s queue state can disagree about what plays next, and
-mpv may gaplessly advance into a track the user no longer has queued.
+## Fix shape
 
-## Fix shape (for whoever picks this up)
-
-1. **`crates/loxia-audio/src/backend.rs`**: add an `AudioCommand` variant that identifies a
-   specific pending preload to drop — e.g. `RetractPreload { url: RedactedUrl }` (matching by URL,
-   since that's what was sent, mirroring `Preload`'s own shape) — or, if mpv's playlist index is
-   stable enough to reason about, a positional `ClearPreload`. Prefer URL-matching over index-
-   matching unless `mpv::handle` already tracks the exact playlist index a given preload landed at.
-2. **`crates/loxia-audio/src/mpv/handle.rs`** (`apply_command`): translate the new variant into
-   mpv's `playlist-remove` command (or equivalent) targeting the previously-appended, not-yet-
-   current entry — never the currently-playing one.
-3. **`crates/loxia-core/src/reducer/queue.rs`** (`preload_effects`): when
-   `play_order[position + 1]` no longer matches `PlayerState.last_preloaded`, emit a retraction
-   effect for the stale target *in addition to* the existing preload effect for the new target,
-   and only then update `last_preloaded`. Also handle the "no next entry any more" case (e.g. the
-   queue shrank to one item) the same way — retract, don't just stop preloading.
-4. Extend `crates/loxia-audio/src/mock.rs`'s `MockEngine`/`MockControl` to record and expose
-   retractions, mirroring how it already records `AudioCommand`s, so higher-level tests can assert
-   on retraction without a real mpv instance.
-5. Fold `crates/loxia-core/tests/stale_preload_regression.rs`'s
-   `insert_next_after_preload_retargets_next_track` into `reducer::queue`'s own `#[cfg(test)] mod
-   tests`, remove its `#[ignore]`, and update its "no retraction effect exists" assertion to assert
-   the *opposite* — that the specific retraction effect for `stale_next` is present.
+1. **`crates/loxia-core/src/effect.rs`**: add `Effect::CancelPreload { entry_id: QueueEntryId }`.
+2. **`crates/loxia-core/src/reducer/queue.rs::preload_effects`**: change its signature/call sites
+   so it is given (or can read) the *previous* `last_preloaded` value before it is overwritten.
+   When the newly-computed `next_entry()` id differs from the previous `last_preloaded` and that
+   previous value is `Some(_)`, prepend `Effect::CancelPreload { entry_id: <old value> }` to the
+   returned effects, ahead of the new `Effect::Preload`. Update `PlayerState.last_preloaded` to
+   the new target (or `None` if there is no next entry) in the same step, so state and the emitted
+   effects agree.
+3. **`crates/loxia-audio/src/backend.rs::AudioCommand`**: add a variant carrying enough
+   information to remove the specific pending entry from mpv's playlist — mpv's own
+   `playlist-remove <index>` needs an index, not a URL, so the worker (not the core, which does not
+   talk to mpv) must be the one that maps `entry_id` to "the playlist slot after the currently
+   playing one" at the point it applies the command (that slot is always index `1` relative to
+   mpv's own current playlist position immediately after a single prior `Preload`, since nothing
+   else appends to mpv's playlist in this design).
+4. **`crates/loxia-audio/src/mpv/handle.rs::apply_command`**: handle the new variant with
+   `mpv.command("playlist-remove", &["1"])` (or the current-relative equivalent), guarding against
+   the case where mpv has already started playing that slot (i.e. the retraction lost the race —
+   in which case this becomes a no-op, not an error, since the file is now legitimately playing).
+5. **`crates/loxia-player/src/workers/audio.rs`**: translate `Effect::CancelPreload` into the new
+   `AudioCommand` variant, and track the `entry_id` of the most recent `Preload` sent so a
+   worker-side sanity check can be added later if needed (not required for correctness, since the
+   core is the source of truth for *which* id to cancel).
 
 ## Acceptance
 
-- `insert_next_after_preload_retargets_next_track` passes without `#[ignore]`.
-- A new `reducer::queue` test covers remove-next and reorder edits retargeting away from a
-  preloaded entry, not just insert-next.
-- `crates/loxia-audio/src/mpv/handle.rs` gains a unit test (and, gated behind `mpv-tests`, a real-
-  mpv test alongside `gapless.rs`'s existing ones) proving a retracted entry is actually removed
-  from mpv's playlist and is not what plays next.
-- `docs/05-audio-engine.md` §2's `AudioCommand`/`AudioEvent` table and `docs/06-cache-and-offline.md`
-  or `docs/05-audio-engine.md`'s gapless section (wherever `06-06`'s original preload behaviour is
-  documented) are updated to describe retraction; add a row to `docs/12-decisions.md` §9 noting the
-  original `06-06` preload design had no retraction path and why one was added.
+- `crates/loxia-core/src/reducer/queue.rs::tests::insert_next_after_preload_retargets_next_track`
+  (already added, currently `#[ignore = "fixed by 06-09-preload-retraction"]`) passes and the
+  `#[ignore]` is removed.
+- A new `loxia-audio` unit test asserts `AudioCommand`'s new variant round-trips through
+  `mpv::handle::apply_command` into `playlist-remove`.
+- The `mpv-tests` gapless real-mpv suite (`gapless.rs`) gains a case: preload track B, then
+  retract it and preload track C before A finishes; assert the transition lands on C, not B.
