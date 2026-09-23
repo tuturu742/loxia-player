@@ -22,13 +22,32 @@ shell prompt. Everything else exists to make that legible.
 
 ## Files
 
-| File | Use |
-| :-- | :-- |
-| `logo.svg` | Full-colour tile. README, release pages, macOS and Windows app icons at ≥ 48 px. |
-| `logo-mono.svg` | Simplified, `currentColor`. Favicons, 16 and 32 px icons, anywhere a single colour is required. |
-| `icons/loxia-{16,32,48,128,256,512}.png` | Generated from the SVGs by task `12-06`. |
-| `icons/loxia.ico`, `icons/loxia.icns` | Platform icon bundles. |
-| `banner.txt` | ASCII boot banner. |
+Covers `assets/` (this directory and its `themes/` subdirectory) as actually tracked in git — run
+`git ls-files -- assets` to reproduce this list. Every file below ships as part of this
+repository and carries its `GPL-3.0-or-later` licence (see `LICENSE`, and the `license` field of
+`[workspace.package]` in `Cargo.toml`; also restated in `THIRD_PARTY_LICENSES.md`).
+
+| File | Use | Licence |
+| :-- | :-- | :-- |
+| `BRANDING.md` | This inventory and design rationale. | GPL-3.0-or-later (`LICENSE`) |
+| `logo.svg` | Full-colour tile. README, release pages, macOS and Windows app icons at ≥ 48 px. | GPL-3.0-or-later (`LICENSE`) |
+| `logo-mono.svg` | Simplified, `currentColor`. Favicons, 16 and 32 px icons, anywhere a single colour is required. | GPL-3.0-or-later (`LICENSE`) |
+| `eq_presets.toml` | Factory equalizer presets, embedded into `loxia-audio` via `include_str!` (`docs/05-audio-engine.md` §5). | GPL-3.0-or-later (`LICENSE`) |
+| `themes/amber_crt.toml` | Built-in colour theme: monochrome amber-on-black CRT. | GPL-3.0-or-later (`LICENSE`) |
+| `themes/cyberpunk_neon.toml` | Built-in colour theme: loxia's own branding palette (see Palette below). | GPL-3.0-or-later (`LICENSE`) |
+| `themes/darcula.toml` | Built-in colour theme: dark IDE grey/purple/orange. | GPL-3.0-or-later (`LICENSE`) |
+| `themes/default_terminal.toml` | Built-in colour theme: transparent, uses the terminal's own ANSI palette. | GPL-3.0-or-later (`LICENSE`) |
+| `themes/far_blue.toml` | Built-in colour theme: deep, cool blue. | GPL-3.0-or-later (`LICENSE`) |
+| `themes/green_crt.toml` | Built-in colour theme: monochrome green-phosphor CRT. | GPL-3.0-or-later (`LICENSE`) |
+| `themes/oled_black.toml` | Built-in colour theme: pure black (OLED pixel-off) with cyan/magenta accents. | GPL-3.0-or-later (`LICENSE`) |
+
+`icons/loxia-{16,32,48,128,256,512}.png`, `icons/loxia.ico`, `icons/loxia.icns`, and `banner.txt`
+were previously listed here but do not exist in the repository — there is no `icons/` directory
+and no `banner.txt` under `assets/` (or anywhere else) per `git ls-files`. They are the deliverable
+of task `12-06` (`tasks/phase-12-packaging/12-06-branding-assets.md`), which has not run yet, and
+have been removed from this inventory until they exist and are tracked. The design rules that will
+govern them (below, and in the ASCII-banner section) are left in place as forward-looking spec, not
+as claims that the files are present.
 
 **Use `logo-mono.svg` at 16 and 32 px.** The full mark's eye, nape, and gradients collapse into an
 indistinct blob below about 48 px; the simplified variant knocks the eye out as a hole and thickens
