@@ -7,13 +7,17 @@
 ## Goal
 
 `loxia-player`'s MPRIS worker (`workers::mpris`, backed by `souvlaki`) currently reports the
-current track, the track list, and `CanGoNext`/`CanGoPrevious` by indexing
-`QueueState::entries` directly and bounds-checking against `entries.len()`. Under shuffle this can
-report the wrong now-playing metadata to the desktop environment, expose the track list to MPRIS
-clients in the wrong order, and mis-report whether a next/previous track actually exists (e.g.
-after a shuffled `play_order` that has fewer reachable entries ahead of the cursor than
-`entries.len()` would suggest). When finished, all three read through `play_order`, matching what
-the audio worker actually plays next.
+current track and the track list by indexing `QueueState::entries` directly in insertion order
+rather than playback order. Under shuffle this reports the wrong now-playing metadata to the
+desktop environment and exposes the track list to MPRIS clients in the wrong order. When finished,
+both read through `play_order`, matching what the audio worker actually plays next.
+
+`CanGoNext`/`CanGoPrevious` are out of scope for this task: they are already correct as written.
+`play_order` is always a permutation of `0..entries.len()`, so `play_order.len() == entries.len()`
+holds at all times, and `cursor` is a position within `play_order`. That makes
+`cursor + 1 < entries.len()` exactly equivalent to `play_order.get(cursor + 1).is_some()`, and
+`cursor > 0` is already the correct "has previous" rule. There is no shuffled state in which these
+two formulations disagree — see `docs/15-play-order-audit.md` row 13.
 
 ## Files
 
@@ -26,11 +30,9 @@ the audio worker actually plays next.
 - Any track list surfaced to MPRIS (`org.mpris.MediaPlayer2.TrackList`, if implemented via
   `souvlaki` or a raw D-Bus extension) must be built by mapping over `play_order`, so its order
   matches playback order rather than insertion order.
-- `CanGoNext` must be `true` iff `play_order.get(cursor + 1)` is `Some`, and `CanGoPrevious` must be
-  `true` iff `cursor > 0` — both derived from `play_order`'s length/position, not `entries.len()`.
-- On Windows/macOS where `souvlaki` maps these onto the native OS session control surface, the same
-  rule applies: whatever souvlaki call communicates "has next"/"has previous" must be fed the
-  `play_order`-derived boolean, not an `entries`-derived one.
+- Do not change how `CanGoNext`/`CanGoPrevious` (or the equivalent souvlaki calls on
+  Windows/macOS) are computed — leave the existing `entries.len()`/`cursor` bounds checks as they
+  are.
 
 ## Acceptance
 
@@ -39,11 +41,6 @@ the audio worker actually plays next.
   `entries[play_order[cursor]]`, not `entries[cursor]`.
 - `mpris_track_list_matches_play_order` (new): the track list handed to MPRIS is in `play_order`
   order, not insertion order.
-- `mpris_can_go_next_respects_play_order_bounds` (new): a shuffled queue where the cursor is at the
-  last position in `play_order` (but not the last position in `entries`) reports
-  `CanGoNext == false`.
-- `mpris_can_go_previous_respects_play_order_bounds` (new): the symmetric case for
-  `CanGoPrevious` at `cursor == 0`.
 
 ## Done when
 
