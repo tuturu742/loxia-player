@@ -16,24 +16,21 @@ DONE WHEN: The ledger exists. Every entry cites a real path with a line number. 
 
 ## Brief
 
-<knowledge id="k1" class="lore" source="Why this project exists" entry="Business constraints">
-Single maintainer: features that need staffing to operate are out of scope. Self-hosted first — no hosted service to sell, so the install must stay a one-liner. The engine is AGPL and the packs MIT, so anything that would force pack authors to open their content is a design error, not a licensing detail.
-</knowledge>
+The work item was not done. The complete file list shows only two added files: src/inventory-every-doc-file-and-extract-its-vocabulary.js and tasks/inventory-every-doc-file-and-extract-its-vocabulary.md. The one required deliverable, docs/_reconciliation/findings-inventory.md, is missing. Both added files are visible in full, and both are scaffolding marked 'TODO: implement' / 'not yet implemented'. The truncated brief inside the task file does not limit this verdict, because the missing ledger is clear from the file list, which is never truncated.
 
-<knowledge id="k2" class="lore" source="Why this project exists" entry="What users actually ask for">
-In order of how often it comes up: 'the NPC blurted the twist' (the reason exclusion exists), 'the dice are made up', 'I can't tell why it said that', and 'I don't want my campaign on someone else's server'. Every one of those maps to a structural feature rather than a better prompt — that mapping is the product.
-</knowledge>
+Required changes:
 
-<knowledge id="k3" class="lore" source="Why this project exists" entry="Who this is for">
-Three audiences, in priority order. **Tabletop groups** who want a game master that can hold a secret and dice that cannot be talked out of a result. **Teams** running structured multi-agent working sessions where some facts are genuinely confidential. **Engineering orgs** delegating work to coding agents under review. The first pays the rent for the design; the other two prove the engine is domain-neutral.
-</knowledge>
+1. Delete src/inventory-every-doc-file-and-extract-its-vocabulary.js. This item is a documentation ledger, not code. An empty exported stub with a TODO adds an unimplemented symbol to src/ and is out of scope.
 
-<knowledge id="k4" class="misc" source="Project reference shelf" entry="Decisions worth remembering">
-Postgres-only was chosen over a vector database because the isolation guarantees live in RLS and a second store would need its own. CEL was chosen over any embedded scripting because user-authored code is a security stance we do not want to defend. Both decisions get re-proposed roughly twice a year; neither has changed.
-</knowledge>
+2. Delete tasks/inventory-every-doc-file-and-extract-its-vocabulary.md. It restates the work item plus a pasted brief and is not a deliverable. The work item names exactly one file to create.
 
-<knowledge id="k5" class="misc" source="Project reference shelf" entry="Team glossary">
-**Overlay** — the per-workspace relabelling of core nouns. **Pack** — declarative workflow content (schemas, flo
+3. Create docs/_reconciliation/findings-inventory.md. Every entry must cite a real repo path and line number that you actually observed. Nothing should be taken from the brief or assumed. It needs these sections:
+
+(a) Doc inventory. Run a full-tree search from the repo root, e.g. `git ls-files | grep -iE '\.(md|mdx|rst|txt|adoc)$|openapi|swagger'`. Paste the exact command and its complete, unedited output. Make sure the output covers READMEs at every depth, docs/ directories, the pack authoring guide, API/CLI reference, install docs, glossary, and any ground-rules or lore files. If any of these do not exist, say so explicitly. Do not omit them silently.
+
+(b) Provenance. For each listed file, mark it hand-written or generated. For generated files, quote the exact line in package.json scripts, the Makefile, or CI config that produces it, with its path:line.
+
+(c) Architectural claims in code comments. First check the listing for the real source directory, since packages/ may not exist. Run the grep against th
 
 ## Status
 
