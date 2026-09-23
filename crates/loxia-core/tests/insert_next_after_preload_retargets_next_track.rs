@@ -1,62 +1,83 @@
 //! Regression coverage for the "stale gapless preload after a queue edit" investigation.
-//! See `tasks/phase-06-queue/06-09-retract-stale-preload.md` for the full finding this pins down.
+//! See `tasks/phase-06-queue/06-09-retract-stale-preload.md` for the full finding (currently
+//! **BLOCKED**, not CONFIRMED — read that file before trusting this one's framing).
 //!
-//! # Provenance and assumptions
+//! # Which symbols below are verified, and which are still guesses
 //!
 //! This file was written without sight of `crates/loxia-core/src/reducer/queue.rs`,
-//! `crates/loxia-core/src/state/player.rs`, `crates/loxia-core/src/state/queue.rs`, or
-//! `crates/loxia-core/src/action.rs` — all four rendered empty in the review session that
-//! produced this test (see the finding doc's "What could not be directly quoted" section). What
-//! *was* verified in full is `crates/loxia-audio/src/backend.rs`'s `AudioCommand` enum, which has
-//! `Load` and `Preload` but no variant that means "retract a preload" — that absence is the
-//! structural confirmation of the bug and does not depend on any of the guesses below.
+//! `crates/loxia-core/src/action.rs`, `crates/loxia-core/src/event.rs`, or
+//! `crates/loxia-core/src/state/queue.rs` — all four rendered with no visible content in the
+//! session that produced this revision (see the finding doc's "blocker" section). A previous
+//! version of this file presented its guessed names as settled and reasoned from an unsupported
+//! verdict; this revision does neither. Every name used here falls into one of three buckets:
 //!
-//! The symbol names used here — `AppState`'s public `queue`/`player` fields,
-//! `Action::Queue(QueueAction::InsertNext(..))`, `Event::TrackEnded { natural }`, and
-//! `reducer::reduce` / `reducer::reduce_event` as the two dispatch entry points — are the most
-//! conservative reading of the task's own description and of `reducer/mod.rs`'s module split
-//! (one `reducer::<domain>` submodule per `Action`/`Event` family). If the real names differ,
-//! only this file needs renaming; the test's *intent*, recorded in the finding doc, does not
-//! change.
+//! - **Confirmed directly, by citation:**
+//!   - `loxia_core::model::QueueEntryId` — `crates/loxia-core/src/state/player.rs` imports it by
+//!     exact name: `use crate::model::{AudioDevice, AudioFormat, PlaySessionId, QueueEntryId,
+//!     ReplayGainInfo};`.
+//!   - `loxia_core::state::player::PlayerState` exists as a type in that module (its own doc
+//!     comment: "PlayerState mirror of the audio engine").
+//!   - The `test-support` feature is real on `loxia-core`, not assumed: `crates/loxia-audio/
+//!     Cargo.toml` declares `test-support = ["loxia-core/test-support"]`, and Cargo refuses to
+//!     build a manifest naming a feature that does not exist on a path dependency — so
+//!     `loxia-core` genuinely defines this feature, and gating this file on it is not a silent
+//!     "the test never exists" mistake.
+//!   - `AppState` as the top-level state type's real name is inferred from the task-library
+//!     filename `tasks/phase-03-state-machine/03-01-appstate-and-substates.md`, not invented here.
+//!   - `PlayerState.last_preloaded: Option<QueueEntryId>` is quoted verbatim from the work item's
+//!     own hypothesis text, not derived independently.
+//! - **Still unverified guesses**, because the files that would confirm them rendered empty in
+//!   this session: `Action::Queue(QueueAction::InsertNext(..))`, `Event::TrackEnded { natural }`,
+//!   `reducer::reduce` / `reducer::reduce_event` as the two dispatch entry points,
+//!   `test_support::scenario::Scenario`, `test_support::fixtures::track`, and the exact shape of
+//!   `queue.play_order` / `queue.current_id()`. If the real source spells any of these
+//!   differently, only this file needs renaming to match — the *intent* below (assert on the
+//!   effects `insert-next` emits, then on `current` after a simulated track-ended event) does not
+//!   change.
+//! - To avoid *also* guessing the exact shape of `Effect`/`AudioCommand` as re-wrapped inside
+//!   `loxia-core`'s own `Effect` enum (`crates/loxia-core/src/effect.rs` was likewise empty in
+//!   this session), the assertions below match on `Debug` output rather than a specific enum path.
+//!   That is deliberate, not sloppy: it is the one technique here robust to not knowing the exact
+//!   wrapping type, while still checking something real about what the reducer emits.
 
 #![cfg(feature = "test-support")]
 
 use loxia_core::action::{Action, QueueAction};
-use loxia_core::effect::Effect;
 use loxia_core::event::Event;
+use loxia_core::model::QueueEntryId;
 use loxia_core::reducer;
 use loxia_core::state::AppState;
 use loxia_core::test_support::fixtures;
 use loxia_core::test_support::scenario::Scenario;
 
-/// Sets up a two-entry queue (A current, B already recorded in
-/// `PlayerState::last_preloaded` as the gaplessly-preloaded next track), runs `insert-next` to
-/// put C ahead of B, and checks:
+/// Sets up a two-entry queue (A current, B next) where B is already recorded as gaplessly
+/// preloaded (`PlayerState.last_preloaded == Some(B)`), matching the bug report's own
+/// precondition ("after a preload was sent"). Runs insert-next to put C directly ahead of B, and
+/// checks three things:
 ///
-/// 1. `insert-next` does emit fresh preload-shaped effects for the retargeted next entry (C) —
-///    the reducer is not simply frozen by the stale `last_preloaded` value.
-/// 2. Nothing in that effect list can retract mpv's already-appended, now-stale entry for B,
-///    because `AudioCommand`/`Effect` has no variant for that (see
-///    `crates/loxia-audio/src/backend.rs`). This assertion is written to fail until
-///    `tasks/phase-06-queue/06-09-retract-stale-preload.md` adds one.
-/// 3. Simulating mpv's own track-ended event advances `current` from the reducer's own queue
-///    state alone — it has no way to check what mpv actually started playing, so the reducer's
-///    bookkeeping looks consistent (`current` becomes C) even though, per point 2, mpv itself
-///    would gaplessly continue into the stale B.
+/// 1. Insert-next does retarget the next slot to C — the reducer is not simply frozen by the
+///    stale `last_preloaded` value.
+/// 2. Insert-next's own emitted effects include something that (re)preloads C.
+/// 3. Insert-next's own emitted effects include something that retracts/removes the stale
+///    preload it already sent for B. Per the finding doc, `AudioCommand`
+///    (`crates/loxia-audio/src/backend.rs`) has no variant shaped like that at all today, so this
+///    assertion is expected to fail until `06-09-retract-stale-preload` adds one and wires
+///    `preload_effects` to emit it.
+/// 4. After simulating mpv's own track-ended event, `current` becomes C — checking, empirically,
+///    the finding doc's open sub-question of whether the reducer's advance logic trusts its own
+///    `play_order` rather than whatever mpv reports.
 #[test]
-#[ignore = "fixed by 06-09-retract-stale-preload"]
+#[ignore = "symbol names unverified against real reducer source (see module doc); also the \
+            intended regression test for 06-09-retract-stale-preload once that task lands"]
 fn insert_next_after_preload_retargets_next_track() {
     let mut state: AppState = Scenario::new()
         .with_queue(["Track A", "Track B"])
         .with_position(0)
         .build();
 
-    // Record B (currently next) as already gaplessly preloaded, matching the bug report's
-    // precondition: "after a preload was sent".
-    let stale_next_id = state.queue.play_order[1];
+    let stale_next_id: QueueEntryId = state.queue.play_order[1];
     state.player.last_preloaded = Some(stale_next_id);
 
-    // Run insert-next: C should become the new immediate-next entry, ahead of B.
     let effects = reducer::reduce(
         &mut state,
         Action::Queue(QueueAction::InsertNext(vec![fixtures::track("Track C")])),
@@ -65,45 +86,32 @@ fn insert_next_after_preload_retargets_next_track() {
     let new_next_id = state.queue.play_order[1];
     assert_ne!(
         new_next_id, stale_next_id,
-        "insert-next should retarget the next slot to the newly inserted track"
+        "insert-next should retarget the next slot to the newly inserted track (C)"
     );
 
-    // preload_effects should not be stuck on the stale last_preloaded value: it must recognise
-    // the next target changed and (re)emit something for it.
     assert!(
-        !effects.is_empty(),
-        "insert-next should emit at least one effect to (re)preload the new next track"
-    );
-    assert_eq!(
-        state.player.last_preloaded,
-        Some(new_next_id),
-        "preload_effects should update its own bookkeeping to the new next track"
+        effects
+            .iter()
+            .any(|effect| format!("{effect:?}").contains("Preload")),
+        "insert-next should emit something that (re)preloads the new next track: {effects:?}"
     );
 
-    // But nothing in that effect list can retract mpv's now-stale preload of the *old* next
-    // track: no `Effect`/`AudioCommand` variant means "retract a preload" (see
-    // crates/loxia-audio/src/backend.rs). This is written so it always fails today, which is the
-    // confirmation this test exists to record, not a false negative in the assertion logic.
-    let retracted_stale_preload = effects.iter().any(|effect| match effect {
-        Effect::Audio(_) => false, // no variant meaning "retract" exists to match against
-        _ => false,
+    let retracts_stale_preload = effects.iter().any(|effect| {
+        let text = format!("{effect:?}");
+        text.contains("Retract") || text.contains("Unload") || text.contains("PlaylistRemove")
     });
     assert!(
-        retracted_stale_preload,
-        "expected an effect retracting mpv's stale preload of the old next track ({stale_next_id:?}); \
-         no such effect kind exists yet (see AudioCommand in crates/loxia-audio/src/backend.rs); \
-         effects were: {effects:?}"
+        retracts_stale_preload,
+        "insert-next should retract the stale preload already sent for the old next track (B), \
+         but no such effect variant exists yet — see the finding doc's `AudioCommand` quote: \
+         {effects:?}"
     );
 
-    // Simulate mpv's 'track ended / playlist advanced' event. The reducer can only trust its own
-    // `play_order`, not what mpv actually started playing, so `current` silently becomes C here —
-    // even though, per the assertion above, the real mpv playlist would still gaplessly continue
-    // into the stale B.
-    let _ = reducer::reduce_event(&mut state, Event::TrackEnded { natural: true });
+    reducer::reduce_event(&mut state, Event::TrackEnded { natural: true });
     assert_eq!(
         state.queue.current_id(),
         Some(new_next_id),
-        "the reducer advances `current` from its own queue state, with no cross-check against \
-         what mpv actually started playing — the exact desync this task exists to close"
+        "after track-ended, current should advance to the reducer's own next entry (C), not \
+         whatever mpv itself may have gaplessly continued into"
     );
 }
