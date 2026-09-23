@@ -1,56 +1,56 @@
 # 06-11 · Stale-preload audit
 
-**Phase:** 06 — Queue engine · **Agent:** `loxia-core` · **Size:** S · **Prerequisites:** `06-06`, `06-10` · **Reference:** `docs/12-decisions.md` §9
+**Phase:** 06 — Queue engine · **Agent:** `loxia-core` · **Size:** S · **Prerequisites:** `06-06`, `06-10` · **Reference:** `docs/05-audio-engine.md` §2, `docs/12-decisions.md` §9
 
 ## Goal
 
-Produce a written, tested inventory of every queue mutation that can run while a track is
-gapless-preloaded (`AudioCommand::Preload` in `loxia-audio::backend`) and record, for each,
-whether anything today tells the audio engine that the preloaded track is no longer the right
-one. This is audit-only: it documents the gap for `06-12` to close; it does not close it.
+Determine, with tests and a written inventory (not a fix), whether an already-issued
+`AudioCommand::Preload` can go stale — still pointing at a track that a subsequent queue mutation
+(insert-next, remove, shuffle toggle, sort change) has displaced from the "plays next" position —
+and name every place in the codebase, including outside `loxia-core`, that this can affect.
+
+This task makes **no behaviour change**. It is scoped entirely to `loxia-core` for its own tests
+and documentation; it does not need `06-12`'s cross-crate authorisation, because it only *reads*
+and *documents* the code in `loxia-audio`/`loxia-player`, it does not modify it.
 
 ## Files
 
-- `crates/loxia-core/src/reducer/queue.rs` (tests module only — no non-test changes)
-- `docs/12-decisions.md` (§9 — one row recording the audit's findings table)
+- `crates/loxia-core/src/reducer/queue.rs` (tests + an `// AUDIT` doc comment; no behaviour
+  change)
 
 ## Specification
 
-No production code changes anywhere in the workspace. For each of the following reducer actions,
-add a characterization test asserting *what effect (if any) is currently emitted* that could
-reach `loxia-audio`'s preload machinery:
-
-1. Insert-next (post-`06-10` semantics)
-2. Remove-from-queue, specifically removing the track that is currently the preload target
-3. Clear-queue while a preload target exists
-4. Shuffle toggle (on or off) while a preload target exists
-5. Sort-profile change while a preload target exists
-
-For each, the test asserts today's actual emitted effect set, which may well be empty — that is
-the finding, not a test failure.
-
-The `docs/12-decisions.md` §9 row must be a table with columns: mutation, effect emitted today,
-consequence if none (i.e. what plays next instead of what the listener now expects), and a
-pointer to `06-12` as the fix.
+- Add an `// AUDIT` doc comment above `reducer/queue.rs`'s preload-issuing function, inventorying
+  every queue mutation that can invalidate an in-flight preload, and stating for each whether the
+  current code re-issues, retracts, or leaves stale the preload it already sent. Expect at least
+  one "leaves stale" finding — that finding is what `06-12` fixes.
+- Add characterization tests proving the queue reducer does **not** currently emit a corrected
+  `Effect::Audio(AudioCommand::Preload(..))` (or any retraction effect) when the "next" track
+  changes after a preload was already issued for the previous "next" track, for each mutation
+  named in the doc comment.
+- The `// AUDIT` doc comment must also name, by file path and function name, every call site
+  outside `loxia-core` that receives a `Preload` command or a preload-related event — at minimum
+  `crates/loxia-audio/src/mpv/handle.rs` (or `gapless.rs`, whichever actually implements it) and
+  `crates/loxia-player/src/workers/audio.rs`. This inventory is what `06-12` uses to scope its own
+  crate-crossing change; do not modify those files here.
 
 ## Acceptance
 
-- `insert_next_does_not_signal_preload_target_change` (name reflects the actual finding; if the
-  audit finds an effect *is* already emitted for this case, name it
-  `insert_next_signals_preload_target_change` instead and record that in the findings table)
-- `remove_from_queue_does_not_signal_preload_target_change`
-- `clear_queue_does_not_signal_preload_target_change`
-- `shuffle_toggle_does_not_signal_preload_target_change`
-- `sort_profile_change_does_not_signal_preload_target_change`
-- A findings table exists in `docs/12-decisions.md` §9, citing this task's ID and every test above
-  by name
+- `preload_not_reissued_after_insert_next_changes_the_next_track`
+- `preload_not_reissued_after_remove_changes_the_next_track`
+- `preload_not_reissued_after_shuffle_toggle_changes_the_next_track`
+- `audit_comment_lists_every_cross_crate_preload_consumer` — a test asserting the `// AUDIT`
+  inventory (expressed as a doc comment or an adjacent constant list, whichever this task's
+  implementation chooses) names both `loxia-audio` and `loxia-player` file paths
 
 ## Done when
 
 - [ ] `cargo fmt --all -- --check` clean
 - [ ] `cargo clippy --workspace --all-targets -- -D warnings` clean
 - [ ] `cargo test --workspace` green
-- [ ] Every named test above exists and passes
-- [ ] No production code changed anywhere in the workspace
-- [ ] `docs/12-decisions.md` §9 updated with the findings table
+- [ ] Every named test in the Acceptance section exists and passes
+- [ ] No `docs/12-decisions.md` row added by this task — it is an audit, not a behaviour change;
+      `06-12` records the fix
+- [ ] Public items documented; the crate's `lib.rs` module list updated
+- [ ] No dependency added that is not in `docs/13-dependencies.md`
 - [ ] This task's checkbox ticked in `tasks/README.md`
