@@ -81,27 +81,23 @@ struct PresetsFile {
     presets: Vec<EqPreset>,
 }
 
-/// Parses `assets/eq_presets.toml`. Panics on malformed TOML — a build-time asset, not user
-/// input, so a parse failure is a packaging bug that must fail loudly, not a runtime error path.
+/// Parses `assets/eq_presets.toml` into the eight factory presets, in the file's own order.
 pub fn factory_presets() -> Vec<EqPreset> {
-    let file: PresetsFile =
+    let parsed: PresetsFile =
         toml::from_str(FACTORY_PRESETS_TOML).expect("assets/eq_presets.toml must parse");
-    file.presets
+    parsed.presets
 }
 
-/// Factory presets, in `FACTORY_EQ_PRESET_NAMES` order, followed by `custom` — the task's own
-/// "custom presets are appended after the factory list" rule
-/// (`docs/05-audio-engine.md` §5, `docs/02-data-model.md` §8's `EqConfig.custom_presets`).
+/// Factory presets, in file order, followed by the caller's own custom presets, in the order
+/// given.
 pub fn all_presets(custom: &[EqPreset]) -> Vec<EqPreset> {
     let mut presets = factory_presets();
     presets.extend(custom.iter().cloned());
     presets
 }
 
-/// Looks up a preset by name across the merged factory + custom list — `None` means the
-/// configured `active_preset` name doesn't match anything, which the caller (reducer) treats as
-/// "leave gains as they are" rather than a hard error, since a user's config may reference a
-/// custom preset that was since deleted.
+/// Looks up a preset by exact name match against whichever list is passed in (factory, custom,
+/// or the two concatenated via [`all_presets`]).
 pub fn find_preset<'a>(presets: &'a [EqPreset], name: &str) -> Option<&'a EqPreset> {
     presets.iter().find(|p| p.name == name)
 }
@@ -109,37 +105,15 @@ pub fn find_preset<'a>(presets: &'a [EqPreset], name: &str) -> Option<&'a EqPres
 #[cfg(test)]
 mod tests {
     use super::*;
-    use loxia_core::config::FACTORY_EQ_PRESET_NAMES;
 
     fn curve(gains: [f32; 10]) -> EqCurve {
         EqCurve { gains }
     }
 
     #[test]
-    fn filter_string_snapshot() {
-        insta::assert_snapshot!("filter_string_flat", filter_string(&curve([0.0; 10])));
-        insta::assert_snapshot!(
-            "filter_string_boost",
-            filter_string(&curve([6.0, 4.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]))
-        );
-        insta::assert_snapshot!(
-            "filter_string_cut",
-            filter_string(&curve([
-                -6.0, -4.0, -2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-            ]))
-        );
-    }
-
-    #[test]
-    fn band_command_snapshot() {
-        insta::assert_debug_snapshot!("band_command_boost", band_command(0, 6.0));
-        insta::assert_debug_snapshot!("band_command_cut", band_command(9, -3.0));
-    }
-
-    #[test]
     fn gain_is_clamped_to_plus_minus_twelve() {
-        assert_eq!(clamp_gain(20.0), 12.0);
-        assert_eq!(clamp_gain(-20.0), -12.0);
+        assert_eq!(clamp_gain(13.0), 12.0);
+        assert_eq!(clamp_gain(-13.0), -12.0);
         assert_eq!(clamp_gain(12.0), 12.0);
         assert_eq!(clamp_gain(-12.0), -12.0);
     }
@@ -156,19 +130,28 @@ mod tests {
     fn all_factory_presets_parse() {
         let presets = factory_presets();
         let names: Vec<&str> = presets.iter().map(|p| p.name.as_str()).collect();
-        assert_eq!(names, FACTORY_EQ_PRESET_NAMES);
+        assert_eq!(
+            names,
+            vec![
+                "flat",
+                "darkwave_ebm",
+                "bass_boost",
+                "vocal",
+                "acoustic",
+                "night_listening_warm",
+                "loudness",
+                "classical",
+            ]
+        );
     }
 
     #[test]
     fn factory_presets_have_ten_gains_in_range() {
         for preset in factory_presets() {
-            for &gain in &preset.gains {
-                assert_eq!(
-                    clamp_gain(gain),
-                    gain,
-                    "preset {:?} has an out-of-range or unsnapped gain {gain}",
-                    preset.name
-                );
+            assert_eq!(preset.gains.len(), 10);
+            for gain in preset.gains {
+                assert!((-12.0..=12.0).contains(&gain));
+                assert_eq!(clamp_gain(gain), gain);
             }
         }
     }
@@ -179,25 +162,49 @@ mod tests {
             name: "my_custom".to_string(),
             gains: [1.0; 10],
         }];
-        let merged = all_presets(&custom);
-        assert_eq!(merged.len(), FACTORY_EQ_PRESET_NAMES.len() + 1);
-        assert_eq!(merged.last().unwrap().name, "my_custom");
-        assert_eq!(
-            merged[..FACTORY_EQ_PRESET_NAMES.len()]
-                .iter()
-                .map(|p| p.name.as_str())
-                .collect::<Vec<_>>(),
-            FACTORY_EQ_PRESET_NAMES
-        );
+        let presets = all_presets(&custom);
+        let factory = factory_presets();
+        assert_eq!(presets.len(), factory.len() + 1);
+        for (a, b) in presets.iter().zip(factory.iter()) {
+            assert_eq!(a.name, b.name);
+        }
+        assert_eq!(presets.last().unwrap().name, "my_custom");
     }
 
     #[test]
     fn find_preset_looks_up_by_name() {
         let presets = factory_presets();
-        assert_eq!(
-            find_preset(&presets, "bass_boost").unwrap().name,
-            "bass_boost"
-        );
+        let found = find_preset(&presets, "bass_boost").expect("bass_boost must exist");
+        assert_eq!(found.name, "bass_boost");
         assert!(find_preset(&presets, "does_not_exist").is_none());
+    }
+
+    #[test]
+    fn filter_string_flat() {
+        insta::assert_snapshot!(filter_string(&curve([0.0; 10])));
+    }
+
+    #[test]
+    fn filter_string_boost() {
+        insta::assert_snapshot!(filter_string(&curve([
+            6.0, 4.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+        ])));
+    }
+
+    #[test]
+    fn filter_string_cut() {
+        insta::assert_snapshot!(filter_string(&curve([
+            -6.0, -4.0, -2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+        ])));
+    }
+
+    #[test]
+    fn band_command_boost() {
+        insta::assert_snapshot!(band_command(0, 6.0));
+    }
+
+    #[test]
+    fn band_command_cut() {
+        insta::assert_snapshot!(band_command(9, -3.0));
     }
 }
