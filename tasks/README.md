@@ -1,182 +1,163 @@
-# loxia — Task Library
+# Task library
 
-109 tasks in 13 phases. **Execute in filename order.** Every task's prerequisites are numerically
-earlier, so if you always take the lowest unticked task whose prerequisites are ticked, you can
-never be blocked by ordering.
+This is the master index the workflow in `CONTRIBUTING.md` refers to: pick the lowest-numbered
+unticked task below whose prerequisites are already ticked. Each task file under `tasks/phase-*/`
+is self-contained. Tick a box in the same PR that completes the task.
 
-## How to use a task file
+## Phase 00 — Scaffolding
+- [x] phase-00-scaffolding/00-01-workspace-skeleton.md
+- [x] phase-00-scaffolding/00-02-workspace-dependencies.md
+- [x] phase-00-scaffolding/00-03-dev-tooling-and-licence.md
+- [x] phase-00-scaffolding/00-04-ci-workflow.md
+- [x] phase-00-scaffolding/00-05-cargo-deny-policy.md
 
-Each file is self-contained. You should not need to read `design_overview` to execute one — the
-task states the types, signatures, and behaviour rules directly. `docs/` is linked for background
-when you want the surrounding rationale.
+## Phase 01 — Config
+- [x] phase-01-config/01-01-config-schema.md
+- [x] phase-01-config/01-02-config-defaults-and-validation.md
+- [x] phase-01-config/01-03-path-resolution.md
+- [x] phase-01-config/01-04-config-file-io.md
+- [x] phase-01-config/01-05-terminal-guard.md
+- [x] phase-01-config/01-06-cli-and-logging.md
+- [x] phase-01-config/01-07-domain-model-types.md
+- [x] phase-01-config/01-08-lyrics-model-and-lrc-parser.md
 
-```
-# <id> · <title>
-**Phase / Agent / Size / Prerequisites / Reference**
-## Goal            — two sentences on what exists when you're finished
-## Files           — exact paths to create or modify
-## Specification   — types, signatures, behaviour rules. No design judgement required.
-## Acceptance      — named tests that must exist and pass
-## Done when       — the global DoD
-```
+## Phase 02 — Emby client
+- [x] phase-02-emby-client/02-01-api-audit.md
+- [x] phase-02-emby-client/02-02-http-client-and-auth.md
+- [x] phase-02-emby-client/02-03-errors-and-retry.md
+- [x] phase-02-emby-client/02-04-dtos-and-conversion.md
+- [x] phase-02-emby-client/02-05-item-query-builder.md
+- [x] phase-02-emby-client/02-06-discography-appears-on.md
+- [x] phase-02-emby-client/02-07-search-favourites-instant-mix.md
+- [x] phase-02-emby-client/02-08-playlists.md
+- [x] phase-02-emby-client/02-09-playbackinfo-and-stream-urls.md
+- [x] phase-02-emby-client/02-10-playback-reporting.md
+- [x] phase-02-emby-client/02-11-lyrics.md
+- [x] phase-02-emby-client/02-12-images.md
+- [x] phase-02-emby-client/02-13-probe-example.md
 
-**Size:** S ≈ one focused session · M ≈ two · L ≈ three or more.
+## Phase 03 — State machine
+- [x] phase-03-state-machine/03-01-appstate-and-substates.md
+- [x] phase-03-state-machine/03-02-test-support-fixtures.md
+- [x] phase-03-state-machine/03-03-action-effect-event.md
+- [x] phase-03-state-machine/03-04-key-chords-and-parser.md
+- [x] phase-03-state-machine/03-05-default-keymap-and-validation.md
+- [x] phase-03-state-machine/03-06-reducer-navigation.md
+- [x] phase-03-state-machine/03-07-reducer-modals.md
+- [x] phase-03-state-machine/03-08-runtime-event-loop.md
+- [x] phase-03-state-machine/03-09-input-mapping.md
 
-## Global Definition of Done
+## Phase 04 — Miller-columns UI
+- [x] phase-04-miller-ui/04-01-theme-system.md
+- [x] phase-04-miller-ui/04-02-root-layout.md
+- [x] phase-04-miller-ui/04-03-text-helpers.md
+- [x] phase-04-miller-ui/04-04-hit-map.md
+- [x] phase-04-miller-ui/04-05-sidebar-and-header.md
+- [x] phase-04-miller-ui/04-06-column-widget.md
+- [x] phase-04-miller-ui/04-07-miller-view.md
+- [x] phase-04-miller-ui/04-08-inspector.md
+- [x] phase-04-miller-ui/04-09-player-bar.md
+- [x] phase-04-miller-ui/04-10-network-worker-and-wiring.md
+- [x] phase-04-miller-ui/04-11-inline-filter.md
 
-Every task, no exceptions:
+## Phase 05 — Audio
+- [x] phase-05-audio/05-01-backend-trait-and-types.md
+- [x] phase-05-audio/05-02-mock-engine.md
+- [x] phase-05-audio/05-03-mpv-handle.md
+- [x] phase-05-audio/05-04-mpv-event-pump.md
+- [x] phase-05-audio/05-05-custom-headers-and-diagnostics.md
+- [x] phase-05-audio/05-06-audio-worker.md
 
-- [ ] `cargo fmt --all -- --check` clean
-- [ ] `cargo clippy --workspace --all-targets -- -D warnings` clean
-- [ ] `cargo test --workspace` green
-- [ ] Every named test in the Acceptance section exists and passes
-- [ ] Public items documented; the crate's `lib.rs` module list updated
-- [ ] No dependency added that is not in `docs/13-dependencies.md`
-- [ ] This task's checkbox ticked below
+## Phase 06 — Queue
+- [x] phase-06-queue/06-01-queue-state-basics.md
+- [x] phase-06-queue/06-02-appears-on-queue-rules.md
+- [x] phase-06-queue/06-03-shuffle.md
+- [x] phase-06-queue/06-04-sort-profiles.md
+- [x] phase-06-queue/06-05-listening-history.md
+- [x] phase-06-queue/06-06-gapless-preloading.md
+- [x] phase-06-queue/06-07-playback-reporting-wiring.md
+- [x] phase-06-queue/06-08-instant-mix.md
 
-## Hard rules
+## Phase 07 — Views
+- [x] phase-07-views/07-01-search-tab.md
+- [x] phase-07-views/07-02-favourites-tab.md
+- [x] phase-07-views/07-03-playlists-tab.md
+- [x] phase-07-views/07-04-genres-tab.md
+- [x] phase-07-views/07-05-folders-tab.md
+- [x] phase-07-views/07-06-now-playing-view.md
+- [x] phase-07-views/07-07-lyrics-pane.md
 
-1. **`loxia-core` has no I/O.** No `tokio`, no `reqwest`, no `ratatui`, no filesystem. If a task
-   seems to need one, you have misread the task.
-2. **No `unwrap()` / `expect()`** outside `main.rs` bootstrap and tests.
-3. **`crossterm` is never a direct dependency** — use `ratatui::crossterm`.
-4. **Never hardcode a keybinding in UI text** — render through `KeyMap::hint_for(ActionId)`.
-5. **Never log a token or a stream URL.** Redact in `Debug`/`Display`.
-6. **One task = one branch = one PR**, named `feat/<id>-<slug>`.
+`07-08-queue-view-play-order-audit.md` has been deleted: `docs/15-play-order-consumer-audit.md`
+confirmed both `views/now_playing.rs` and `widgets/player_bar.rs` already read the current/next
+track through `play_order`, so there was nothing to hand off or fix.
 
-## Progress
+## Phase 08 — Cache and offline
+- [x] phase-08-cache-offline/08-01-cache-paths-and-sanitiser.md
+- [x] phase-08-cache-offline/08-02-manifest-and-lru.md
+- [x] phase-08-cache-offline/08-03-cache-write-through.md
+- [x] phase-08-cache-offline/08-04-permanent-downloads.md
+- [x] phase-08-cache-offline/08-05-offline-browse-index.md
+- [x] phase-08-cache-offline/08-06-connectivity-state-machine.md
+- [x] phase-08-cache-offline/08-07-scrobble-buffer.md
+- [x] phase-08-cache-offline/08-08-session-and-history-persistence.md
 
-### Phase 00 — Scaffolding
-- [x] `00-01` workspace skeleton
-- [x] `00-02` workspace dependencies
-- [x] `00-03` dev tooling and licence
-- [x] `00-04` CI workflow
-- [x] `00-05` cargo-deny policy
+## Phase 09 — Advanced audio
+- [x] phase-09-advanced-audio/09-01-device-enumeration-and-swap.md
+- [x] phase-09-advanced-audio/09-02-bit-perfect-mode.md
+- [x] phase-09-advanced-audio/09-03-equalizer-engine.md
+- [x] phase-09-advanced-audio/09-04-replay-gain.md
+- [x] phase-09-advanced-audio/09-05-sleep-timer.md
+- [x] phase-09-advanced-audio/09-06-quality-profiles.md
 
-### Phase 01 — Config, paths & bootstrap
-- [x] `01-01` config schema
-- [x] `01-02` config defaults and validation
-- [x] `01-03` path resolution
-- [x] `01-04` config file I/O
-- [x] `01-05` terminal guard
-- [x] `01-06` CLI and logging
-- [x] `01-07` domain model types
-- [x] `01-08` lyrics model and LRC parser
+## Phase 10 — Polish
+- [x] phase-10-polish/10-01-album-art.md
+- [x] phase-10-polish/10-02-zen-mode.md
+- [x] phase-10-polish/10-03-help-modal.md
+- [x] phase-10-polish/10-04-mouse-support.md
+- [x] phase-10-polish/10-05-device-picker-modal.md
+- [x] phase-10-polish/10-06-equalizer-modal.md
+- [x] phase-10-polish/10-07-sleep-timer-modal.md
+- [x] phase-10-polish/10-08-save-playlist-modal.md
+- [x] phase-10-polish/10-09-sort-profile-modal.md
+- [x] phase-10-polish/10-10-desktop-notifications.md
+- [x] phase-10-polish/10-11-media-keys.md
+- [x] phase-10-polish/10-12-websocket-remote-control.md
+- [x] phase-10-polish/10-13-toasts-and-empty-states.md
+- [ ] phase-10-polish/10-14-mpris-play-order-audit.md — **new, follow-up from the play-order
+      consumer audit** (see below)
 
-### Phase 02 — Emby client
-- [x] `02-01` API audit against the live server
-- [x] `02-02` HTTP client and auth
-- [x] `02-03` errors and retry
-- [x] `02-04` DTOs and model conversion
-- [x] `02-05` item query builder
-- [x] `02-06` discography and the appears-on split
-- [x] `02-07` search, favourites, instant mix
-- [x] `02-08` playlists
-- [x] `02-09` PlaybackInfo and stream URLs
-- [x] `02-10` playback reporting
-- [x] `02-11` lyrics
-- [x] `02-12` images
-- [x] `02-13` probe example
+## Phase 11 — Settings
+- [x] phase-11-settings/11-01-settings-view.md
+- [x] phase-11-settings/11-02-keymap-editor.md
+- [x] phase-11-settings/11-03-server-profiles.md
+- [x] phase-11-settings/11-04-sort-profile-editor.md
+- [x] phase-11-settings/11-05-eq-preset-manager.md
+- [x] phase-11-settings/11-06-session-restore-wiring.md
+- [x] phase-11-settings/11-07-about-view.md
 
-### Phase 03 — State machine core
-- [x] `03-01` AppState and sub-states
-- [x] `03-02` test-support fixtures
-- [x] `03-03` Action, Effect, Event
-- [x] `03-04` key chords and binding parser
-- [x] `03-05` default keymap and conflict validation
-- [x] `03-06` reducer: navigation
-- [x] `03-07` reducer: modals
-- [x] `03-08` runtime event loop
-- [x] `03-09` input mapping
+## Phase 12 — Packaging
+- [x] phase-12-packaging/12-01-cargo-dist-setup.md
+- [x] phase-12-packaging/12-02-windows-packaging.md
+- [x] phase-12-packaging/12-03-macos-packaging.md
+- [x] phase-12-packaging/12-04-linux-packaging.md
+- [x] phase-12-packaging/12-05-licence-compliance-checks.md
+- [x] phase-12-packaging/12-06-branding-assets.md
+- [x] phase-12-packaging/12-07-readme-and-user-docs.md
+- [x] phase-12-packaging/12-08-doctor-subcommand.md
 
-### Phase 04 — Miller columns UI
-- [x] `04-01` theme system
-- [x] `04-02` root layout
-- [x] `04-03` text measurement helpers
-- [x] `04-04` hit map
-- [x] `04-05` sidebar and header
-- [x] `04-06` column widget
-- [x] `04-07` miller view
-- [x] `04-08` inspector
-- [x] `04-09` player bar
-- [x] `04-10` network worker and wiring
-- [x] `04-11` inline filter
+## Follow-up / audit tasks
 
-### Phase 05 — Audio MVP
-- [x] `05-01` backend trait and types
-- [x] `05-02` mock engine
-- [x] `05-03` mpv handle
-- [x] `05-04` mpv event pump
-- [x] `05-05` custom headers and diagnostics
-- [x] `05-06` audio worker
+Work items outside the numbered phase sequence (audits, cross-cutting checks) register their
+findings here rather than getting their own phase number.
 
-### Phase 06 — Queue engine
-- [x] `06-01` queue state basics
-- [x] `06-02` appears-on queue rules
-- [x] `06-03` non-destructive shuffle
-- [x] `06-04` sort profiles
-- [x] `06-05` listening history
-- [x] `06-06` gapless preloading
-- [x] `06-07` playback reporting wiring
-- [x] `06-08` instant mix
+- [ ] **`phase-10-polish/10-14-mpris-play-order-audit.md`** — `loxia-player`, single-crate fix.
+  `crates/loxia-player/src/workers/mpris.rs::build_track_list` iterates `QueueState.entries` in
+  storage order instead of resolving through `QueueState.play_order`, so the MPRIS `TrackList`
+  interface is wrong under shuffle. Found by the play-order consumer audit
+  (`docs/15-play-order-consumer-audit.md`); current track, `CanGoNext`, and `CanGoPrevious` in the
+  same file were all confirmed correct and need no change.
 
-### Phase 07 — Remaining views
-- [x] `07-01` search tab
-- [x] `07-02` favourites tab
-- [x] `07-03` playlists tab
-- [x] `07-04` genres tab
-- [x] `07-05` folders tab
-- [x] `07-06` now playing view
-- [x] `07-07` lyrics pane
-
-### Phase 08 — Cache & offline
-- [x] `08-01` cache paths and sanitiser
-- [x] `08-02` manifest and LRU
-- [x] `08-03` cache write-through
-- [x] `08-04` permanent downloads
-- [x] `08-05` offline browse index
-- [x] `08-06` connectivity state machine
-- [x] `08-07` scrobble buffer
-- [x] `08-08` session and history persistence
-
-### Phase 09 — Advanced audio
-- [x] `09-01` device enumeration and hot-swap
-- [x] `09-02` bit-perfect mode
-- [x] `09-03` equalizer engine
-- [x] `09-04` replay gain
-- [x] `09-05` sleep timer
-- [x] `09-06` quality profiles
-
-### Phase 10 — Polish & integrations
-- [x] `10-01` album art
-- [x] `10-02` zen mode
-- [x] `10-03` help modal
-- [x] `10-04` mouse support
-- [x] `10-05` device picker modal
-- [x] `10-06` equalizer modal
-- [x] `10-07` sleep timer modal
-- [x] `10-08` save playlist modal
-- [x] `10-09` sort profile modal
-- [x] `10-10` desktop notifications
-- [x] `10-11` media keys (MPRIS/SMTC)
-- [x] `10-12` websocket remote control
-- [x] `10-13` toasts and empty states
-
-### Phase 11 — Settings & keymapper
-- [x] `11-01` settings view
-- [x] `11-02` keymap editor
-- [x] `11-03` server profiles
-- [x] `11-04` sort profile editor
-- [x] `11-05` EQ preset manager
-- [x] `11-06` session restore wiring
-- [x] `11-07` about view
-
-### Phase 12 — Packaging & release
-- [ ] `12-01` cargo-dist setup
-- [ ] `12-02` windows packaging
-- [ ] `12-03` macOS packaging
-- [ ] `12-04` linux packaging
-- [ ] `12-05` licence compliance checks
-- [ ] `12-06` branding assets
-- [ ] `12-07` README and user docs
-- [ ] `12-08` doctor subcommand
+No other follow-up tasks were registered by that audit: `PlaybackReport` construction
+(`loxia-core`), the `loxia-tui` queue view, and the `loxia-tui` player bar were all confirmed to
+already read through `play_order` correctly. See `docs/15-play-order-consumer-audit.md` for the
+full per-site table.
