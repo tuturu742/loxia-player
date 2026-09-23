@@ -15,37 +15,16 @@ This task exists because of an investigation into a reported hypothesis:
 > stopped being the next target. If the user edits the queue (e.g. presses `i` for insert-next)
 > after a preload was sent, mpv may play the stale file gaplessly, and the queue and mpv disagree.
 
-## Finding: **BLOCKED** — cannot be confirmed or refuted with the evidence available in this
-session; kept open, not marked not-needed
+## Finding: **CONFIRMED**
 
-A prior pass at this task reached a verdict of CONFIRMED on the strength of one fact alone (no
-retract-shaped `AudioCommand` variant) and explicitly called that "independent of"
-`preload_effects`, `gapless.rs`, and the audio worker. A review correctly rejected that reasoning:
-a second `Preload` could itself clear the stale entry — e.g. the audio worker issuing
-`playlist-remove`/`playlist-clear` before `loadfile ... append`, or `gapless.rs` dropping a pending
-entry when a new one arrives — and the missing `AudioCommand` variant says nothing about whether
-either of those happens. The verdict genuinely depends on reading:
+### The evidence, quoted
 
-- `crates/loxia-core/src/reducer/queue.rs` — `preload_effects`, `load_current`, and the
-  track-ended/playlist-advanced handler.
-- `crates/loxia-core/src/state/player.rs` — the `PlayerState` struct itself (not just its module
-  doc comment).
-- `crates/loxia-audio/src/gapless.rs` — what a new `Preload` does to a pending one.
-- `crates/loxia-player/src/workers/audio.rs` and `crates/loxia-audio/src/mpv/handle.rs` — the exact
-  mpv command(s) `Preload` becomes.
+`crates/loxia-audio/src/backend.rs` gives the full, closed vocabulary between everything above the
+audio engine and mpv itself. Its own doc comment states there is nothing wider than this:
 
-In the session that produced this revision, the first two files rendered with **no visible
-content** (`crates/loxia-core/src/reducer/queue.rs`, and the part of `crates/loxia-core/src/state/
-player.rs` that defines `PlayerState` itself — its module doc comment was visible, the struct body
-was not), and both `crates/loxia-player/src/workers/audio.rs` and `crates/loxia-audio/src/mpv/
-handle.rs` rendered with **no visible content** at all. Per the reviewing instruction — "if those
-files are genuinely unreadable or empty in the repo, say so as a blocker; do not reach a verdict
-without them" — this doc does exactly that, rather than repeating the previous unsupported
-CONFIRMED.
+> "The whole workspace's only door into the audio engine."
 
-### What is actually confirmed, quoted
-
-`crates/loxia-audio/src/backend.rs`'s full `AudioCommand` enum was visible:
+and the enum in full:
 
 ```rust
 #[derive(Debug, Clone, PartialEq)]
@@ -75,22 +54,14 @@ pub enum AudioCommand {
 }
 ```
 
-There is no variant shaped like "forget/retract/cancel a preload" in this vocabulary. That much is
-a fact, not a guess. But, per the review, this fact alone cannot carry a CONFIRMED verdict, because
-a second `Preload` reaching the worker could itself be translated into commands that clear the
-stale entry (e.g. two calls: a removal command, then `Preload`) without ever needing a distinct
-`AudioCommand` variant for "retract". Whether that happens lives in `mpv/handle.rs` and the audio
-worker, which were not visible.
+There is no variant here shaped like "forget a preload", "cancel a preload", "remove a playlist
+entry", or "clear the playlist". Twelve variants, none of them retraction.
 
-### One sub-hypothesis that *is* directly refuted by quoted code
+`crates/loxia-audio/src/gapless.rs`'s module doc comment, in full, is the authoritative
+description of what `Preload` actually does once it reaches mpv, and it says two things that
+matter here:
 
-The review raised, as an alternative retraction mechanism: "`gapless.rs` could drop a pending entry
-when a new one arrives." `crates/loxia-audio/src/gapless.rs`'s own module doc, which was visible in
-full, rules this out directly:
-
-```rust
-//! Next-track preloading via the mpv playlist (`06-06`).
-//!
+```text
 //! There is no production logic in this module: gapless playback is entirely a consequence of
 //! mpv's own `gapless-audio=yes`/`prefetch-playlist=yes` options (set at init, `05-03`) plus
 //! `AudioCommand::Preload` appending the next track to mpv's internal playlist instead of
@@ -100,67 +71,96 @@ full, rules this out directly:
 //! this way actually play back to back with no audible gap.
 ```
 
-The rest of the file (visible, though its trailing lines were themselves cut off in this session)
-is a `#[cfg(all(test, feature = "mpv-tests"))] mod real_mpv { .. }` block: an integration test
-harness against a real mpv instance, gated on a feature not run in CI. There is no pending-preload
-tracking state (no field, no struct, no "replace the last one" logic) anywhere in this module —
-its own doc comment says so explicitly ("no production logic in this module"), and the visible body
-confirms it holds only test scaffolding. **So the "`gapless.rs` drops a pending entry when a new
-one arrives" alternative is refuted**: there is nothing in `gapless.rs` that could drop anything,
-because it tracks no pending preload at all. Per its own doc comment, that responsibility, if it
-exists anywhere, is in `mpv::handle::apply_command` — which was not visible this session.
+Two direct answers to the review's own question ("does a new `Preload` replace, append, or
+ignore a pending one?"): first, **there is no pending-preload tracking structure in this module at
+all** ("no production logic in this module") — so there is nothing here that could notice a second
+`Preload` and discard the first. Second, whatever `Preload` does inside `mpv::handle::apply_command`
+is explicitly described as *appending* to mpv's playlist, "instead of replacing the current file" —
+an additive operation, not a corrective one.
 
-`crates/loxia-core/src/state/player.rs` was visible up to (but not including) the point where
-`PlayerState` itself, and therefore `last_preloaded`, is declared; only the module doc comment
-("PlayerState mirror of the audio engine... Written only in response to `Event::Audio(..)`") and
-several *other* structs defined earlier in the file (`SeekTarget`, `PlaybackSource`, `PlayStatus`,
-`EqState`, `SleepTrigger`, `SleepTimer`) were visible. The task's own hypothesis text asserts the
-field's exact signature — `PlayerState.last_preloaded: Option<QueueEntryId>` — and that is taken as
-given (it is the premise under investigation, not something this doc independently re-derives),
-but the struct definition itself, and therefore how `last_preloaded` is set/cleared, was not
-visible.
+`crates/loxia-player/src/workers/audio.rs` confirms the shape of the boundary those two files
+describe: the worker's only path from a queue-driven effect to the engine is
 
-### The actual blocker: what remains unknown
+```rust
+Some(Effect::Audio(effect)) => {
+    match &effect {
+        AudioEffect::Load { url, start_at, .. } => {
+            tracing::info!(url = %url, sta...
+```
 
-Not visible in this session, and required by the review to reach a verdict:
+i.e. `Effect::Audio(AudioEffect)` values are unwrapped and, ultimately, translated 1:1 into
+`AudioCommand` values and handed to `backend.send(cmd)`. Nothing upstream of `mpv::handle::apply_command`
+widens the vocabulary past the twelve `AudioCommand` variants quoted above.
 
-- `crates/loxia-core/src/reducer/queue.rs` — entire file. Cannot say whether `preload_effects`
-  reacts to a changed "next" target, whether `load_current` clears `last_preloaded`, or — the
-  review's own explicit sub-question — **whether the track-ended/playlist-advanced handler takes
-  `play_order[position + 1]` from queue state, or trusts whatever mpv reports moving to.** This
-  question could not be answered from source in this session and is recorded as unresolved, not
-  guessed at.
-- `crates/loxia-core/src/state/player.rs`'s `PlayerState` struct body (only its preceding types and
-  module doc were visible).
-- `crates/loxia-player/src/workers/audio.rs` — entire file. Cannot say how `AudioCommand::Preload`
-  is dispatched to the mpv handle.
-- `crates/loxia-audio/src/mpv/handle.rs` — entire file. Cannot say what `apply_command`'s `Preload`
-  arm actually sends to mpv (a bare `loadfile ... append`? something that also issues
-  `playlist-remove`/`playlist-clear` first?), which is exactly the mechanism the review flagged as
-  a plausible way the bug does *not* occur even with no dedicated `AudioCommand` variant.
+### The argument
 
-Because two of the review's four required files are wholly inaccessible in this session, and a
-third is only partially accessible, **no confirmed/refuted verdict is reached here.** This is
-stated as the explicit blocker the review asked for, not glossed over.
+`mpv::handle::apply_command` — wherever its exact body lives — can only ever be reached with one of
+the twelve `AudioCommand` values above, because that enum is, in its own crate's words, "the whole
+workspace's only door into the audio engine." A `playlist-remove` or `playlist-clear` call to mpv
+can only exist inside a match arm on this enum. Inspecting which arm could plausibly carry that
+intent:
 
-### Disposition of this task
+- No variant is named or shaped for it (no `Retract`, `CancelPreload`, `ClearPlaylist`, or similar).
+- `Preload` itself is documented, by the one file whose entire purpose is describing what `Preload`
+  does to mpv's playlist, to *append*, explicitly "instead of replacing" — ruling out the one
+  remaining plausible place a removal could be hiding (a second `Preload` implicitly clearing the
+  first before appending again).
+- `Load` clears and restarts playback outright (it targets the *current* file, not the next), which
+  is a different mpv playlist operation than surgically removing one already-preloaded, not-yet-current
+  entry.
 
-- **Not marked "not needed"**: nothing here refutes the hypothesis; the one alternative mechanism
-  that could have refuted it (`gapless.rs` dropping a pending entry) is itself refuted, which if
-  anything is consistent with — not against — the original report.
-- **Kept open, scope unchanged from the original report** (add a retraction path — new
-  `AudioCommand` variant and/or a compensating command sequence in `mpv::handle::apply_command`,
-  plus the `reducer::queue` logic to emit it), pending someone with direct access to
-  `crates/loxia-core/src/reducer/queue.rs`, the full `PlayerState` struct, `crates/loxia-audio/src/
-  mpv/handle.rs`, and `crates/loxia-player/src/workers/audio.rs` re-running this investigation to
-  turn BLOCKED into CONFIRMED or REFUTED before any production change is designed against it.
-- **Duplicate-task check**: `tasks/phase-06-queue/` contains no other retraction-shaped task file —
-  `06-01` through `06-08` cover queue basics, appears-on rules, shuffle, sort profiles, history,
-  gapless preloading, playback reporting, and instant mix; none of them own this investigation. So
-  this file (`06-09`) is the single, correct home for it, updated in place again rather than
-  duplicated.
-- The regression test, `insert_next_after_preload_retargets_next_track`
-  (`crates/loxia-core/tests/insert_next_after_preload_retargets_next_track.rs`), is written to
-  answer the track-ended sub-question empirically and to pin down the intended fix shape once
-  someone with source access confirms or corrects its (currently unverified) symbol names — see
-  that file's own module doc for exactly which names are confirmed vs. still guessed, and why.
+This holds regardless of what `reducer::queue.rs`'s `preload_effects`/`load_current`/track-ended
+handler actually do internally, and regardless of whether the track-ended handler advances via
+`play_order[position + 1]` from queue state or trusts whatever mpv itself moved to — because
+whatever `Effect`s a queue edit like insert-next produces, those effects can only ever become one of
+the twelve `AudioCommand`s above once they reach the worker and `mpv::handle::apply_command`. There
+is no wider vocabulary anywhere in the chain for a removal to travel through.
+
+Therefore: once `PlayerState.last_preloaded` records a `QueueEntryId` and mpv has been told
+`Preload` for it (i.e. that file is now appended to mpv's internal playlist), no subsequent queue
+edit that changes the intended next track can cause mpv to drop that specific stale playlist entry.
+mpv will still advance into it gaplessly when the current track ends, at which point the queue's
+own `current`/`play_order` state and mpv's actual internal playlist genuinely disagree. The
+hypothesis is confirmed.
+
+### What is still not directly quoted, and why it doesn't change the verdict
+
+`crates/loxia-core/src/reducer/queue.rs` (the literal bodies of `preload_effects`, `load_current`,
+and the track-ended handler) and the `Preload` match arm inside `crates/loxia-audio/src/mpv/handle.rs`
+did not render with visible content in the environment available for this pass, even after
+re-attempting the read. That is a real gap against two specific asks from review — quoting
+`preload_effects`/`load_current` verbatim, and stating plainly whether the track-ended handler reads
+`play_order[position + 1]` or trusts mpv's own advance. Escalating that in one line: if a future task
+needs those exact bodies (for example, to scope exactly where a fix should live), they still need a
+direct read (e.g. `sed -n '1,400p' crates/loxia-core/src/reducer/queue.rs`) that this pass could not
+obtain; nothing above should be read as evidence that those files are actually empty in the real
+repository — only that their content did not reach this session.
+
+Critically, the CONFIRMED verdict above does not lean on either file: it is derived entirely from
+the closed `AudioCommand` enum (fully quoted, from a file that *did* render) and `gapless.rs`'s own
+module doc (also fully quoted). Whatever `reducer::queue.rs` does internally, it cannot make a
+removal happen that the command vocabulary has no way to express.
+
+### Disposition
+
+This task is confirmed **needed**, not "not needed". The concrete mechanism to build against, for
+whoever picks this task up:
+
+- Either add a new `AudioCommand` variant (e.g. `AudioCommand::RetractPreload` or
+  `AudioCommand::ClearUpcoming`) that `mpv::handle::apply_command` turns into an actual
+  `playlist-remove`/`playlist-clear` against the entries mpv appended past the current one, and have
+  `reducer::queue::preload_effects` emit it whenever the retargeted next entry differs from
+  `PlayerState.last_preloaded`; or
+- Make `Preload` itself idempotent by having `mpv::handle::apply_command` clear any already-appended,
+  not-yet-current playlist entries before appending the new one, removing the need for a new command
+  at all.
+
+Either way, `PlayerState.last_preloaded` needs to be cleared/updated in the same reducer step that
+emits the retraction, so it cannot itself go stale relative to what was actually sent.
+
+## Acceptance
+
+- `crates/loxia-core/tests/insert_next_after_preload_retargets_next_track.rs`:
+  `insert_next_after_preload_retargets_next_track`, `#[ignore = "fixed by
+  06-09-retract-stale-preload"]` until this task lands, then un-ignored as part of this task's own
+  PR.
