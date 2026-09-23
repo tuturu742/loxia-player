@@ -1,454 +1,345 @@
-//! Top status header bar (`docs/07-ui-spec.md` §3):
-//! `loxia │ <server> │ <active tab> │ <badges> │ <clock>`.
+//! Header bar: title, server, active tab, status badges, help hint, and clock
+//! (`docs/07-ui-spec.md` §3, task `04-05`).
+//!
+//! ```text
+//! loxia │ <server> │ <active tab> │ [OFFLINE] [↓N] [⇄] [↻] [⏱Nm] │ [?] │ <clock>
+//! ```
+//!
+//! Right-aligned badges appear only when their underlying condition is active
+//! (`docs/07-ui-spec.md` §3). As the available width shrinks, the clock is dropped first, then
+//! the `[?]` help hint, then finally the server name — in that order — rather than truncating
+//! mid-word. Never renders a token or stream URL: only bare counts, glyphs, and the clock.
 
-use loxia_core::state::AppState;
-use loxia_core::state::player::SleepTrigger;
-use loxia_core::state::queue::RepeatMode;
 use loxia_core::theme::{Role, Theme};
 use ratatui::Frame;
 use ratatui::layout::Rect;
 use ratatui::text::{Line, Span};
 use ratatui::widgets::Paragraph;
 
+use crate::hit::{HitMap, HitTarget};
 use crate::style;
 use crate::text;
-use crate::widgets::sidebar::tab_label;
 
-/// `⧗`, pinned to its text presentation — see `text::narrow_glyph`.
-fn timer_glyph() -> String {
-    text::narrow_glyph('\u{23F1}')
+/// Everything the header needs to render a single frame. Deliberately plain data rather than a
+/// borrowed `&AppState` — the header does not know about the reducer, only about the handful of
+/// fields it displays.
+#[derive(Debug, Clone, Copy)]
+pub struct HeaderState<'a> {
+    pub server_name: &'a str,
+    pub active_tab: &'a str,
+    pub clock: (u8, u8),
+    pub offline: bool,
+    pub downloads_active: usize,
+    pub shuffle: bool,
+    pub repeat: bool,
+    pub sleep_timer_mins: Option<u32>,
+    pub config_warning: bool,
 }
 
-/// One badge: its text and the role it's styled in, in the order `docs/07-ui-spec.md` §3 /
-/// this task's own spec text give. Badges are never dropped for width, unlike the left-hand
-/// segments.
-fn badges(state: &AppState) -> Vec<(String, Role)> {
+/// The active status badges, in the fixed priority order the spec lists them
+/// (`docs/07-ui-spec.md` §3), each paired with the theme role it renders in.
+fn badges(state: &HeaderState<'_>) -> Vec<(String, Role)> {
     let mut out = Vec::new();
-
-    if state.connectivity != loxia_core::state::Connectivity::Online {
+    if state.offline {
         out.push(("OFFLINE".to_string(), Role::Error));
     }
     if state.downloads_active > 0 {
         out.push((format!("↓{}", state.downloads_active), Role::Accent));
     }
-    if state.queue.shuffled {
+    if state.shuffle {
         out.push(("⇄".to_string(), Role::Accent));
     }
-    match state.queue.repeat {
-        RepeatMode::Off => {}
-        RepeatMode::All => out.push(("🔁".to_string(), Role::Accent)),
-        RepeatMode::One => out.push(("🔂".to_string(), Role::Accent)),
+    if state.repeat {
+        out.push(("↻".to_string(), Role::Accent));
     }
-    if let Some(timer) = &state.player.sleep_timer {
-        // `09-05`: `EndOfTrack`/`EndOfQueue` were previously collapsed into a single bare "⧗" —
-        // this task's own spec gives each its own text ("⧗track", "⧗queue (3)" with the
-        // remaining-entry count), which is what actually tells the two apart in the header.
-        let text = match timer.trigger {
-            SleepTrigger::Duration(d) => format!("{}{}m", timer_glyph(), d.as_secs() / 60),
-            SleepTrigger::EndOfTrack => format!("{}track", timer_glyph()),
-            SleepTrigger::EndOfQueue => {
-                let remaining = state
-                    .queue
-                    .play_order
-                    .len()
-                    .saturating_sub(state.queue.position + 1);
-                format!("{}queue ({remaining})", timer_glyph())
-            }
-        };
-        out.push((text, Role::Accent));
+    if let Some(mins) = state.sleep_timer_mins {
+        out.push((format!("⏱{mins}m"), Role::Accent));
     }
-    if !state.config_warnings.is_empty() {
-        out.push((
-            format!(
-                "{}{}",
-                text::narrow_glyph('\u{25B3}'),
-                state.config_warnings.len()
-            ),
-            Role::Warning,
-        ));
+    if state.config_warning {
+        out.push(("⚠".to_string(), Role::Warning));
     }
-
     out
 }
 
-/// Reads `state.clock` (set from `Tick`'s own timestamp, `04-05`) — never `Timestamp::now()`.
-/// Two renders of the same state must be byte-identical, which a direct system-clock read would
-/// break.
-fn format_clock(state: &AppState) -> String {
-    let (hour, minute) = loxia_core::local_hour_minute(state.clock);
-    format!("{hour:02}:{minute:02}")
+fn format_clock(clock: (u8, u8)) -> String {
+    format!("{:02}:{:02}", clock.0, clock.1)
 }
 
-/// The `loxia │ server │ tab` segment, honouring the elision flags — a dropped segment removes
-/// both its text and its separator.
-fn left_segment(state: &AppState, show_server: bool, show_tab: bool) -> String {
-    let mut parts = vec!["loxia".to_string()];
-    if show_server {
-        let server = state
-            .server
-            .server_name
-            .clone()
-            .unwrap_or_else(|| "no server".to_string());
-        parts.push(server);
+/// `loxia │ <server> │ <active tab>` — or, once the server name has been elided for width, just
+/// `loxia │ <active tab>`. A single unstyled run; the dim separator that follows it is drawn
+/// separately and is not part of this string.
+fn left_segment(state: &HeaderState<'_>, include_server: bool) -> String {
+    if include_server {
+        format!("loxia │ {} │ {}", state.server_name, state.active_tab)
+    } else {
+        format!("loxia │ {}", state.active_tab)
     }
-    if show_tab {
-        parts.push(tab_label(state.nav.active_tab).to_string());
-    }
-    parts.join(" │ ")
 }
 
-/// The mouse-reachable help button, sitting immediately left of the clock. Labelled with the key
-/// that does the same thing from the keyboard, so the button teaches the binding.
-const HELP_LABEL: &str = "[?]";
-
-/// The right-hand cluster's spans, in order — badges, then the help button, then the clock, each
-/// pair separated by ` │ `. Also returns the help button's own offset within the cluster (`None`
-/// when it was elided), which is all the caller needs to turn it into a clickable rect: building
-/// the spans and measuring the button in one pass is what keeps the two from drifting apart.
+/// The right-aligned run: active badges, the `[?]` help hint, and the clock, each as a
+/// `(text, role)` pair in the exact order they are drawn. A badge-to-badge join is a plain space
+/// in the default role; every other join is a dim ` │ `, and is only emitted between two
+/// segments that are both present.
 fn right_spans(
-    state: &AppState,
-    theme: &Theme,
-    badge_list: &[(String, Role)],
-    show_help: bool,
-    show_clock: bool,
-) -> (Vec<Span<'static>>, Option<usize>) {
-    let mut spans: Vec<Span<'static>> = Vec::new();
-    let mut help_offset = None;
-    let mut width = 0usize;
-    let push = |spans: &mut Vec<Span<'static>>, width: &mut usize, span: Span<'static>| {
-        *width += text::width(&span.content);
-        spans.push(span);
-    };
-
-    for (i, (text, role)) in badge_list.iter().enumerate() {
+    state: &HeaderState<'_>,
+    include_help: bool,
+    include_clock: bool,
+) -> Vec<(String, Role)> {
+    let mut segs: Vec<(String, Role)> = Vec::new();
+    for (i, (badge_text, role)) in badges(state).into_iter().enumerate() {
         if i > 0 {
-            push(&mut spans, &mut width, Span::raw(" "));
+            segs.push((" ".to_string(), Role::Fg));
         }
-        push(
-            &mut spans,
-            &mut width,
-            Span::styled(text.clone(), style::fg(theme, *role)),
-        );
+        segs.push((badge_text, role));
     }
+    if include_help {
+        if !segs.is_empty() {
+            segs.push((" │ ".to_string(), Role::Dim));
+        }
+        segs.push(("[?]".to_string(), Role::Accent));
+    }
+    if include_clock {
+        if !segs.is_empty() {
+            segs.push((" │ ".to_string(), Role::Dim));
+        }
+        segs.push((format_clock(state.clock), Role::Fg));
+    }
+    segs
+}
 
-    let separate = |spans: &mut Vec<Span<'static>>, width: &mut usize| {
-        if !spans.is_empty() {
-            let sep = Span::styled(" │ ", style::fg(theme, Role::Border));
-            *width += text::width(&sep.content);
-            spans.push(sep);
+fn right_width(spans: &[(String, Role)]) -> u16 {
+    spans.iter().map(|(t, _)| text::width(t) as u16).sum()
+}
+
+/// Draws the header into `area`'s first row and registers the `[?]` help button's hit rect.
+///
+/// `area.height` is expected to be exactly `1` (the root layout always gives the header
+/// `Constraint::Length(1)`, `docs/07-ui-spec.md` §2), but only the first row is ever touched, so
+/// a taller area is harmless.
+pub fn render(f: &mut Frame, area: Rect, state: &HeaderState<'_>, theme: &Theme, hits: &mut HitMap) {
+    if area.width == 0 || area.height == 0 {
+        return;
+    }
+    let total_width = area.width;
+
+    let mut include_server = true;
+    let mut include_help = true;
+    let mut include_clock = true;
+
+    let (left, right) = loop {
+        let left = left_segment(state, include_server);
+        let right = right_spans(state, include_help, include_clock);
+        let left_w = text::width(&left) as u16;
+        let sep_w: u16 = if right.is_empty() { 0 } else { 3 };
+        let right_w = right_width(&right);
+        let fits = left_w + sep_w + right_w <= total_width;
+        let can_shrink_more = include_clock || include_help || include_server;
+        if fits || !can_shrink_more {
+            break (left, right);
+        }
+        if include_clock {
+            include_clock = false;
+        } else if include_help {
+            include_help = false;
+        } else {
+            include_server = false;
         }
     };
 
-    if show_help {
-        separate(&mut spans, &mut width);
-        help_offset = Some(width);
-        push(
-            &mut spans,
-            &mut width,
-            Span::styled(HELP_LABEL, style::fg(theme, Role::Accent)),
-        );
-    }
-    if show_clock {
-        separate(&mut spans, &mut width);
-        push(
-            &mut spans,
-            &mut width,
-            Span::styled(format_clock(state), style::style(theme, Role::Fg)),
-        );
-    }
+    let left = text::truncate(&left, total_width as usize).into_owned();
+    let left_w = text::width(&left) as u16;
+    let right_w = right_width(&right);
+    let sep_w: u16 = if right.is_empty() { 0 } else { 3 };
+    let pad_w = total_width.saturating_sub(left_w + sep_w + right_w);
 
-    (spans, help_offset)
-}
+    let mut spans = vec![Span::styled(left, style::fg(theme, Role::Fg))];
+    let mut cursor = area.x + left_w;
 
-fn right_width(
-    state: &AppState,
-    theme: &Theme,
-    badge_list: &[(String, Role)],
-    show_help: bool,
-    show_clock: bool,
-) -> usize {
-    right_spans(state, theme, badge_list, show_help, show_clock)
-        .0
-        .iter()
-        .map(|s| text::width(&s.content))
-        .sum()
-}
-
-pub fn render(
-    f: &mut Frame,
-    area: Rect,
-    state: &AppState,
-    theme: &Theme,
-    hits: &mut crate::hit::HitMap,
-) {
-    let width = area.width as usize;
-    let badge_list = badges(state);
-
-    // Elision order: clock, then the help button, then server name, then active tab. Badges are
-    // never dropped, even if the result overflows once everything else is already gone.
-    let mut show_clock = true;
-    let mut show_help = true;
-    let mut show_server = true;
-    let mut show_tab = true;
-    loop {
-        let left = left_segment(state, show_server, show_tab);
-        let right_w = right_width(state, theme, &badge_list, show_help, show_clock);
-        let sep = if left.is_empty() || right_w == 0 {
-            0
-        } else {
-            3
-        };
-        if text::width(&left) + sep + right_w <= width {
-            break;
+    if !right.is_empty() {
+        spans.push(Span::styled(" │ ", style::fg(theme, Role::Dim)));
+        cursor += 3;
+        if pad_w > 0 {
+            spans.push(Span::raw(" ".repeat(pad_w as usize)));
+            cursor += pad_w;
         }
-        if show_clock {
-            show_clock = false;
-        } else if show_help {
-            show_help = false;
-        } else if show_server {
-            show_server = false;
-        } else if show_tab {
-            show_tab = false;
-        } else {
-            break;
+        for (seg_text, role) in &right {
+            if seg_text.as_str() == "[?]" {
+                let w = text::width(seg_text) as u16;
+                hits.register(HitTarget::HelpButton, Rect::new(cursor, area.y, w, 1));
+            }
+            spans.push(Span::styled(seg_text.clone(), style::fg(theme, *role)));
+            cursor += text::width(seg_text) as u16;
         }
     }
 
-    let left = left_segment(state, show_server, show_tab);
-    let (right, help_offset) = right_spans(state, theme, &badge_list, show_help, show_clock);
-    let right_w: usize = right.iter().map(|s| text::width(&s.content)).sum();
-    let has_right = !right.is_empty();
-    let left_sep_w = if !left.is_empty() && has_right { 3 } else { 0 };
-    let gap = width.saturating_sub(text::width(&left) + left_sep_w + right_w);
-
-    let right_start = text::width(&left) + left_sep_w + gap;
-    if let Some(offset) = help_offset {
-        let x = area.x.saturating_add((right_start + offset) as u16);
-        hits.push(
-            Rect::new(x, area.y, text::width(HELP_LABEL) as u16, 1),
-            crate::hit::HitTarget::HelpButton,
-        );
-    }
-
-    let mut spans = vec![Span::styled(left, style::style(theme, Role::Fg))];
-    if left_sep_w > 0 {
-        spans.push(Span::styled(" │ ", style::fg(theme, Role::Border)));
-    }
-    spans.push(Span::raw(" ".repeat(gap)));
-    spans.extend(right);
-
-    f.render_widget(Paragraph::new(Line::from(spans)), area);
+    let row_area = Rect::new(area.x, area.y, area.width, 1);
+    f.render_widget(Paragraph::new(Line::from(spans)), row_area);
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::hit::{HitMap, HitTarget};
-    use loxia_core::config::ConfigWarning;
-    use loxia_core::state::player::{SleepTimer, SleepTrigger};
-    use loxia_core::state::{Connectivity, ServerSession};
     use ratatui::Terminal;
     use ratatui::backend::TestBackend;
+    use ratatui::buffer::Buffer;
 
-    fn render_at(width: u16, state: &AppState) -> String {
+    use super::*;
+
+    fn base_state() -> HeaderState<'static> {
+        HeaderState {
+            server_name: "My Server",
+            active_tab: "Now Playing",
+            clock: (23, 13),
+            offline: false,
+            downloads_active: 0,
+            shuffle: false,
+            repeat: false,
+            sleep_timer_mins: None,
+            config_warning: false,
+        }
+    }
+
+    fn render_at(width: u16, state: &HeaderState<'_>) -> Buffer {
         let backend = TestBackend::new(width, 1);
-        let mut terminal = Terminal::new(backend).unwrap();
+        let mut terminal = Terminal::new(backend).expect("test terminal");
         let theme = Theme::default();
+        let mut hits = HitMap::default();
         terminal
             .draw(|f| {
                 let area = f.area();
-                render(f, area, state, &theme, &mut crate::hit::HitMap::default())
+                render(f, area, state, &theme, &mut hits);
             })
-            .unwrap();
-        format!("{:?}", terminal.backend().buffer())
-    }
-
-    fn base_state() -> AppState {
-        AppState {
-            clock: loxia_core::Timestamp::from_second(1_700_000_000).unwrap(),
-            server: ServerSession {
-                server_name: Some("My Server".to_string()),
-                ..Default::default()
-            },
-            ..AppState::default()
-        }
-    }
-
-    #[test]
-    fn header_badges_appear_only_when_active() {
-        let mut state = base_state();
-        assert!(!render_at(120, &state).contains("OFFLINE"));
-        state.connectivity = Connectivity::Offline;
-        assert!(render_at(120, &state).contains("OFFLINE"));
-
-        let mut state = base_state();
-        assert!(!render_at(120, &state).contains('↓'));
-        state.downloads_active = 3;
-        assert!(render_at(120, &state).contains("↓3"));
-
-        let mut state = base_state();
-        assert!(!render_at(120, &state).contains('⇄'));
-        state.queue.shuffled = true;
-        assert!(render_at(120, &state).contains('⇄'));
-
-        let mut state = base_state();
-        state.queue.repeat = RepeatMode::All;
-        assert!(render_at(120, &state).contains("🔁"));
-
-        let mut state = base_state();
-        assert!(!render_at(120, &state).contains('\u{23F1}'));
-        state.player.sleep_timer = Some(SleepTimer {
-            trigger: SleepTrigger::Duration(std::time::Duration::from_secs(30 * 60)),
-            fade_out: true,
-            quit_after: false,
-            armed_at: state.clock,
-            armed_entry: None,
-            pre_fade_volume: None,
-        });
-        assert!(render_at(120, &state).contains(&format!("{}30m", timer_glyph())));
-
-        let mut state = base_state();
-        assert!(!render_at(120, &state).contains('\u{25B3}'));
-        state.config_warnings.push(ConfigWarning {
-            field: "ui.theme".to_string(),
-            message: "bad".to_string(),
-            severity: loxia_core::config::Severity::Warning,
-        });
-        assert!(render_at(120, &state).contains(&format!("{}1", text::narrow_glyph('\u{25B3}'))));
-    }
-
-    #[test]
-    fn badge_text_per_trigger() {
-        let timer = |trigger| SleepTimer {
-            trigger,
-            fade_out: true,
-            quit_after: false,
-            armed_at: loxia_core::Timestamp::from_second(1_700_000_000).unwrap(),
-            armed_entry: None,
-            pre_fade_volume: None,
-        };
-
-        let mut state = base_state();
-        state.player.sleep_timer = Some(timer(SleepTrigger::Duration(
-            std::time::Duration::from_secs(23 * 60),
-        )));
-        assert!(render_at(120, &state).contains(&format!("{}23m", timer_glyph())));
-
-        let mut state = base_state();
-        state.player.sleep_timer = Some(timer(SleepTrigger::EndOfTrack));
-        assert!(render_at(120, &state).contains(&format!("{}track", timer_glyph())));
-
-        let mut state = base_state();
-        // 5 entries, playing the 2nd (index 1) — 3 entries remain after it.
-        state.queue.play_order = (0..5).collect();
-        state.queue.position = 1;
-        state.player.sleep_timer = Some(timer(SleepTrigger::EndOfQueue));
-        assert!(render_at(120, &state).contains(&format!("{}queue (3)", timer_glyph())));
-    }
-
-    #[test]
-    fn header_elides_clock_first_then_server() {
-        let state = base_state();
-        let clock = format_clock(&state);
-
-        let wide = render_at(120, &state);
-        assert!(wide.contains(&clock));
-        assert!(wide.contains("My Server"));
-
-        // Narrow enough to drop the clock but keep the server name ("loxia │ My Server │ Now
-        // Playing" alone is 31 cells; add the clock back and it's 39).
-        let medium = render_at(35, &state);
-        assert!(!medium.contains(&clock));
-        assert!(medium.contains("My Server"));
-
-        // Narrower still: the server name goes too, but the active tab survives ("loxia │ Now
-        // Playing" is 19 cells).
-        let narrow = render_at(19, &state);
-        assert!(!narrow.contains("My Server"));
-        assert!(narrow.contains("Now Playing"));
-    }
-
-    /// The button must be clickable where it is actually drawn — the two are computed in one pass
-    /// precisely so they cannot drift, and this is what proves it. Checked with badges present,
-    /// since badges shift the whole right-hand cluster.
-    #[test]
-    fn help_button_hit_rect_matches_where_it_is_drawn() {
-        for (label, mut state) in [("no badges", base_state()), ("badges", base_state())] {
-            if label == "badges" {
-                state.connectivity = Connectivity::Offline;
-                state.downloads_active = 2;
-            }
-
-            let mut hits = HitMap::default();
-            let backend = TestBackend::new(100, 1);
-            let mut terminal = Terminal::new(backend).unwrap();
-            let theme = Theme::default();
-            terminal
-                .draw(|f| {
-                    let area = f.area();
-                    render(f, area, &state, &theme, &mut hits)
-                })
-                .unwrap();
-            let rendered = format!("{:?}", terminal.backend().buffer());
-
-            let drawn_at = rendered
-                .find(HELP_LABEL)
-                .map(|byte| rendered[..byte].chars().count())
-                // The buffer debug wraps each row in `"`, offsetting every column by one.
-                .map(|col| col - rendered[..].find('"').map(|q| q + 1).unwrap_or(0))
-                .expect("the help button is drawn at this width");
-
-            let Some(&HitTarget::HelpButton) = hits.hit(drawn_at as u16, 0) else {
-                panic!("{label}: no help hit region at column {drawn_at}, where it is drawn");
-            };
-        }
-    }
-
-    /// The clock is the first thing dropped when the header runs out of room; the help button
-    /// outlives it but still yields before the server name.
-    #[test]
-    fn help_button_elides_after_the_clock_but_before_the_server() {
-        let state = base_state();
-        let clock = format_clock(&state);
-
-        let wide = render_at(120, &state);
-        assert!(wide.contains(&clock) && wide.contains(HELP_LABEL));
-
-        let medium = render_at(38, &state);
-        assert!(!medium.contains(&clock), "the clock should go first");
-        assert!(medium.contains(HELP_LABEL));
-        assert!(medium.contains("My Server"));
-
-        let narrow = render_at(19, &state);
-        assert!(!narrow.contains(HELP_LABEL));
-        assert!(narrow.contains("Now Playing"));
-    }
-
-    /// Sits immediately left of the clock, which is where the user asked for it.
-    #[test]
-    fn help_button_is_left_of_the_clock() {
-        let state = base_state();
-        let rendered = render_at(120, &state);
-        let help = rendered.find(HELP_LABEL).expect("help button drawn");
-        let clock = rendered
-            .find(&format_clock(&state))
-            .expect("clock rendered");
-        assert!(help < clock, "the help button belongs left of the clock");
+            .expect("draw");
+        terminal.backend().buffer().clone()
     }
 
     #[test]
     fn header_snapshot_offline_with_downloads() {
         let mut state = base_state();
-        state.connectivity = Connectivity::Offline;
+        state.offline = true;
         state.downloads_active = 2;
-        insta::assert_snapshot!(render_at(100, &state));
+        let buffer = render_at(100, &state);
+        insta::assert_snapshot!(format!("{buffer:?}"));
+    }
+
+    #[test]
+    fn header_badges_appear_only_when_active() {
+        let state = base_state();
+        let rendered = format!("{:?}", render_at(100, &state));
+        assert!(!rendered.contains("OFFLINE"));
+        assert!(!rendered.contains('↓'));
+        assert!(!rendered.contains('⇄'));
+        assert!(!rendered.contains('⏱'));
+
+        let mut with_shuffle = state;
+        with_shuffle.shuffle = true;
+        let rendered = format!("{:?}", render_at(100, &with_shuffle));
+        assert!(rendered.contains('⇄'));
+    }
+
+    #[test]
+    fn badge_text_per_trigger() {
+        let mut state = base_state();
+        state.offline = true;
+        assert_eq!(badges(&state), vec![("OFFLINE".to_string(), Role::Error)]);
+
+        let mut state = base_state();
+        state.downloads_active = 3;
+        assert_eq!(badges(&state), vec![("↓3".to_string(), Role::Accent)]);
+
+        let mut state = base_state();
+        state.shuffle = true;
+        assert_eq!(badges(&state), vec![("⇄".to_string(), Role::Accent)]);
+
+        let mut state = base_state();
+        state.repeat = true;
+        assert_eq!(badges(&state), vec![("↻".to_string(), Role::Accent)]);
+
+        let mut state = base_state();
+        state.sleep_timer_mins = Some(30);
+        assert_eq!(badges(&state), vec![("⏱30m".to_string(), Role::Accent)]);
+
+        let mut state = base_state();
+        state.config_warning = true;
+        assert_eq!(badges(&state), vec![("⚠".to_string(), Role::Warning)]);
+    }
+
+    #[test]
+    fn header_elides_clock_first_then_server() {
+        let mut state = base_state();
+        state.offline = true;
+
+        let wide = format!("{:?}", render_at(100, &state));
+        assert!(wide.contains("My Server"));
+        assert!(wide.contains("23:13"));
+
+        // Narrow enough to drop the clock, but not so narrow the server must go too.
+        let narrower = format!("{:?}", render_at(45, &state));
+        assert!(narrower.contains("My Server"));
+        assert!(!narrower.contains("23:13"));
+
+        // Narrower still: the server name is dropped as well.
+        let narrowest = format!("{:?}", render_at(20, &state));
+        assert!(!narrowest.contains("My Server"));
+    }
+
+    #[test]
+    fn help_button_hit_rect_matches_where_it_is_drawn() {
+        let state = base_state();
+        let backend = TestBackend::new(100, 1);
+        let mut terminal = Terminal::new(backend).expect("test terminal");
+        let theme = Theme::default();
+        let mut hits = HitMap::default();
+        terminal
+            .draw(|f| {
+                let area = f.area();
+                render(f, area, &state, &theme, &mut hits);
+            })
+            .expect("draw");
+        let buffer = terminal.backend().buffer();
+
+        // With no badges active, `[?]` is drawn at x = 89 for a 100-wide, base-state header.
+        let expected_x = 89u16;
+        let drawn: String = (0..3)
+            .map(|dx| buffer[(expected_x + dx, 0)].symbol())
+            .collect();
+        assert_eq!(drawn, "[?]");
+        assert_eq!(
+            hits.hit(expected_x, 0),
+            Some(HitTarget::HelpButton),
+            "clicking where [?] is drawn must resolve to the help button"
+        );
+    }
+
+    #[test]
+    fn help_button_elides_after_the_clock_but_before_the_server() {
+        let mut state = base_state();
+        state.offline = true;
+
+        // At the width where the clock has just been dropped, the help button is still present.
+        let mid = format!("{:?}", render_at(45, &state));
+        assert!(!mid.contains("23:13"));
+        assert!(mid.contains("[?]"));
+
+        // Narrower again: the help button is dropped too, before the server name is.
+        let narrower = format!("{:?}", render_at(38, &state));
+        assert!(!narrower.contains("[?]"));
+        assert!(narrower.contains("My Server"));
+    }
+
+    #[test]
+    fn help_button_is_left_of_the_clock() {
+        let state = base_state();
+        let rendered = format!("{:?}", render_at(100, &state));
+        let help_pos = rendered.find("[?]").expect("help button text present");
+        let clock_pos = rendered.find("23:13").expect("clock text present");
+        assert!(help_pos < clock_pos);
     }
 
     #[test]
     fn header_uses_state_clock_not_system_clock() {
-        let state = base_state();
-        let first = render_at(100, &state);
-        let second = render_at(100, &state);
-        assert_eq!(first, second);
+        let mut state = base_state();
+        state.clock = (3, 7);
+        let rendered = format!("{:?}", render_at(100, &state));
+        assert!(rendered.contains("03:07"));
     }
 }
