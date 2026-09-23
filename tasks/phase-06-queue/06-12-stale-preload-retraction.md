@@ -1,77 +1,73 @@
-# 06-12 — Stale-preload retraction
+# 06-12 · Stale preload retraction
 
-## Prerequisites
-
-- `06-11` — Stale-preload audit
-
-## Crate-boundary authorisation
-
-CONTRIBUTING.md rule 2 ("Never cross a crate boundary in a single task unless the task explicitly
-says to") is explicitly overridden **for this task only**. Closing every scenario `06-11` found
-requires, in one coherent change:
-
-- **`loxia-core`** — the reducer must detect, in `crates/loxia-core/src/reducer/queue.rs`, that an
-  action just invalidated an outstanding preload, and emit a new `Effect` saying so.
-- **`loxia-audio`** — `crates/loxia-audio/src/backend.rs` needs a new `AudioCommand` variant (e.g.
-  `AudioCommand::RetractPreload`) that the mpv backend (`crates/loxia-audio/src/mpv/handle.rs`) and
-  the mock backend (`crates/loxia-audio/src/mock.rs`) both implement, to remove the stale entry
-  from mpv's internal playlist (or mark it ignorable) before it can play.
-- **`loxia-player`** — the audio worker (`crates/loxia-player/src/workers/audio.rs`) is what
-  actually turns the new `Effect` into the new `AudioCommand`; it is the only place both types are
-  in scope simultaneously.
-
-Splitting this into three single-crate tasks would leave the middle two states unmergeable (a new
-`Effect` with nothing to turn it into a command, or a new `AudioCommand` nothing ever sends) and
-individually untestable end-to-end. This paragraph is the task file's explicit authorisation
-required by CONTRIBUTING.md; no further sign-off is needed to touch all three crates in this one
-PR.
+**Phase:** 06 — Queue engine · **Agent:** core, audio, player (crosses crate boundaries; see
+authorisation below) · **Size:** M · **Prerequisites:** 06-11 ·
+**Reference:** docs/05-audio-engine.md, docs/12-decisions.md
 
 ## Goal
 
-Close every scenario documented in `docs/audits/06-11-stale-preload-findings.md`: whenever a queue
-mutation invalidates an already-issued gapless preload, retract it before it can play, and issue a
-fresh `Preload` for whatever is now actually next (if anything).
+Fix every staleness case `06-11`'s audit found: when a queue mutation invalidates an
+already-issued preload, retract it (and, if there is a new correct next track, preload that
+instead) before mpv reaches the end of the currently-playing track — so a user who inserts a
+track to play next, removes the queued-next track, or reshuffles never hears the stale track play
+gaplessly anyway.
 
-## Files to touch
+## Crate-boundary authorisation
 
-- `crates/loxia-core/src/reducer/queue.rs` — detect invalidation, emit the new effect.
-- `crates/loxia-core/src/effect.rs` — new `Effect::Audio` variant for the retraction (name it to
-  match the existing `Effect::Audio(AudioCommand-shaped-but-core-side)` convention already used for
-  `SetEq`/similar, per `crates/loxia-audio/src/backend.rs`'s own doc comments on that boundary).
-- `crates/loxia-audio/src/backend.rs` — new `AudioCommand::RetractPreload` variant (or equivalent
-  name — pick one and use it consistently across all three crates).
-- `crates/loxia-audio/src/mpv/handle.rs` — implementation against mpv's real playlist (e.g.
-  `playlist-remove` for the appended-but-not-yet-playing entry).
-- `crates/loxia-audio/src/mock.rs` — `MockEngine`/`MockControl` support so tests can assert a
-  retraction actually happened without a real mpv instance.
-- `crates/loxia-player/src/workers/audio.rs` — wiring from the new `Effect` to the new
-  `AudioCommand`.
+**This task explicitly authorises crossing `loxia-audio`, `loxia-core`, and `loxia-player` in one
+PR**, per `CONTRIBUTING.md`'s rule that a task must say so to permit it. The reason a
+single-crate change cannot close the gap `06-11` documented:
+
+- The state that *knows* a preload is now stale — the queue, and the mutation that just happened
+  to it — lives in `loxia-core`'s reducer.
+- The engine that *holds* the stale preload — mpv's internal playlist, via `AudioBackend` — lives
+  in `loxia-audio`.
+- The wiring that turns "the reducer decided a preload is stale" into "the audio backend received
+  a command about it" — the effect dispatcher and audio worker — lives in `loxia-player`.
+
+Detecting staleness without a way to act on it (core-only), or adding a retraction command with no
+caller that ever knows to send it (audio-only), each leave the bug exactly as `06-11` found it.
+All three are required for one working fix.
+
+## Files
+
+- `crates/loxia-core/src/reducer/queue.rs`
+- `crates/loxia-core/src/effect.rs`
+- `crates/loxia-audio/src/backend.rs`
+- `crates/loxia-audio/src/gapless.rs`
+- `crates/loxia-audio/src/mpv/handle.rs`
+- `crates/loxia-player/src/workers/audio.rs`
+- `crates/loxia-player/src/dispatch.rs`
+- `docs/audits/06-11-stale-preload-audit.md` (append a "Resolved by `06-12`" note per finding)
 
 ## Specification
 
-- Every scenario in the `06-11` findings document must have a corresponding un-ignored, passing
-  test that was previously `#[ignore]`d.
-- Retraction must be idempotent: retracting when nothing is actually preloaded (e.g. the
-  invalidating action arrived after the preloaded track already started naturally) must be a safe
-  no-op, not an error — `AudioError` must not gain a new variant for this case unless the audit
-  found a real failure mode requiring one.
-- After a retraction, if there is a new "actually next" track, the existing `06-06` preload path
-  must fire for it in the same reducer pass — a retraction must never leave the queue in a state
-  with no preload pending when one should be.
-- `crates/loxia-audio/src/gapless.rs`'s own real-mpv test module (`#[cfg(all(test,
-  feature = "mpv-tests"))]`) gets one new test exercising retract-then-repreload against a real
-  mpv instance, following the existing `silent_wav_bytes`/`collect_transition` pattern already in
-  that file.
+- Add an effect (e.g. `Effect::Audio::CancelPreload`) emitted by the reducer whenever a queue
+  mutation invalidates the currently-preloaded next track. If the mutation also produces a new,
+  correct next track, emit the existing preload effect for it in the same step so there is no gap
+  where nothing is preloaded.
+- Add the corresponding `AudioCommand` variant. In the real mpv backend, this must remove the
+  appended-but-not-yet-playing playlist entry (mpv's own `playlist-remove`, targeting the
+  *next* index, never the currently-playing one) rather than doing anything that could disturb
+  playback in progress.
+- Wire the new effect through `loxia-player`'s dispatch and audio worker, exactly as the existing
+  `Preload` effect already is.
+- Update `06-11`'s reproduction tests: staleness must no longer occur, so their
+  `// characterization:` comments become `// regression:` comments describing the fix, and their
+  assertions flip to the now-correct outcome.
 
 ## Acceptance
 
-- Every `#[ignore]` marker added by `06-11` in `crates/loxia-core/src/reducer/queue.rs` is removed
-  and its test passes.
-- `mock_engine_retract_preload_is_recorded` (`loxia-audio`, `mock.rs`).
-- `retract_preload_then_repreload_next_in_same_pass` (`loxia-core`, `reducer/queue.rs`).
-- `retract_preload_when_nothing_preloaded_is_a_noop` (`loxia-audio` or `loxia-core`, wherever the
-  idempotency check naturally lives).
-- New `mpv-tests`-gated test in `crates/loxia-audio/src/gapless.rs` demonstrating a retracted
-  preload never plays, against a real mpv instance (`cargo test --features mpv-tests`, not run in
-  CI per that feature's own existing gating).
-- `cargo clippy --workspace --all-targets -- -D warnings` clean across all three touched crates.
+- `cancel_preload_effect_emitted_on_stale_insert_next`
+- `cancel_preload_effect_emitted_on_stale_removal`
+- `mock_engine_playlist_remove_targets_next_not_current`
+- `dispatch_forwards_cancel_preload_to_audio_worker`
+- `06-11`'s `preload_goes_stale_after_insert_next` and `preload_goes_stale_after_removal` are
+  updated in place and now assert the stale preload is retracted, not left in place.
+
+## Done when
+
+See the Global Definition of Done in `tasks/README.md`, plus:
+- all tests named above exist and pass
+- `docs/audits/06-11-stale-preload-audit.md` has a "Resolved by `06-12`" note against every
+  finding it previously recorded as unresolved
