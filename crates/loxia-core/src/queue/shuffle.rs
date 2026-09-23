@@ -86,227 +86,301 @@ mod tests {
         let mut sorted = queue.play_order.clone();
         sorted.sort_unstable();
         let expected: Vec<usize> = (0..queue.entries.len()).collect();
-        assert_eq!(sorted, expected, "play_order must remain a permutation of entries' indices");
+        assert_eq!(
+            sorted, expected,
+            "play_order must always be a permutation of 0..entries.len()"
+        );
     }
 
-    /// Builds `total` fixture entries via [`queue_of`] and returns the slice starting at `from`
-    /// — i.e. entries that are guaranteed not to already be present in a `queue_of(from)` queue,
-    /// for use as "new" entries being inserted/appended into one.
-    fn extra_entries(total: usize, from: usize) -> Vec<QueueEntry> {
-        queue_of(total).entries[from..].to_vec()
+    /// The entry that is "current": `entries[play_order[position]]`, per this module's own doc
+    /// comment — never read any other way from a test, so a bug in this helper would show up as
+    /// every test using it failing identically.
+    fn current_entry(state: &AppState) -> &QueueEntry {
+        &state.queue.entries[state.queue.play_order[state.queue.position]]
     }
 
-    fn batch(mode: QueueBatchMode, entries: Vec<QueueEntry>) -> Action {
-        Action::QueueBatch(QueueBatch { entries, mode })
+    /// A single freshly-built `QueueEntry`, obtained by building a one-item queue via the
+    /// `queue_of` fixture and pulling its only entry back out — avoids hard-coding this module's
+    /// own copy of `QueueEntry`'s constructor/fields, which belong to `state::queue`, not here.
+    fn one_entry(label: &str) -> QueueEntry {
+        queue_of(&[label]).queue.entries.remove(0)
     }
 
-    // ---- existing shuffle/unshuffle characterization tests (unchanged) --------------------
+    // ---- existing shuffle/unshuffle tests (unchanged) ----
 
     #[test]
-    fn shuffle_produces_a_permutation_and_keeps_current_playing() {
-        let mut queue = queue_of(6);
-        queue.position = 3;
-        let current = queue.entries[queue.play_order[queue.position]].clone();
+    fn shuffle_pins_current_entry_and_never_reorders_entries() {
+        let mut state = queue_of(&["a", "b", "c", "d", "e"]);
+        state.queue.position = 2;
+        let current_before = current_entry(&state).clone();
+        let entries_before = state.queue.entries.clone();
 
-        shuffle(&mut queue, 1234);
+        shuffle(&mut state.queue, 42);
 
-        assert_permutation(&queue);
-        assert_eq!(queue.entries[queue.play_order[queue.position]], current);
+        assert_eq!(state.queue.position, 0, "shuffle pins the current entry to the front");
+        assert_eq!(current_entry(&state), &current_before);
+        assert_permutation(&state.queue);
+        assert_eq!(
+            state.queue.entries, entries_before,
+            "shuffle must never reorder entries, only play_order"
+        );
     }
 
     #[test]
     fn shuffle_is_deterministic_for_a_given_seed() {
-        let mut a = queue_of(8);
-        let mut b = queue_of(8);
+        let mut a = queue_of(&["a", "b", "c", "d", "e"]);
+        let mut b = queue_of(&["a", "b", "c", "d", "e"]);
+        a.queue.position = 3;
+        b.queue.position = 3;
 
-        shuffle(&mut a, 55);
-        shuffle(&mut b, 55);
+        shuffle(&mut a.queue, 7);
+        shuffle(&mut b.queue, 7);
 
-        assert_eq!(a.play_order, b.play_order);
+        assert_eq!(a.queue.play_order, b.queue.play_order);
     }
 
     #[test]
-    fn unshuffle_restores_insertion_order_and_repositions_current() {
-        let mut queue = queue_of(6);
-        queue.position = 2;
-        let current = queue.entries[queue.play_order[queue.position]].clone();
+    fn unshuffle_resets_play_order_and_relocates_position() {
+        let mut state = queue_of(&["a", "b", "c", "d", "e"]);
+        state.queue.position = 3;
+        let current_before = current_entry(&state).clone();
+        shuffle(&mut state.queue, 99);
 
-        shuffle(&mut queue, 9);
-        unshuffle(&mut queue);
+        unshuffle(&mut state.queue);
 
-        assert_eq!(queue.play_order, (0..queue.entries.len()).collect::<Vec<_>>());
-        assert_eq!(queue.entries[queue.play_order[queue.position]], current);
+        let identity: Vec<usize> = (0..state.queue.entries.len()).collect();
+        assert_eq!(state.queue.play_order, identity);
+        assert_eq!(current_entry(&state), &current_before);
     }
 
-    // ---- insert-next / append characterization tests (new) ---------------------------------
+    // ---- new characterization tests: insert-next / append (`QueueBatch`/`QueueBatchMode`) ----
 
     #[test]
     fn insert_next_unshuffled_plays_immediately_after_current() {
-        let mut state = AppState::default();
-        state.queue = queue_of(4);
+        let mut state = queue_of(&["a", "b", "c", "d"]);
         state.queue.position = 1;
+        let current_before = current_entry(&state).clone();
+        let new_entry = one_entry("x");
 
-        let new_entry = extra_entries(5, 4).remove(0);
-        reducer::reduce(&mut state, batch(QueueBatchMode::InsertNext, vec![new_entry.clone()]));
+        reducer::reduce(
+            &mut state,
+            Action::QueueBatch(QueueBatch {
+                entries: vec![new_entry.clone()],
+                mode: QueueBatchMode::InsertNext,
+            }),
+        );
 
-        let inserted_index = state.queue.entries.len() - 1;
-        assert_eq!(state.queue.position, 1, "inserting next must not move the current position");
-        assert_eq!(state.queue.play_order[state.queue.position + 1], inserted_index);
-        assert_eq!(state.queue.entries[inserted_index], new_entry);
+        assert_eq!(current_entry(&state), &current_before);
+        let next_idx = state.queue.play_order[state.queue.position + 1];
+        assert_eq!(
+            state.queue.entries[next_idx], new_entry,
+            "'insert next' must place the new entry immediately after the current one in play_order"
+        );
+        assert_permutation(&state.queue);
     }
 
     #[test]
     fn insert_next_shuffled_plays_immediately_after_current() {
-        let mut state = AppState::default();
-        state.queue = queue_of(5);
-        shuffle(&mut state.queue, 42);
-        let current_before = state.queue.play_order[state.queue.position];
+        let mut state = queue_of(&["a", "b", "c", "d"]);
+        state.queue.position = 2;
+        shuffle(&mut state.queue, 13);
+        let current_before = current_entry(&state).clone();
+        let new_entry = one_entry("x");
 
-        let new_entry = extra_entries(6, 5).remove(0);
-        reducer::reduce(&mut state, batch(QueueBatchMode::InsertNext, vec![new_entry.clone()]));
+        reducer::reduce(
+            &mut state,
+            Action::QueueBatch(QueueBatch {
+                entries: vec![new_entry.clone()],
+                mode: QueueBatchMode::InsertNext,
+            }),
+        );
 
-        let inserted_index = state.queue.entries.len() - 1;
-        assert_eq!(state.queue.play_order[state.queue.position], current_before);
-        assert_eq!(state.queue.play_order[state.queue.position + 1], inserted_index);
-        assert_eq!(state.queue.entries[inserted_index], new_entry);
+        assert_eq!(current_entry(&state), &current_before);
+        let next_idx = state.queue.play_order[state.queue.position + 1];
+        assert_eq!(state.queue.entries[next_idx], new_entry);
+        assert_permutation(&state.queue);
     }
 
     #[test]
     #[ignore = "fixed by 06-09-insert-next-unshuffle-ordering"]
     fn insert_next_shuffled_then_unshuffle_keeps_entry_after_current() {
-        let mut state = AppState::default();
-        state.queue = queue_of(5);
-        shuffle(&mut state.queue, 7);
+        let mut state = queue_of(&["a", "b", "c", "d"]);
+        state.queue.position = 0;
+        shuffle(&mut state.queue, 21);
+        let current_before = current_entry(&state).clone();
+        let new_entry = one_entry("x");
 
-        let new_entry = extra_entries(6, 5).remove(0);
-        reducer::reduce(&mut state, batch(QueueBatchMode::InsertNext, vec![new_entry]));
-        let inserted_index = state.queue.entries.len() - 1;
+        reducer::reduce(
+            &mut state,
+            Action::QueueBatch(QueueBatch {
+                entries: vec![new_entry.clone()],
+                mode: QueueBatchMode::InsertNext,
+            }),
+        );
 
         unshuffle(&mut state.queue);
 
-        // The entry inserted "next" should still play immediately after whatever is current
-        // once un-shuffled — but `unshuffle` resets `play_order` to raw insertion order and
-        // only relocates the single index that was current, so this currently fails whenever
-        // the inserted entry's insertion-order index doesn't happen to land right after it.
+        assert_eq!(current_entry(&state), &current_before);
+        let next_idx = state.queue.play_order[state.queue.position + 1];
         assert_eq!(
-            state.queue.play_order[state.queue.position + 1],
-            inserted_index,
-            "insert-next ordering must survive an unshuffle"
+            state.queue.entries[next_idx], new_entry,
+            "an entry inserted 'next' should still play immediately after the current entry \
+             once the queue is un-shuffled"
         );
     }
 
     #[test]
     fn insert_next_multi_select_preserves_selection_order() {
-        let mut state = AppState::default();
-        state.queue = queue_of(3);
+        let mut state = queue_of(&["a", "b", "c"]);
         state.queue.position = 0;
+        let new_entries = vec![one_entry("x"), one_entry("y"), one_entry("z")];
 
-        let picked = extra_entries(6, 3);
-        reducer::reduce(&mut state, batch(QueueBatchMode::InsertNext, picked.clone()));
+        reducer::reduce(
+            &mut state,
+            Action::QueueBatch(QueueBatch {
+                entries: new_entries.clone(),
+                mode: QueueBatchMode::InsertNext,
+            }),
+        );
 
-        let start = state.queue.entries.len() - picked.len();
-        let inserted_indices: Vec<usize> = (start..state.queue.entries.len()).collect();
-        let got: Vec<usize> = state.queue.play_order
-            [state.queue.position + 1..state.queue.position + 1 + picked.len()]
-            .to_vec();
-
-        assert_eq!(got, inserted_indices, "multi-select insert-next must preserve selection order");
+        let start = state.queue.position + 1;
+        let inserted: Vec<QueueEntry> = state.queue.play_order[start..start + new_entries.len()]
+            .iter()
+            .map(|&idx| state.queue.entries[idx].clone())
+            .collect();
+        assert_eq!(
+            inserted, new_entries,
+            "a multi-select insert-next must preserve the order the items were selected in"
+        );
+        assert_permutation(&state.queue);
     }
 
     #[test]
     fn append_unshuffled_goes_to_end() {
-        let mut state = AppState::default();
-        state.queue = queue_of(4);
+        let mut state = queue_of(&["a", "b", "c"]);
+        state.queue.position = 0;
+        let new_entry = one_entry("x");
 
-        let new_entry = extra_entries(5, 4).remove(0);
-        reducer::reduce(&mut state, batch(QueueBatchMode::Append, vec![new_entry.clone()]));
+        reducer::reduce(
+            &mut state,
+            Action::QueueBatch(QueueBatch {
+                entries: vec![new_entry.clone()],
+                mode: QueueBatchMode::Append,
+            }),
+        );
 
-        let inserted_index = state.queue.entries.len() - 1;
-        assert_eq!(*state.queue.play_order.last().unwrap(), inserted_index);
-        assert_eq!(state.queue.entries[inserted_index], new_entry);
+        let last_idx = *state
+            .queue
+            .play_order
+            .last()
+            .expect("play_order is never empty after an append");
+        assert_eq!(state.queue.entries[last_idx], new_entry);
+        assert_permutation(&state.queue);
     }
 
     #[test]
     fn append_shuffled_goes_to_end_of_play_order() {
-        let mut state = AppState::default();
-        state.queue = queue_of(5);
-        shuffle(&mut state.queue, 99);
+        let mut state = queue_of(&["a", "b", "c", "d"]);
+        state.queue.position = 1;
+        shuffle(&mut state.queue, 5);
+        let current_before = current_entry(&state).clone();
+        let new_entry = one_entry("x");
 
-        let new_entry = extra_entries(6, 5).remove(0);
-        reducer::reduce(&mut state, batch(QueueBatchMode::Append, vec![new_entry.clone()]));
+        reducer::reduce(
+            &mut state,
+            Action::QueueBatch(QueueBatch {
+                entries: vec![new_entry.clone()],
+                mode: QueueBatchMode::Append,
+            }),
+        );
 
-        let inserted_index = state.queue.entries.len() - 1;
-        assert_eq!(*state.queue.play_order.last().unwrap(), inserted_index);
-        assert_eq!(state.queue.entries[inserted_index], new_entry);
+        assert_eq!(current_entry(&state), &current_before);
+        let last_idx = *state
+            .queue
+            .play_order
+            .last()
+            .expect("play_order is never empty after an append");
+        assert_eq!(state.queue.entries[last_idx], new_entry);
+        assert_permutation(&state.queue);
     }
 
     #[test]
     fn queue_edit_does_not_change_current_entry_or_position_target() {
-        let mut state = AppState::default();
-        state.queue = queue_of(4);
+        let mut state = queue_of(&["a", "b", "c", "d"]);
         state.queue.position = 2;
-        let current_before = state.queue.entries[state.queue.play_order[state.queue.position]].clone();
-        let position_before = state.queue.position;
+        let current_before = current_entry(&state).clone();
 
-        let new_entry = extra_entries(5, 4).remove(0);
-        reducer::reduce(&mut state, batch(QueueBatchMode::InsertNext, vec![new_entry]));
-
-        assert_eq!(state.queue.position, position_before);
-        assert_eq!(
-            state.queue.entries[state.queue.play_order[state.queue.position]],
-            current_before
+        reducer::reduce(
+            &mut state,
+            Action::QueueBatch(QueueBatch {
+                entries: vec![one_entry("x")],
+                mode: QueueBatchMode::InsertNext,
+            }),
         );
+        assert_eq!(current_entry(&state), &current_before);
 
-        let another = extra_entries(6, 5).remove(0);
-        reducer::reduce(&mut state, batch(QueueBatchMode::Append, vec![another]));
-
-        assert_eq!(state.queue.position, position_before);
-        assert_eq!(
-            state.queue.entries[state.queue.play_order[state.queue.position]],
-            current_before
+        reducer::reduce(
+            &mut state,
+            Action::QueueBatch(QueueBatch {
+                entries: vec![one_entry("y")],
+                mode: QueueBatchMode::Append,
+            }),
         );
+        assert_eq!(current_entry(&state), &current_before);
     }
 
     #[test]
     fn queue_edit_emits_no_load_and_keeps_session() {
-        let mut state = AppState::default();
-        state.queue = queue_of(3);
-        let player_before = state.player.clone();
+        let mut state = queue_of(&["a", "b", "c"]);
+        state.queue.position = 0;
+        let session_before = state.player.session.clone();
+        let play_reported_before = state.player.play_reported;
+        let start_reported_before = state.player.start_reported;
 
-        let new_entry = extra_entries(4, 3).remove(0);
-        let effects =
-            reducer::reduce(&mut state, batch(QueueBatchMode::InsertNext, vec![new_entry]));
+        let effects = reducer::reduce(
+            &mut state,
+            Action::QueueBatch(QueueBatch {
+                entries: vec![one_entry("x")],
+                mode: QueueBatchMode::Append,
+            }),
+        );
 
         assert!(
             !effects
                 .iter()
-                .any(|e| matches!(e, Effect::Audio(AudioEffect::Load { .. }))),
-            "queue edits must not trigger a reload"
+                .any(|effect| matches!(effect, Effect::Audio(AudioEffect::Load { .. }))),
+            "a queue edit (insert-next/append) must never emit an audio Load effect: {effects:?}"
         );
-        assert_eq!(state.player.session, player_before.session);
-        assert_eq!(state.player.play_reported, player_before.play_reported);
-        assert_eq!(state.player.start_reported, player_before.start_reported);
+        assert_eq!(state.player.session, session_before);
+        assert_eq!(state.player.play_reported, play_reported_before);
+        assert_eq!(state.player.start_reported, start_reported_before);
     }
 
     #[test]
     fn play_order_is_a_permutation_after_every_edit() {
-        let mut state = AppState::default();
-        state.queue = queue_of(4);
+        let mut state = queue_of(&["a", "b", "c", "d"]);
         state.queue.position = 1;
-
-        let one = extra_entries(5, 4).remove(0);
-        reducer::reduce(&mut state, batch(QueueBatchMode::InsertNext, vec![one]));
         assert_permutation(&state.queue);
 
-        let two = extra_entries(6, 5).remove(0);
-        reducer::reduce(&mut state, batch(QueueBatchMode::Append, vec![two]));
+        reducer::reduce(
+            &mut state,
+            Action::QueueBatch(QueueBatch {
+                entries: vec![one_entry("x")],
+                mode: QueueBatchMode::InsertNext,
+            }),
+        );
+        assert_permutation(&state.queue);
+
+        reducer::reduce(
+            &mut state,
+            Action::QueueBatch(QueueBatch {
+                entries: vec![one_entry("y")],
+                mode: QueueBatchMode::Append,
+            }),
+        );
         assert_permutation(&state.queue);
 
         shuffle(&mut state.queue, 3);
-        assert_permutation(&state.queue);
-
-        let three = extra_entries(7, 6).remove(0);
-        reducer::reduce(&mut state, batch(QueueBatchMode::InsertNext, vec![three]));
         assert_permutation(&state.queue);
 
         unshuffle(&mut state.queue);
