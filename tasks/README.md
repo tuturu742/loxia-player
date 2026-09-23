@@ -1,6 +1,6 @@
 # loxia — Task Library
 
-109 tasks in 13 phases. **Execute in filename order.** Every task's prerequisites are numerically
+114 tasks in 13 phases. **Execute in filename order.** Every task's prerequisites are numerically
 earlier, so if you always take the lowest unticked task whose prerequisites are ticked, you can
 never be blocked by ordering.
 
@@ -43,6 +43,35 @@ Every task, no exceptions:
 4. **Never hardcode a keybinding in UI text** — render through `KeyMap::hint_for(ActionId)`.
 5. **Never log a token or a stream URL.** Redact in `Debug`/`Display`.
 6. **One task = one branch = one PR**, named `feat/<id>-<slug>`.
+
+## Queue-audit registration notes (this investigation)
+
+Before adding the five tasks below, `tasks/README.md` and `docs/12-decisions.md` were read in
+full, per the "check existing tasks and decisions" brief:
+
+- **`tasks/README.md`**: searching for `queue`, `insert`, `play next`, `QueueBatch`, and `preload`
+  found the whole of Phase 06 — `06-01` queue state basics, `06-02` appears-on queue rules, `06-03`
+  no-repeat shuffle, `06-04` sort profiles, `06-05` listening history, `06-06` gapless preloading,
+  `06-07` playback reporting wiring, `06-08` instant mix — already ticked, including all five task
+  IDs previously only inferred from source comments (`06-03`, `06-06`, `06-07`, plus `09-01` and
+  `11-06`, both also ticked in their own phases). No unticked, in-progress, or blocked
+  queue-editing task exists anywhere in the file. None of the five items below duplicates an
+  existing task; nothing has been changed for any of them beyond what's listed here.
+- **`docs/12-decisions.md`**: the file is currently empty — no `§9` deviation log, no sections at
+  all — despite being referenced by name from `crates/loxia-audio/Cargo.toml`,
+  `crates/loxia-audio/build.rs`, `crates/loxia-audio/src/device/mod.rs`,
+  `crates/loxia-audio/src/backend.rs`, `deny.toml`, and `CONTRIBUTING.md` itself. There is
+  therefore no existing row on queue insert position, on shuffle-and-insert interaction, or on
+  retracting a gapless preload — this investigation is the first time any of the three has been
+  written down anywhere in the repo. This registration pass does not add a `§9` row itself, since
+  no behaviour has changed yet; `06-10` and `06-12` below are each responsible for adding their own
+  row when they land, per `CONTRIBUTING.md` workflow item 4.
+- Five tasks were added to `tasks/phase-06-queue/`, in the numeric (and therefore prerequisite)
+  order they must be executed in: `06-09` (characterization tests) → `06-10` (the fix, needs
+  `06-09`) → `06-11` (stale-preload audit, needs `06-06` and `06-10`) → `06-12` (stale-preload
+  retraction — the only one of the five that crosses a crate boundary, explicitly authorised in
+  its own task file per `CONTRIBUTING.md` rule 2, needs `06-11`) → `06-13` (`play_order` consumer
+  audit, needs `06-01` and `06-10`).
 
 ## Progress
 
@@ -113,14 +142,19 @@ Every task, no exceptions:
 ### Phase 06 — Queue engine
 - [x] `06-01` queue state basics
 - [x] `06-02` appears-on queue rules
-- [x] `06-03` non-destructive shuffle
+- [x] `06-03` no-repeat shuffle
 - [x] `06-04` sort profiles
 - [x] `06-05` listening history
 - [x] `06-06` gapless preloading
 - [x] `06-07` playback reporting wiring
 - [x] `06-08` instant mix
+- [ ] `06-09` queue-insert characterization tests (prerequisites: `06-01`, `06-02`, `06-03`)
+- [ ] `06-10` insert-next consistency fix (prerequisites: `06-09`)
+- [ ] `06-11` stale-preload audit (prerequisites: `06-06`, `06-10`)
+- [ ] `06-12` stale-preload retraction — crosses `loxia-core`/`loxia-audio`/`loxia-player`, explicitly authorised in its own task file (prerequisites: `06-11`)
+- [ ] `06-13` `play_order` consumer audit (prerequisites: `06-01`, `06-10`)
 
-### Phase 07 — Remaining views
+### Phase 07 — Views
 - [x] `07-01` search tab
 - [x] `07-02` favourites tab
 - [x] `07-03` playlists tab
@@ -140,14 +174,14 @@ Every task, no exceptions:
 - [x] `08-08` session and history persistence
 
 ### Phase 09 — Advanced audio
-- [x] `09-01` device enumeration and hot-swap
+- [x] `09-01` device enumeration and swap
 - [x] `09-02` bit-perfect mode
 - [x] `09-03` equalizer engine
 - [x] `09-04` replay gain
 - [x] `09-05` sleep timer
 - [x] `09-06` quality profiles
 
-### Phase 10 — Polish & integrations
+### Phase 10 — Polish
 - [x] `10-01` album art
 - [x] `10-02` zen mode
 - [x] `10-03` help modal
@@ -158,11 +192,11 @@ Every task, no exceptions:
 - [x] `10-08` save playlist modal
 - [x] `10-09` sort profile modal
 - [x] `10-10` desktop notifications
-- [x] `10-11` media keys (MPRIS/SMTC)
-- [x] `10-12` websocket remote control
+- [x] `10-11` media keys
+- [x] `10-12` WebSocket remote control
 - [x] `10-13` toasts and empty states
 
-### Phase 11 — Settings & keymapper
+### Phase 11 — Settings
 - [x] `11-01` settings view
 - [x] `11-02` keymap editor
 - [x] `11-03` server profiles
@@ -171,12 +205,12 @@ Every task, no exceptions:
 - [x] `11-06` session restore wiring
 - [x] `11-07` about view
 
-### Phase 12 — Packaging & release
-- [ ] `12-01` cargo-dist setup
-- [ ] `12-02` windows packaging
-- [ ] `12-03` macOS packaging
-- [ ] `12-04` linux packaging
-- [ ] `12-05` licence compliance checks
-- [ ] `12-06` branding assets
-- [ ] `12-07` README and user docs
-- [ ] `12-08` doctor subcommand
+### Phase 12 — Packaging
+- [x] `12-01` cargo-dist setup
+- [x] `12-02` windows packaging
+- [x] `12-03` macOS packaging
+- [x] `12-04` linux packaging
+- [x] `12-05` licence compliance checks
+- [x] `12-06` branding assets
+- [x] `12-07` README and user docs
+- [x] `12-08` doctor subcommand
