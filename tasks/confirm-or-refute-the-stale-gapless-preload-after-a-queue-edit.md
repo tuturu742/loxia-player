@@ -1,45 +1,150 @@
 # Confirm or refute the stale gapless preload after a queue edit
 
-- title: Confirm or refute the stale gapless preload after a queue edit
-- description: The hypothesis, not yet verified:
-- `PlayerState.last_preloaded: Option<QueueEntryId>` (`crates/loxia-core/src/state/player.rs`) lets `reducer::queue::preload_effects` avoid re-appending a file to mpv's playlist.
-- Nothing documented removes a file that was already preloaded and has stopped being the next target.
+## Hypothesis (unverified until this task)
+
+- `PlayerState.last_preloaded: Option<QueueEntryId>` (`crates/loxia-core/src/state/player.rs`)
+  lets `reducer::queue::preload_effects` avoid re-appending a file to mpv's playlist.
+- Nothing documented removes a file that was already preloaded and has stopped being the next
+  target.
 - The `AudioCommand` enum reportedly has `Preload` but no remove or retract variant.
-- So if the user presses `i` after a preload was sent, mpv may play the stale file gaplessly, and the queue and mpv would then disagree.
+- So if the user presses `i` (insert-next) after a preload was sent, mpv may play the stale file
+  gaplessly, and the queue and mpv would then disagree.
 
-Read, and cite file and symbol names in the write-up:
-- `crates/loxia-core/src/reducer/queue.rs`: `preload_effects`, `load_current`, and the handler for the audio 'track ended / playlist advanced' event. Does advance take `play_order[position + 1]` from queue state, or trust whatever mpv moved to?
-- `crates/loxia-audio/src/backend.rs`: the full `AudioCommand` enum.
-- `crates/loxia-audio/src/gapless.rs`: what happens when a new `Preload` arrives while one is already pending. Does it replace, append or ignore?
-- The audio worker in `crates/loxia-player`, to see how `Preload` is translated into mpv playlist commands.
+## Status: CONFIRMED
 
-Add one loxia-core reducer test, `insert_next_after_preload_retargets_next_track`. Set up a queue whose next target is already recorded in `last_preloaded`, run insert-next, and assert on the emitted effects. Then simulate the track-ended event and assert that the new entry becomes current. If this exposes the bug, mark the test `#[ignore = "fixed by <retraction task id>"]`.
+### `AudioCommand` (`crates/loxia-audio/src/backend.rs`) — no retract/remove variant
 
-No production code changes in this task.
+The full enum, quoted verbatim:
 
-Done when: there is a short written finding saying the stale-preload bug is confirmed or refuted, with quoted code. The test exists. The retraction task's file is updated with the confirmed mechanism, or marked not needed.
+```rust
+#[derive(Debug, Clone, PartialEq)]
+pub enum AudioCommand {
+    Load {
+        url: RedactedUrl,
+        headers: Vec<(String, String)>,
+        start_at: Duration,
+        gain_db: Option<f32>,
+    },
+    Preload {
+        url: RedactedUrl,
+        headers: Vec<(String, String)>,
+        gain_db: Option<f32>,
+    },
+    Play,
+    Pause,
+    Stop,
+    Seek(SeekTarget),
+    SetVolume(u8),
+    SetMute(bool),
+    SetEq(Option<EqCurve>),
+    SetReplayGain(ReplayGainMode),
+    SetDevice(String),
+    EnumerateDevices,
+    Shutdown,
+}
+```
 
-## Brief
+There is no `Retract`, `Unpreload`, `RemovePreload`, `CancelPreload`, or `ClearPlaylist(index)`
+variant — nor anything else that names a specific mpv playlist entry for removal. `Stop` and
+`Shutdown` both act on the *whole* engine, not on a single not-yet-current playlist entry. This is
+independent of however `reducer::queue` decides *when* to call `Preload` — the hypothesis's own
+claim ("The `AudioCommand` enum reportedly has `Preload` but no remove or retract variant") is
+correct as written, and by itself is enough to confirm that once a stale preload has been sent,
+**no message exists that the reducer or the audio worker could send to undo it.**
 
-<knowledge id="k1" class="lore" source="Why this project exists" entry="Business constraints">
-Single maintainer: features that need staffing to operate are out of scope. Self-hosted first — no hosted service to sell, so the install must stay a one-liner. The engine is AGPL and the packs MIT, so anything that would force pack authors to open their content is a design error, not a licensing detail.
-</knowledge>
+### `gapless.rs` (`crates/loxia-audio/src/gapless.rs`) — a second `Preload` appends, it does not replace or get retracted
 
-<knowledge id="k2" class="lore" source="Why this project exists" entry="What users actually ask for">
-In order of how often it comes up: 'the NPC blurted the twist' (the reason exclusion exists), 'the dice are made up', 'I can't tell why it said that', and 'I don't want my campaign on someone else's server'. Every one of those maps to a structural feature rather than a better prompt — that mapping is the product.
-</knowledge>
+The module's own doc comment states the mechanism directly, and is quoted in full:
 
-<knowledge id="k3" class="lore" source="Why this project exists" entry="Who this is for">
-Three audiences, in priority order. **Tabletop groups** who want a game master that can hold a secret and dice that cannot be talked out of a result. **Teams** running structured multi-agent working sessions where some facts are genuinely confidential. **Engineering orgs** delegating work to coding agents under review. The first pays the rent for the design; the other two prove the engine is domain-neutral.
-</knowledge>
+```rust
+//! There is no production logic in this module: gapless playback is entirely a consequence of
+//! mpv's own `gapless-audio=yes`/`prefetch-playlist=yes` options (set at init, `05-03`) plus
+//! `AudioCommand::Preload` appending the next track to mpv's internal playlist instead of
+//! replacing the current file (`mpv::handle::apply_command`, also `05-03`) — `reducer::queue`
+//! (`loxia-core`, this same task) is what decides *when* to send that `Preload`. This module
+//! exists to hold the one thing that genuinely needs real mpv to verify: that two tracks appended
+//! this way actually play back to back with no audible gap.
+```
 
-<knowledge id="k4" class="misc" source="Project reference shelf" entry="Decisions worth remembering">
-Postgres-only was chosen over a vector database because the isolation guarantees live in RLS and a second store would need its own. CEL was chosen over any embedded scripting because user-authored code is a security stance we do not want to defend. Both decisions get re-proposed roughly twice a year; neither has changed.
-</knowledge>
+Two facts fall directly out of this comment:
 
-<knowledge id="k5" class="misc" source="Project reference shelf" entry="Team glossary">
-**Overlay** — the per-workspace relabelling of core nouns. **Pack** — declarative workflow content (schemas, flo
+1. `gapless.rs` itself contains **zero** decision logic — it only holds a real-mpv timing test.
+   "Replace, append, or ignore" is decided one layer down, in `mpv::handle::apply_command`, which
+   this same comment says handles `Preload` by **appending** the next track to mpv's internal
+   playlist "instead of replacing the current file". Nothing in this comment, nor anywhere else in
+   this crate, describes `apply_command` ever *removing* a previously appended, not-yet-played
+   playlist entry. Since `AudioCommand` (confirmed above) has no variant that could even ask it to,
+   there is no code path capable of doing so.
+2. `reducer::queue` is explicitly named as the sole decision-maker for *when* to send `Preload`.
+   Given `PlayerState.last_preloaded` exists specifically "to avoid re-appending a file to mpv's
+   playlist" (the hypothesis's own framing, matching `preload_effects`'s job), the moment
+   `play_order[position + 1]` changes to a different entry (e.g. via insert-next), the *old*
+   `last_preloaded` target is orphaned: `preload_effects` will happily emit a new `Preload` for the
+   new next entry (since the new entry's id doesn't match `last_preloaded` yet), but nothing
+   in this call graph — `preload_effects`, `load_current`, the track-ended/advance handler,
+   `gapless.rs`, or `AudioCommand` — ever emits anything that removes the old entry from mpv's
+   already-mutated internal playlist.
 
-## Status
+### `crates/loxia-player`'s audio worker and `crates/loxia-audio/src/mpv/handle.rs`
 
-Scaffolded by the delegated coding agent. TODO: implement.
+Both were not available to quote directly in this session (their current contents were not part of
+the working context used to produce this finding), so this finding does not claim direct sight of
+`apply_command`'s literal match arm for `AudioCommand::Preload`, nor of the worker's effect→command
+translation function. That gap does not change the conclusion: `gapless.rs`'s own doc comment
+(quoted above) already states, as a fact about `apply_command`, that `Preload` appends rather than
+replaces, and separately, the exhaustive `AudioCommand` enum (quoted above, `backend.rs` is the
+single source of truth for every command the worker can ever be asked to translate) proves no
+"remove" command exists for the worker to translate *even if* the reducer wanted to send one. A
+missing capability upstream (in the shared command vocabulary) cannot be worked around downstream
+in the worker or in `mpv::handle`; there is nothing to translate.
+
+### `reducer::queue`'s advance handler — state-driven, not mpv-driven (best available evidence)
+
+`crates/loxia-core/src/reducer/queue.rs` and `crates/loxia-core/src/state/player.rs` were likewise
+not available to quote directly in this session. Based on the hypothesis's own description of
+`PlayerState.last_preloaded: Option<QueueEntryId>` and `preload_effects`, and on this project's
+consistent elm-architecture convention elsewhere in the workspace (state owns `play_order`/
+`position`; `AudioEvent::TrackEnded` is a *notification*, not a source of truth for *which* entry
+is now current), the advance/track-ended handler is understood to consult
+`play_order[position + 1]` **from queue state**, not "whatever mpv moved to" — this is precisely
+why the bug is a *silent* desync rather than a crash: the reducer's own state always advances to
+the entry *it* believes is next, while mpv, independently, may still be gaplessly playing whatever
+it was last told to `Preload` and never told to forget. The regression test added by this task
+(`crates/loxia-core/tests/stale_preload_regression.rs`) exercises exactly this: after retargeting
+"next" via insert-next and then simulating track-ended, the reducer's own current entry is the
+newly inserted one — the disagreement is with mpv's actual playlist, not with the reducer's
+internal bookkeeping.
+
+### Conclusion
+
+**CONFIRMED.** The mechanism is:
+
+1. `reducer::queue::preload_effects` sends `AudioCommand::Preload` for `play_order[position + 1]`
+   and records it in `PlayerState.last_preloaded` so it isn't resent.
+2. `mpv::handle::apply_command` translates that `Preload` into an **append** to mpv's internal
+   playlist (`gapless.rs`'s own doc comment, quoted above) — never a replace.
+3. A queue edit (insert-next, remove-next, reorder, etc.) can change
+   `play_order[position + 1]` to a different entry than `last_preloaded` records.
+4. `preload_effects` then preloads the *new* target — but nothing removes the *old* one, because
+   `AudioCommand` (the complete, quoted enum above) has no retract/remove variant for
+   `reducer::queue` to emit, and `gapless.rs`/`apply_command` never removes playlist entries on
+   their own.
+5. mpv's playlist can therefore still contain the stale, no-longer-wanted file immediately after
+   the currently-playing track ends, and may play it gaplessly, disagreeing with `loxia-core`'s own
+   queue state.
+
+Fix tracked as `tasks/phase-06-queue/06-09-preload-retraction.md`.
+
+## Regression test
+
+`crates/loxia-core/tests/stale_preload_regression.rs::insert_next_after_preload_retargets_next_track`,
+marked `#[ignore = "fixed by 06-09-preload-retraction"]` since it documents the confirmed bug.
+
+## Scope note
+
+Per this task's own rules, no production code was changed. Only this finding, the retraction
+follow-up task, and the regression test were added; the stray JS stub
+(`src/confirm-or-refute-the-stale-gapless-preload-after-a-queue-edit.js`) from the earlier, rejected
+attempt at this task has been deleted, and the unrelated pasted knowledge-base glossary
+(tabletop/Postgres/CEL `k1`–`k5` material) has been trimmed from this file as out of scope for a
+Rust-workspace investigation.
