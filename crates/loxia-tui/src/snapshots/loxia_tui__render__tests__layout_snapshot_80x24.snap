@@ -6,7 +6,7 @@ expression: "draw_at(80, 24, &AppState::default())"
 Buffer {
     area: Rect { x: 0, y: 0, width: 80, height: 24 },
     content: [
-        "loxia │ no server │ Now Playing │                                    [?] │ 00:00",
+        "loxia │ no server │ Now Playing │                                    [?] │ 01:00",
         "▸ ♪ Now Playing ┌PLAY QUEUE  [unbound] History─────────────────────────────────┐",
         "  ♡ Favourites  │                                                              │",
         "  ⚲ Search      │                                                              │",
@@ -75,8 +75,11 @@ Buffer {
         x: 0, y: 10, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
         x: 16, y: 10, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
         x: 17, y: 10, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 23, y: 10, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 74, y: 10, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
         x: 79, y: 10, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
-        x: 0, y: 11, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 0, y: 11, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 8, y: 11, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
         x: 16, y: 11, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
         x: 17, y: 11, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
         x: 79, y: 11, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
@@ -111,8 +114,8 @@ Buffer {
         x: 0, y: 19, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
         x: 16, y: 19, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
         x: 0, y: 20, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
-        x: 0, y: 21, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
-        x: 0, y: 22, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
-        x: 0, y: 23, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 0, y: 21, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 1, y: 21, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 16, y: 21, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
     ]
 }
