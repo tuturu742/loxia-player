@@ -45,37 +45,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     untouched on purpose, since the copy of `layout_snapshot_80x24.snap` available in that
     round's working context was truncated mid-line (cut off inside the buffer's `styles`
     list), so it could not be safely edited.
-  - **Round 3 (this round):** the build output confirms `header_snapshot_offline_with_downloads`
-    now passes and reports the exact remaining diffs:
+  - **Round 3:** the build output confirmed `header_snapshot_offline_with_downloads`
+    now passes and reported the exact remaining diffs:
     - `layout_snapshot_80x24`: `"... [?] │ 01:00"` → `"... [?] │ 00:00"`
     - `layout_snapshot_120x30`: `"... [?] │ 01:00"` → `"... [?] │ 00:00"`
     - `layout_snapshot_200x50`: `"... [?] │ 01:00"` → `"... [?] │ 00:00"`
     - `now_playing_snapshot_history`: `23:15`/`23:14`/`23:13` → `22:15`/`22:14`/`22:13`
       on the three history rows.
 
-    No `.snap` file was changed this round, though. Every one of these four fixtures, as
-    supplied in this round's own working context, was cut off mid-line or mid-file before
+    No `.snap` file was changed in Round 3, though. Every one of these four fixtures, as
+    supplied in that round's own working context, was cut off mid-line or mid-file before
     reaching the end of its `content` list and/or its `styles` list — not a full, verbatim
     copy of the file in the repository. Given this task's own governing rule ("a fixture
     that is short by one line fails exactly like a fixture that is wrong"), and that these
     are `styles` lists whose exact entries depend on exactly which cells the renderer
-    restyles (which this round has no reliable way to infer for the truncated tail of any
-    of the four files — e.g. whether a wrapped hint line like "queue is empty — press
-    unbound on an album to start" adds its own extra style spans beyond the plain
-    border-column pattern visible in the untruncated rows), reconstructing the missing
-    portions by inference was judged more likely to reintroduce the exact corruption this
-    rework exists to fix than to leave the four fixtures failing one more round.
-
-    The four target clock corrections above are recorded here so the next round can apply
-    them directly, one file at a time, once it has been given the complete, untruncated
-    contents of each `.snap` file to copy from. **Next round should fix exactly one of
-    these four** — `layout_snapshot_80x24.snap` is the smallest and the recommended next
-    target — using a full, untruncated read of that one file.
-  - **Why a process-wide `TZ` pin instead of test-level injection:** a per-test seam (making
-    `local_hour_minute`'s UTC offset an explicit, test-overridable parameter) was considered,
-    since it would leave `cargo run`'s displayed clock untouched. It was rejected for this
-    fix set because `local_hour_minute` is a `loxia-core` free function shared by every
-    caller that turns a `Timestamp` into a local hour/minute, not just these two widgets;
-    giving it a test-injectable time source is a real, separate change to that function's
-    signature and every caller of it, not a one-line fixture fix, and was judged out of
-    scope for this rework.
+    restyles (which that round had no reliable way to infer for the truncated tail of an
+    insta-generated file), none of the four were edited in Round 3 either.
+  - **Round 4 (this round):** the same problem persists. `layout_snapshot_80x24.snap`,
+    `layout_snapshot_120x30.snap`, `layout_snapshot_200x50.snap`, and
+    `now_playing_snapshot_history.snap` were each supplied in this round's own working
+    context truncated before the end of their `content` and/or `styles` lists — for
+    example, `layout_snapshot_80x24.snap`'s `content` array is complete but its `styles`
+    array cuts off mid-entry at `y: 4`, well short of the buffer's full 24 rows, and the
+    other three are truncated even earlier, inside their own `content` arrays. None of them
+    could be copied verbatim and edited safely under this task's own rule, so no `.snap`
+    file is touched this round; only this note is added. The next round should obtain the
+    full, untruncated text of exactly one of these four fixtures (`layout_snapshot_80x24`
+    is the smallest and the best next candidate) before attempting the same hand-correction
+    that fixed `header_snapshot_offline_with_downloads.snap` in Round 2.
