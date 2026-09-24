@@ -37,15 +37,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `views::now_playing::tests::now_playing_snapshot_history`, and
     `widgets::header::tests::header_snapshot_offline_with_downloads` are the five fixtures
     affected by the timezone-dependent clock.
-  - **Status of this round:** only the header-clock `HH:MM` digits in
-    `layout_snapshot_120x30.snap` and `layout_snapshot_200x50.snap` were corrected by hand
-    against the values `cargo test` reported for this run (`01:00`); no other byte in either
-    file was touched. `layout_snapshot_80x24.snap`,
-    `now_playing_snapshot_history.snap`, and `header_snapshot_offline_with_downloads.snap`
-    were **not** touched in this round and still need their own single-fixture pass once
-    their exact failing-test diff is available — regenerating any of them without that diff
-    in hand risks the same corruption this fix set already suffered from once, so they are
-    deliberately left alone rather than guessed at.
+  - **This round:** `header_snapshot_offline_with_downloads.snap` was hand-corrected against
+    the failing test's own reported output — only its clock digits, `23:13` → `22:13` — with
+    no other byte in the file touched. No other fixture was changed in this round.
   - **Why a process-wide `TZ` pin instead of test-level injection:** a per-test seam (making
     `local_hour_minute`'s UTC offset an explicit, test-overridable parameter) was considered,
     since it would leave `cargo run`'s displayed clock untouched. It was rejected for this
@@ -57,4 +51,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     build scripts, `cargo run`) and never touches an installed `loxia-player` binary invoked
     directly, so its dev-experience cost is limited to `cargo run` during local development
     — not the shipped product. A follow-up task can introduce the test-level seam and drop
-    the `[env]` pin without touching these fixtures again.
+    the `[env]` pin without touching this file's tests.
