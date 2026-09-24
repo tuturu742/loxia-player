@@ -7,7 +7,7 @@ Buffer {
     area: Rect { x: 0, y: 0, width: 80, height: 24 },
     content: [
         "loxia │ no server │ Now Playing │                                    [?] │ 01:00",
-        "▸ ♪ Now Playing ┌PLAY QUEUE  [H] History───────────────────────────────────────┐",
+        "▸ ♪ Now Playing ┌PLAY QUEUE  [unbound] History──────────────────────────────────┐",
         "  ♡ Favourites  │                                                              │",
         "  ⚲ Search      │                                                              │",
         "  ≡ Playlists   │                                                              │",
@@ -111,6 +111,6 @@ Buffer {
         x: 0, y: 19, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
         x: 16, y: 19, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
         x: 0, y: 20, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
-        x: 0, y: 21, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 0, y: 22, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
     ]
 }
