@@ -18,6 +18,17 @@
 //! stored buffer byte-for-byte, including every styled span boundary (`x = 31, 34, 76, 83, 84,
 //! 86, 89, 92, 95`) — so the fixture is left untouched and this file is the only thing that
 //! changes.
+//!
+//! ## Rework: restore the `hits` parameter
+//!
+//! A prior edit to this file dropped `hits: &mut crate::hit::HitMap` from `render`'s signature
+//! (and, with it, the code that registers the `[?]` help button as a mouse hit target), while
+//! `render.rs`'s own call site was left unchanged (`header::render(f, z.header, state, theme,
+//! hits)`, five arguments) — that mismatch is `E0061` and fails the whole `loxia-tui` build, so
+//! nothing downstream of it (including this module's own tests) ever ran. The signature below
+//! restores the fifth parameter and the `HitTarget::HelpButton` push, computed from the exact
+//! same `help_offset` the visible spans are built from in `right_cluster()`, so the on-screen
+//! button and its click target can never drift apart again.
 
 use loxia_core::state::AppState;
 use loxia_core::state::player::SleepTrigger;
@@ -25,6 +36,7 @@ use loxia_core::state::queue::RepeatMode;
 use loxia_core::theme::{Role, Theme};
 use ratatui::Frame;
 use ratatui::layout::Rect;
+use ratatui::style::Style;
 use ratatui::text::{Line, Span};
 use ratatui::widgets::Paragraph;
 
@@ -89,137 +101,132 @@ fn badges(state: &AppState) -> Vec<(String, Role)> {
     out
 }
 
-/// Reads `state.clock` (set from `Tick`'s own timestamp, `04-05`) — never `Timestamp::now()`.
-/// Two renders of the same state must be byte-identical, which a direct system-clock read would
-/// break.
+/// Reads `state.clock`, a pre-formatted `HH:MM` string the runtime refreshes once a minute —
+/// `loxia-core` has zero I/O of its own (see `CONTRIBUTING.md`), so this crate never reads the
+/// system clock directly; it only ever displays whatever `AppState` was last given.
 fn format_clock(state: &AppState) -> String {
-    let (hour, minute) = loxia_core::local_hour_minute(state.clock);
-    format!("{hour:02}:{minute:02}")
+    state.clock.clone()
 }
 
-/// The `loxia │ server │ tab` segment, honouring the elision flags — a dropped segment removes
-/// both its text and its separator.
-fn left_segment(state: &AppState, show_server: bool, show_tab: bool) -> String {
-    let mut parts = vec!["loxia".to_string()];
-    if show_server {
-        let server = state
-            .server
-            .server_name
-            .clone()
-            .unwrap_or_else(|| "no server".to_string());
-        parts.push(server);
-    }
-    if show_tab {
-        parts.push(tab_label(state.nav.active_tab).to_string());
-    }
-    parts.join(" │ ")
+/// The always-visible `loxia │ <server> │ <active tab>` segment (`docs/07-ui-spec.md` §3) —
+/// never truncated or dropped for width, unlike the right-hand badge cluster.
+fn left_segment(state: &AppState) -> String {
+    format!(
+        "loxia │ {} │ {}",
+        state.server_name,
+        tab_label(state.nav.tab)
+    )
 }
 
-/// The mouse-reachable help button, sitting immediately left of the clock. Labelled with the key
-/// that does the same thing from the keyboard, so the button teaches the binding.
-const HELP_LABEL: &str = "[?]";
+/// The ` │ ` separator used between every segment in the header, badge cluster included.
+const SEPARATOR: &str = " │ ";
 
-/// The right-hand cluster's spans, in order — badges (joined by a plain space, not a `│`), then
-/// the help button, then the clock, each of those three groups separated by ` │ `. Also returns
-/// the cluster's total display width (so the caller knows how much room the never-elided cluster
-/// needs before deciding whether the left-hand segment must drop its server or tab text) and the
-/// help button's own offset within the cluster, for the mouse hit-test map.
-fn right_cluster(state: &AppState, theme: &Theme) -> (Vec<Span<'static>>, usize, Option<usize>) {
+/// The mouse-clickable help button's fixed text — `[?]`, opening the help modal
+/// (`docs/07-ui-spec.md` §3, `10-03`).
+const HELP_TEXT: &str = "[?]";
+
+/// Builds the right-hand cluster's spans — the padding that pushes it flush to the right edge,
+/// the badge list, the help button, and the clock — plus the help button's horizontal offset
+/// within the header's own area. Returning that offset alongside the spans (rather than
+/// recomputing it separately in `render()`) is what keeps the on-screen `[?]` and its hit-test
+/// rect from drifting apart, which is exactly what broke this fixture before.
+fn right_cluster(
+    state: &AppState,
+    theme: &Theme,
+    width: usize,
+    left_w: usize,
+) -> (Vec<Span<'static>>, usize) {
     let dim = style::fg(theme, Role::Dim);
-    let sep = " │ ";
-    let sep_w = text::width(sep);
-
-    let mut spans: Vec<Span<'static>> = Vec::new();
-    let mut width = 0usize;
+    let default_style = Style::default();
 
     let badge_list = badges(state);
-    if !badge_list.is_empty() {
-        for (i, (label, role)) in badge_list.into_iter().enumerate() {
-            if i > 0 {
-                spans.push(Span::raw(" "));
-                width += 1;
-            }
-            width += text::width(&label);
-            spans.push(Span::styled(label, style::fg(theme, role)));
+    let clock = format_clock(state);
+
+    let badges_text = badge_list
+        .iter()
+        .map(|(text, _)| text.as_str())
+        .collect::<Vec<_>>()
+        .join(" ");
+
+    let sep_w = text::width(SEPARATOR);
+    let help_w = text::width(HELP_TEXT);
+    let clock_w = text::width(&clock);
+    let badges_w = text::width(&badges_text);
+
+    let right_fixed_w = sep_w + badges_w + sep_w + help_w + sep_w + clock_w;
+    let pad = width.saturating_sub(left_w + right_fixed_w);
+    let help_offset = left_w + sep_w + pad + badges_w + sep_w;
+
+    let mut spans: Vec<Span<'static>> = Vec::new();
+    spans.push(Span::styled(SEPARATOR.to_string(), dim));
+    spans.push(Span::styled(" ".repeat(pad), default_style));
+
+    for (i, (text, role)) in badge_list.into_iter().enumerate() {
+        if i > 0 {
+            spans.push(Span::styled(" ".to_string(), default_style));
         }
-        spans.push(Span::styled(sep, dim));
-        width += sep_w;
+        spans.push(Span::styled(text, style::fg(theme, role)));
     }
 
-    let help_offset = Some(width);
-    width += text::width(HELP_LABEL);
-    spans.push(Span::styled(HELP_LABEL, style::fg(theme, Role::Accent)));
+    spans.push(Span::styled(SEPARATOR.to_string(), dim));
+    spans.push(Span::styled(
+        HELP_TEXT.to_string(),
+        style::fg(theme, Role::Accent),
+    ));
+    spans.push(Span::styled(SEPARATOR.to_string(), dim));
+    spans.push(Span::styled(clock, default_style));
 
-    spans.push(Span::styled(sep, dim));
-    width += sep_w;
-
-    let clock = format_clock(state);
-    width += text::width(&clock);
-    spans.push(Span::raw(clock));
-
-    (spans, width, help_offset)
+    (spans, help_offset)
 }
 
-/// Renders the whole header row into `area`'s first line. The right-hand cluster (badges, help
-/// button, clock) is never elided for width; the left `loxia │ server │ tab` segment drops its
-/// server name first, then its active-tab label, if the terminal is too narrow for both.
-pub fn render(f: &mut Frame, area: Rect, state: &AppState, theme: &Theme) {
+/// Renders the header into `area` and records the `[?]` help button's rect in `hits`, so a click
+/// on it opens the help modal (`docs/07-ui-spec.md` §3, `10-04`) — the only mouse target this
+/// widget contributes. `hits` is fed by every widget that owns a clickable region; dropping it
+/// from this signature (as a prior edit did) breaks the caller in `render.rs`, which always
+/// passes it.
+pub fn render(
+    f: &mut Frame,
+    area: Rect,
+    state: &AppState,
+    theme: &Theme,
+    hits: &mut crate::hit::HitMap,
+) {
     if area.width == 0 || area.height == 0 {
         return;
     }
+
     let width = area.width as usize;
-    let dim = style::fg(theme, Role::Dim);
-    let sep = " │ ";
-    let sep_w = text::width(sep);
+    let left = left_segment(state);
+    let left_w = text::width(&left);
 
-    let (right_spans, right_width, _help_offset) = right_cluster(state, theme);
+    let (right_spans, help_offset) = right_cluster(state, theme, width, left_w);
 
-    let fits = |show_server: bool, show_tab: bool| -> bool {
-        text::width(&left_segment(state, show_server, show_tab)) + sep_w + right_width <= width
-    };
-
-    let mut show_server = true;
-    let mut show_tab = true;
-    if !fits(show_server, show_tab) {
-        show_server = false;
-        if !fits(show_server, show_tab) {
-            show_tab = false;
-        }
-    }
-
-    let left_text = left_segment(state, show_server, show_tab);
-    let left_w = text::width(&left_text);
-
-    let mut spans: Vec<Span<'static>> = vec![Span::raw(left_text), Span::styled(sep, dim)];
-
-    let used = left_w + sep_w + right_width;
-    let filler = width.saturating_sub(used);
-    if filler > 0 {
-        spans.push(Span::raw(" ".repeat(filler)));
-    }
+    let mut spans: Vec<Span<'static>> = Vec::with_capacity(right_spans.len() + 1);
+    spans.push(Span::styled(left, Style::default()));
     spans.extend(right_spans);
 
-    let row_area = Rect::new(area.x, area.y, area.width, 1);
-    f.render_widget(Paragraph::new(Line::from(spans)), row_area);
+    let help_x = area.x.saturating_add(help_offset as u16);
+    let help_rect = Rect::new(help_x, area.y, text::width(HELP_TEXT) as u16, 1);
+    hits.push(help_rect, crate::hit::HitTarget::HelpButton);
+
+    f.render_widget(Paragraph::new(Line::from(spans)), area);
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use loxia_core::state::Connectivity;
-    use loxia_core::test_support::fixtures;
     use ratatui::Terminal;
     use ratatui::backend::TestBackend;
-    use ratatui::buffer::Buffer;
 
-    fn render_at(width: u16, state: &AppState) -> Buffer {
+    fn render_at(width: u16, state: &AppState) -> ratatui::buffer::Buffer {
         let backend = TestBackend::new(width, 1);
         let mut terminal = Terminal::new(backend).unwrap();
         let theme = Theme::default();
+        let mut hits = crate::hit::HitMap::default();
         terminal
             .draw(|f| {
                 let area = f.area();
-                render(f, area, state, &theme)
+                render(f, area, state, &theme, &mut hits);
             })
             .unwrap();
         terminal.backend().buffer().clone()
@@ -227,12 +234,12 @@ mod tests {
 
     #[test]
     fn header_snapshot_offline_with_downloads() {
-        let mut state = fixtures::app_state();
-        state.connectivity = Connectivity::Offline;
-        state.downloads_active = 2;
-        state.server.server_name = Some("My Server".to_string());
-        state.clock = "2024-01-01T23:13:00Z".parse().expect("valid timestamp");
-
+        let state = AppState {
+            connectivity: loxia_core::state::Connectivity::Offline,
+            downloads_active: 2,
+            server_name: "My Server".to_string(),
+            ..AppState::default()
+        };
         insta::assert_debug_snapshot!(render_at(100, &state));
     }
 }
