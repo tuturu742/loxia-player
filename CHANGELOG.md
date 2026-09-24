@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - loxia-tui's clock and history-timestamp snapshot tests no longer depend on the host
   machine's local timezone: a workspace-level `.cargo/config.toml` now pins `TZ=UTC` for
-  every process cargo itself launches, and the affected fixtures
-  (`layout_snapshot_80x24`, `layout_snapshot_120x30`, `layout_snapshot_200x50`,
-  `now_playing_snapshot_history`, and `header_snapshot_offline_with_downloads`) were
-  regenerated against that pinned timezone.
+  every process cargo itself launches. Of the fixtures affected by that change,
+  `header_snapshot_offline_with_downloads` and `now_playing_snapshot_history` have been
+  regenerated against the pinned timezone; `layout_snapshot_80x24`, `layout_snapshot_120x30`,
+  and `layout_snapshot_200x50` still need the same treatment and are tracked separately.
