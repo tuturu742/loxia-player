@@ -16,3 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Locked dependency set: every workspace dependency pinned in `Cargo.toml`, resolved into
   `Cargo.lock`, checked against the `cargo-deny` policy in `deny.toml`, and inventoried in
   `THIRD_PARTY_LICENSES.md` (`00-02`, `00-05`, `12-05`).
+
+### Fixed
+
+- loxia-tui snapshot tests no longer read the host machine's local timezone: the header
+  clock and other HH:MM renders are now derived from an explicit `TimeZone` (production
+  uses `TimeZone::system()`, tests pin `TimeZone::UTC`), so the five previously-flaky
+  layout/header/now-playing snapshots are deterministic.
