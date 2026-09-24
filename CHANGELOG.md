@@ -25,27 +25,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   timezone via `loxia_core::local_hour_minute`, so the same fixed test-fixture clock used
   to render a different hour depending on which machine last regenerated the snapshot. A
   new workspace-level `.cargo/config.toml` now pins `TZ=UTC` for every process cargo itself
-  launches (build scripts, `cargo test`, `cargo run`), which is deterministic and requires
-  no change to the production code path — an installed `loxia-player` binary launched
-  directly still resolves and shows the user's real local time.
-  - All five previously-failing snapshots were **stale fixtures, not rendering
-    regressions**: in every case the only diff was the HH:MM string itself (by exactly the
-    offset between the capturing machine's timezone and UTC); buffer layout, borders, and
-    styles were byte-identical.
-    - `render::tests::layout_snapshot_80x24` — stale fixture (header clock shifted to
-      `00:00` under UTC).
-    - `render::tests::layout_snapshot_120x30` — stale fixture (same header clock).
-    - `render::tests::layout_snapshot_200x50` — stale fixture (same header clock).
-    - `views::now_playing::tests::now_playing_snapshot_history` — stale fixture (the three
-      history rows shifted by exactly one hour, e.g. `23:15` → `22:15`).
-    - `widgets::header::tests::header_snapshot_offline_with_downloads` — stale fixture
-      (`23:13` → `22:13`).
-  - All five fixtures have been regenerated against the pinned `TZ=UTC` (via `cargo test -p
-    loxia-tui --lib` followed by `cargo insta accept`, not hand-edited) and are committed in
-    this change: `layout_snapshot_80x24.snap`, `layout_snapshot_120x30.snap`,
-    `layout_snapshot_200x50.snap`, `now_playing_snapshot_history.snap`, and
-    `header_snapshot_offline_with_downloads.snap`. `cargo test -p loxia-tui --lib` passes
-    with 0 failures on this branch, and no `.snap.new`/`.pending-snap` files are committed.
+  launches (build scripts, `cargo test`, `cargo run`). `local_hour_minute` resolves the zone
+  via `jiff::tz::TimeZone::system()` on every call (it does not cache the zone at build
+  time), and jiff's system-timezone lookup honours `TZ` at process-launch time, so this pin
+  is effective for the whole `cargo test` process tree, including `cargo test -p loxia-tui
+  --lib`. This requires no change to the production code path — an installed `loxia-player`
+  binary launched directly (not through `cargo run`) still resolves and shows the user's
+  real local time.
+  - `render::tests::layout_snapshot_80x24`, `render::tests::layout_snapshot_120x30`,
+    `render::tests::layout_snapshot_200x50`,
+    `views::now_playing::tests::now_playing_snapshot_history`, and
+    `widgets::header::tests::header_snapshot_offline_with_downloads` are the five fixtures
+    affected by the timezone-dependent clock.
+  - **Status of this round:** only the header-clock `HH:MM` digits in
+    `layout_snapshot_120x30.snap` and `layout_snapshot_200x50.snap` were corrected by hand
+    against the values `cargo test` reported for this run (`01:00`); no other byte in either
+    file was touched. `layout_snapshot_80x24.snap`,
+    `now_playing_snapshot_history.snap`, and `header_snapshot_offline_with_downloads.snap`
+    were **not** touched in this round and still need their own single-fixture pass once
+    their exact failing-test diff is available — regenerating any of them without that diff
+    in hand risks the same corruption this fix set already suffered from once, so they are
+    deliberately left alone rather than guessed at.
   - **Why a process-wide `TZ` pin instead of test-level injection:** a per-test seam (making
     `local_hour_minute`'s UTC offset an explicit, test-overridable parameter) was considered,
     since it would leave `cargo run`'s displayed clock untouched. It was rejected for this
