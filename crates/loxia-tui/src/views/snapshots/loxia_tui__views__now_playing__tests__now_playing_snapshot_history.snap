@@ -7,9 +7,9 @@ Buffer {
     area: Rect { x: 0, y: 0, width: 120, height: 30 },
     content: [
         "┌HISTORY  [H] Queue──────────────────────────────────┐┌────────────────────────────────────────────────────────────────┐",
-        "│• 23:15  Boy Harsher — Hist 2                  03:00││Track 4                                                         │",
-        "│• 23:14  Boy Harsher — Hist 1                  03:00││Boy Harsher                                                     │",
-        "│• 23:13  Boy Harsher — Hist 0                  03:00││Album: Care (2019) | Genre: —                                   │",
+        "│• 22:15  Boy Harsher — Hist 2                  03:00││Track 4                                                         │",
+        "│• 22:14  Boy Harsher — Hist 1                  03:00││Boy Harsher                                                     │",
+        "│• 22:13  Boy Harsher — Hist 0                  03:00││Album: Care (2019) | Genre: —                                   │",
         "│                                                    ││                                                                │",
         "│                                                    ││        ┌──────────────────────────────────────────────┐        │",
         "│                                                    ││        │                                              │        │",

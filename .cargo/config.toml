@@ -1,0 +1,22 @@
+# Pins the process timezone to UTC for every process *cargo itself* launches — build scripts,
+# `cargo test` binaries, and `cargo run` — so that loxia-tui's snapshot tests, which render an
+# HH:MM clock (`widgets/header.rs`) and HH:MM history timestamps (`views/now_playing.rs`) via
+# `loxia_core::local_hour_minute`'s ordinary *system* timezone lookup, produce byte-identical
+# output no matter what timezone the machine running the test suite happens to be configured
+# with.
+#
+# This does NOT touch an already-built `loxia-player` binary launched directly (not through
+# cargo) — it never sees this `[env]` table at all, so it still resolves and displays the
+# user's real local time exactly as before. It DOES, however, affect `cargo run` during
+# development: a developer running `loxia-player` via `cargo run` will see the clock rendered
+# in UTC, not their own local time, for as long as this file is in effect. Only an installed /
+# directly-invoked binary is unaffected.
+#
+# Without this, `render::tests::layout_snapshot_{80x24,120x30,200x50}`,
+# `views::now_playing::tests::now_playing_snapshot_history`, and
+# `widgets::header::tests::header_snapshot_offline_with_downloads` each baked in whatever
+# timezone happened to be active on the machine that last ran `cargo insta accept`, so the same
+# fixed test clock rendered a different wall-clock hour, and the same fixture, depending on the
+# runner's own `TZ` — see CHANGELOG.md ("Fixed").
+[env]
+TZ = { value = "UTC", force = true }

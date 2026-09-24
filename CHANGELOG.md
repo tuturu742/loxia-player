@@ -8,6 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Workspace scaffolding: six-crate layout (`loxia-core`, `loxia-emby`, `loxia-audio`,
-  `loxia-cache`, `loxia-tui`, `loxia-player`) with the full module tree per `docs/01-architecture.md`.
-- Locked dependency set per `docs/13-dependencies.md`.
+
+- Workspace scaffolding: the `loxia-core`, `loxia-emby`, `loxia-audio`, `loxia-cache`,
+  `loxia-tui`, and `loxia-player` crates wired together under a single Cargo workspace,
+  with shared `[workspace.package]` metadata (edition, MSRV, licence) and a pinned
+  `rust-toolchain.toml` (`00-01`).
+- Locked dependency set: every workspace dependency pinned in `Cargo.toml`, resolved into
+  `Cargo.lock`, checked against the `cargo-deny` policy in `deny.toml`, and inventoried in
+  `THIRD_PARTY_LICENSES.md` (`00-02`, `00-05`, `12-05`).
+
+### Fixed
+
+- loxia-tui's clock and history-timestamp snapshot tests no longer depend on the host
+  machine's local timezone: a workspace-level `.cargo/config.toml` now pins `TZ=UTC` for
+  every process cargo itself launches. Of the fixtures affected by that change,
+  `header_snapshot_offline_with_downloads` and `now_playing_snapshot_history` have been
+  regenerated against the pinned timezone; `layout_snapshot_80x24`, `layout_snapshot_120x30`,
+  and `layout_snapshot_200x50` still need the same treatment and are tracked separately.
