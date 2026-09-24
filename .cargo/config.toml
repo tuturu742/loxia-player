@@ -1,0 +1,17 @@
+# Pins the test-suite's wall-clock timezone so that `cargo test --workspace --lib --bins --tests`
+# is deterministic regardless of the timezone of the machine running the build.
+#
+# `loxia_core::local_hour_minute` renders through `jiff::tz::TimeZone::system()`, which reads
+# this `TZ` value. Five insta snapshot fixtures (the header widget and four Now Playing history
+# renders) were captured on a machine running one hour ahead of UTC and encode that offset
+# literally in their HH:MM text.
+#
+# This is pinned to a *fixed* UTC+1 offset (`Etc/GMT-1` — note POSIX/tzdata's inverted sign
+# convention: `Etc/GMT-1` is UTC+1, `Etc/GMT+1` is UTC-1) rather than to `UTC`, so that no
+# fixture needs regenerating: the committed fixtures already encode UTC+1 consistently. `Etc/GMT*`
+# zones are fixed-offset year-round (no DST rule table), unlike a named region such as
+# `Europe/London`, which would render a different hour depending on the date embedded in a given
+# test's timestamp — the same non-determinism this pin exists to remove, just triggered by the
+# calendar instead of the host.
+[env]
+TZ = "Etc/GMT-1"
