@@ -6,7 +6,7 @@ expression: "render_at(100, &state)"
 Buffer {
     area: Rect { x: 0, y: 0, width: 100, height: 1 },
     content: [
-        "loxia │ My Server │ Now Playing │                                           OFFLINE ↓2 │ [?] │ 23:13",
+        "loxia │ My Server │ Now Playing │                                           OFFLINE ↓2 │ [?] │ 22:13",
     ],
     styles: [
         x: 0, y: 0, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
