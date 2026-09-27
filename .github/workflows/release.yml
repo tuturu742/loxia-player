@@ -68,6 +68,14 @@ jobs:
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace --lib --bins --tests --examples
 
+      # docs/11-packaging.md §7 item 8 makes this blocking for a release, but the gate had never
+      # enforced it. Deliberately here as well as in CI: a vulnerability disclosed between the
+      # last push and the tag should stop the release, not ship in it.
+      - name: cargo deny check
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check
+
   # ---------------------------------------------------------------------------------------
   # Linux x86_64 tarball.
   #
