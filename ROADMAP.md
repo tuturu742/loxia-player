@@ -53,7 +53,7 @@ The whole reason this is still an rc.
 | Target | Planned artifacts | mpv |
 | :-- | :-- | :-- |
 | Linux `x86_64`, `aarch64` | `.tar.gz`, AUR `loxia-player-bin` | System libmpv from the distribution |
-| macOS `aarch64`, `x86_64` | `.dmg`, `.pkg`, `.tar.gz`, Homebrew tap | System mpv, as a Homebrew dependency |
+| macOS `aarch64`, `x86_64` | Homebrew tap **(done)**; `.dmg`/`.pkg` deferred | System mpv, as a Homebrew dependency |
 | Windows `x86_64` | `.msi`, portable `.zip`, Scoop, WinGet | Bundled `mpv-1.dll` beside the executable |
 
 Driven by [`cargo-dist`](https://opensource.axo.dev/cargo-dist/) from a `v*` tag, with the pieces it

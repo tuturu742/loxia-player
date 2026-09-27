@@ -88,7 +88,16 @@ media keys. Both degrade quietly when absent.
 
 ## Installation
 
-Building from source is the only supported route for 0.1.0.
+### Homebrew (macOS and Linux)
+
+```sh
+brew tap tuturu742/tap
+brew install loxia-player
+```
+
+Pulls in mpv as a dependency, so there is nothing else to install.
+
+### From source
 
 ```sh
 git clone https://github.com/tuturu742/loxia-player.git
@@ -97,17 +106,12 @@ cargo build --release
 ./target/release/loxia-player
 ```
 
-To install the binary onto your `PATH`:
+Or onto your `PATH` with `cargo install --path crates/loxia-player`. You need libmpv first — see
+[Installing mpv](#installing-mpv) below, and
+**[docs/user/installation.md](docs/user/installation.md)** for the per-platform build dependencies.
 
-```sh
-cargo install --path crates/loxia-player
-```
-
-Full per-platform instructions, including the build dependencies each distribution needs, are in
-**[docs/user/installation.md](docs/user/installation.md)**.
-
-Homebrew, the AUR, Scoop, WinGet, an `.msi` and a `.dmg` are all planned but not yet available —
-see [ROADMAP.md](ROADMAP.md).
+The AUR, Scoop, WinGet, an `.msi` and a `.dmg` are planned but not yet available — see
+[ROADMAP.md](ROADMAP.md).
 
 ### Installing mpv
 

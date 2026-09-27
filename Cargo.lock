@@ -2031,7 +2031,7 @@ checksum = "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad"
 
 [[package]]
 name = "loxia-audio"
-version = "0.1.0-rc.1"
+version = "0.1.0-rc.2"
 dependencies = [
  "insta",
  "libmpv2",
@@ -2050,7 +2050,7 @@ dependencies = [
 
 [[package]]
 name = "loxia-cache"
-version = "0.1.0-rc.1"
+version = "0.1.0-rc.2"
 dependencies = [
  "bytes",
  "fs4",
@@ -2073,7 +2073,7 @@ dependencies = [
 
 [[package]]
 name = "loxia-core"
-version = "0.1.0-rc.1"
+version = "0.1.0-rc.2"
 dependencies = [
  "dirs",
  "insta",
@@ -2094,7 +2094,7 @@ dependencies = [
 
 [[package]]
 name = "loxia-emby"
-version = "0.1.0-rc.1"
+version = "0.1.0-rc.2"
 dependencies = [
  "anyhow",
  "bytes",
@@ -2121,7 +2121,7 @@ dependencies = [
 
 [[package]]
 name = "loxia-player"
-version = "0.1.0-rc.1"
+version = "0.1.0-rc.2"
 dependencies = [
  "anyhow",
  "clap",
@@ -2150,7 +2150,7 @@ dependencies = [
 
 [[package]]
 name = "loxia-tui"
-version = "0.1.0-rc.1"
+version = "0.1.0-rc.2"
 dependencies = [
  "image",
  "insta",

@@ -1,12 +1,12 @@
 ---
 source: crates/loxia-tui/src/render.rs
-assertion_line: 429
+assertion_line: 423
 expression: "draw_at(200, 50, &AppState::default())"
 ---
 Buffer {
     area: Rect { x: 0, y: 0, width: 200, height: 50 },
     content: [
-        "loxia │ no server │ Now Playing │                                                                                                                                                            [?] │ 01:00",
+        "loxia │ no server │ Now Playing │                                                                                                                                                            [?] │ 00:00",
         "▸ ♪ Now Playing ┌PLAY QUEUE  [unbound] History───────────────────────────────────────────────────┐┌────────────────────────────────────────────────────────────────────────────────────────────────────┐",
         "  ♡ Favourites  │                                                                                ││                                                                                                    │",
         "  ⚲ Search      │                                                                                ││                                                                                                    │",

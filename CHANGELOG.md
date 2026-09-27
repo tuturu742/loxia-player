@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0-rc.2] — 2026-09-27
+
+### Fixed
+- Widget snapshots no longer depend on the machine's timezone. The header clock and the
+  listening-history rows render through the system zone, so five snapshots had encoded the
+  UTC offset of whichever machine generated them and failed everywhere else — including CI,
+  which runs UTC. `local_hour_minute` is now pinned to UTC under the dev-only `test-support`
+  feature; a real build still shows local time.
+
+### Added
+- `.github/workflows/release.yml`: the release pipeline — Linux tarball built against an older
+  glibc, Windows portable ZIP with libmpv bundled and hash-verified, Homebrew bottles, and the
+  GitHub release itself.
+- `COPYING.LGPL` and `packaging/windows/mpv.lock`, both required to redistribute libmpv on
+  Windows.
+- A Homebrew tap: `brew tap tuturu742/tap && brew install loxia-player`.
+
 ## [0.1.0-rc.1] — 2026-09-27
 
 First release candidate. Everything below is the initial feature set; there is no prior release to
@@ -95,5 +112,6 @@ the work remaining before 0.1.0 final — see [ROADMAP.md](ROADMAP.md).
 - Windows is functional and builds in CI, but has had much less real-world use than Linux.
 - The access token is plaintext in `config.toml`; an OS-keyring backend is post-0.1.0.
 
-[Unreleased]: https://github.com/tuturu742/loxia-player/compare/v0.1.0-rc.1...HEAD
+[Unreleased]: https://github.com/tuturu742/loxia-player/compare/v0.1.0-rc.2...HEAD
+[0.1.0-rc.2]: https://github.com/tuturu742/loxia-player/releases/tag/v0.1.0-rc.2
 [0.1.0-rc.1]: https://github.com/tuturu742/loxia-player/releases/tag/v0.1.0-rc.1

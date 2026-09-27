@@ -1,8 +1,23 @@
 # Installation
 
-Building from source is the only supported installation route for 0.1.0. Pre-built binaries,
-installers and package-manager entries are the next milestone — see [ROADMAP.md](../../ROADMAP.md).
+Two routes: **Homebrew**, which handles mpv for you, or **building from source**. Standalone
+binaries, the AUR, Scoop and WinGet are the next milestone — see [ROADMAP.md](../../ROADMAP.md).
 
+## Homebrew (macOS and Linux)
+
+```sh
+brew tap tuturu742/tap
+brew install loxia-player
+```
+
+mpv comes in as a dependency, so nothing else is needed. Note that Homebrew always installs its own
+mpv into the Cellar even if you already have one from your distribution or MacPorts — it never
+reuses system libraries, by design. You end up with a second copy, and loxia links against
+Homebrew's.
+
+Then skip to [Verifying the install](#verifying-the-install).
+
+- [Homebrew](#homebrew-macos-and-linux)
 - [Requirements](#requirements)
 - [Installing mpv](#installing-mpv)
 - [Installing the Rust toolchain](#installing-the-rust-toolchain)
@@ -54,16 +69,21 @@ time. On most distributions those are two packages.
 
 There is no single package to install. You need:
 
-1. **`mpv-1.dll`** — from the [official mpv builds](https://mpv.io/installation/) (the
-   `shinchiro/mpv-winbuild` releases). Place it beside `loxia-player.exe`, or anywhere on `PATH`.
-2. **An import library for linking.** The `-dev` archive from the same release carries `libmpv.dll.a`
-   (for the GNU toolchain) and `mpv.def`. For the MSVC toolchain, generate `mpv.lib` from the `.def`:
+1. **The libmpv DLL** — from the `mpv-dev-x86_64-*.7z` archive of a
+   [shinchiro release](https://github.com/shinchiro/mpv-winbuild-cmake/releases). Currently named
+   `libmpv-2.dll`. Place it beside `loxia-player.exe`, or anywhere on `PATH`.
+2. **An import library for linking.** The same archive carries `libmpv.dll.a`, which is GNU format
+   and unusable by MSVC's linker — and no `mpv.def` and no `.lib`. For an MSVC build, derive the
+   module definition from the DLL's own export table and build the import library from that:
 
    ```
-   lib /def:mpv.def /name:mpv-1.dll /out:mpv.lib /MACHINE:X64
+   dumpbin -exports libmpv-2.dll
+   :: take the name column into mpv.def as "LIBRARY libmpv-2.dll" + "EXPORTS" + one name per line
+   lib -def:mpv.def -out:mpv.lib -machine:X64
    ```
 
    Then put the directory containing `mpv.lib` on the `LIB` environment variable before building.
+   `.github/workflows/release.yml` does exactly this, if you want a working reference.
 
 Alternatively, install mpv through [Scoop](https://scoop.sh) (`scoop install mpv`) or
 [Chocolatey](https://chocolatey.org) (`choco install mpv`) for the runtime DLL, and fetch the `-dev`
