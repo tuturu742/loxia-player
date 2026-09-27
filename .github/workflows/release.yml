@@ -275,12 +275,15 @@ jobs:
           test -f mpv.lib
 
       - name: Build
-        shell: bash
+        # pwsh, deliberately not bash: `shell: bash` on a Windows runner is Git Bash, whose
+        # /usr/bin/link shadows MSVC's link.exe on PATH. rustc invokes `link.exe`, picks up
+        # Git's coreutils `link`, and fails with "extra operand" on the first build script.
+        shell: pwsh
         run: |
-          set -euo pipefail
           # libmpv2-sys emits a bare `-lmpv`, so the linker needs mpv.lib on LIB.
-          export LIB="$(pwd -W 2>/dev/null || pwd);${LIB:-}"
+          $env:LIB = "$($PWD.Path);$env:LIB"
           cargo build --release -p loxia-player
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Stage the ZIP
         shell: bash
@@ -400,12 +403,16 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-15        # Apple Silicon
-          - os: macos-13        # Intel
-          - os: ubuntu-latest   # x86_64_linux
+          # Bottle tags are per-OS-version and Homebrew falls back to *older* tags, never newer,
+          # so the oldest still-supported macOS gives the widest reach. macOS 14 is deprecated and
+          # macOS 13 has been retired outright, which makes 15 the floor. Its bottles serve macOS
+          # 15 and 26 alike.
+          - os: macos-15         # Apple Silicon -> arm64_sequoia
+          - os: macos-15-intel   # Intel         -> sequoia
+          - os: ubuntu-latest    # x86_64_linux
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: Homebrew/actions/setup-homebrew@master
+      - uses: Homebrew/actions/setup-homebrew@main
 
       - name: Build the bottle
         shell: bash
@@ -488,7 +495,7 @@ jobs:
     if: (github.event_name == 'push' || inputs.publish) && needs.bottles.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: Homebrew/actions/setup-homebrew@master
+      - uses: Homebrew/actions/setup-homebrew@main
 
       - uses: actions/download-artifact@v4
         with:
