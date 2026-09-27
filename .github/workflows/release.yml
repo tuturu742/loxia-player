@@ -37,7 +37,7 @@ jobs:
       version: ${{ steps.v.outputs.version }}
       prerelease: ${{ steps.v.outputs.prerelease }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.TAG }}
 
@@ -93,7 +93,7 @@ jobs:
             build-essential curl ca-certificates git pkg-config \
             libmpv-dev libdbus-1-dev binutils patchelf
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.TAG }}
 
@@ -195,7 +195,7 @@ jobs:
     needs: verify
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.TAG }}
 
@@ -358,7 +358,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the tap
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: tuturu742/homebrew-tap
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
@@ -459,7 +459,7 @@ jobs:
     if: always() && needs.linux-tarball.result == 'success' && needs.windows-zip.result == 'success'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ env.TAG }}
 
@@ -503,7 +503,7 @@ jobs:
           pattern: bottle-*
 
       - name: Check out the tap
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: tuturu742/homebrew-tap
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
