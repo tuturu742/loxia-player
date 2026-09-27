@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0-rc.3] — 2026-09-27
+
 ### Security
 - `rustls` 0.23.42 → 0.23.45 (RUSTSEC-2026-0285: TLS 1.3 handshake messages accepted across
   encryption level boundaries) and `h2` 0.4.15 → 0.4.19 (RUSTSEC-2026-0258: unbounded empty DATA
@@ -126,6 +128,7 @@ the work remaining before 0.1.0 final — see [ROADMAP.md](ROADMAP.md).
 - Windows is functional and builds in CI, but has had much less real-world use than Linux.
 - The access token is plaintext in `config.toml`; an OS-keyring backend is post-0.1.0.
 
-[Unreleased]: https://github.com/tuturu742/loxia-player/compare/v0.1.0-rc.2...HEAD
+[Unreleased]: https://github.com/tuturu742/loxia-player/compare/v0.1.0-rc.3...HEAD
+[0.1.0-rc.3]: https://github.com/tuturu742/loxia-player/releases/tag/v0.1.0-rc.3
 [0.1.0-rc.2]: https://github.com/tuturu742/loxia-player/releases/tag/v0.1.0-rc.2
 [0.1.0-rc.1]: https://github.com/tuturu742/loxia-player/releases/tag/v0.1.0-rc.1
