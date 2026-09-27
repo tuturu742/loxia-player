@@ -1,0 +1,119 @@
+name: Set up libmpv
+description: >
+  Makes libmpv linkable and loadable on Linux, macOS and Windows, plus libdbus on Linux.
+  Every job that compiles this workspace needs this — loxia links dynamically against libmpv
+  (via libmpv2-sys) and against libdbus-1 (via souvlaki), and neither is present on a stock
+  GitHub runner.
+
+outputs:
+  dll:
+    description: "Windows only: path to the extracted libmpv DLL."
+    value: ${{ steps.win.outputs.dll }}
+  dll_name:
+    description: "Windows only: that DLL's file name, which the import library is built against."
+    value: ${{ steps.win.outputs.dll_name }}
+  mpv_version:
+    description: "Windows only: the pinned libmpv version from packaging/windows/mpv.lock."
+    value: ${{ steps.win.outputs.mpv_version }}
+
+runs:
+  using: composite
+  steps:
+    # -------------------------------------------------------------------------------------
+    # Linux — both halves of each package: the runtime library and the .pc file to link with.
+    # -------------------------------------------------------------------------------------
+    - name: Linux
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends libmpv-dev libdbus-1-dev pkg-config
+        pkg-config --modversion mpv dbus-1
+
+    # -------------------------------------------------------------------------------------
+    # macOS — Homebrew's mpv builds with -Dlibmpv=true, so one formula covers link and run
+    # time. souvlaki uses the Cocoa MediaPlayer framework here, so no dbus.
+    # -------------------------------------------------------------------------------------
+    - name: macOS
+      if: runner.os == 'macOS'
+      shell: bash
+      run: |
+        set -euo pipefail
+        brew install mpv pkgconf
+        pkg-config --modversion mpv
+
+    # -------------------------------------------------------------------------------------
+    # Windows — the hard one. Upstream ships headers, the DLL and a GNU-format libmpv.dll.a
+    # that MSVC's linker cannot consume; there is no mpv.def and no .lib, while libmpv2-sys
+    # emits a bare `-lmpv`. So fetch the pinned archive, verify it, and synthesise the import
+    # library from the DLL's own export table.
+    # -------------------------------------------------------------------------------------
+    - name: Windows — MSVC environment
+      if: runner.os == 'Windows'
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Windows — libmpv and import library
+      id: win
+      if: runner.os == 'Windows'
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        lock=packaging/windows/mpv.lock
+        get() { grep -m1 "^$1" "$lock" | sed -E 's/.*"(.*)".*/\1/'; }
+        url=$(get url); sha=$(get sha256); ver=$(get mpv_version)
+        for pair in "url:$url" "sha256:$sha" "mpv_version:$ver"; do
+          if [ "${pair#*:}" = "REPLACE_ME" ] || [ -z "${pair#*:}" ]; then
+            echo "::error::packaging/windows/mpv.lock has no ${pair%%:*}. See the comments in that file."
+            exit 1
+          fi
+        done
+
+        curl -fsSL "$url" -o mpv-dev.7z
+        echo "$sha  mpv-dev.7z" | sha256sum -c -
+        7z x mpv-dev.7z -ompv-dev
+
+        # Upstream has shipped this DLL under more than one name over time, and whatever it is
+        # called has to match the LIBRARY line below — otherwise the executable looks for a DLL
+        # that is not the one we ship.
+        dll=$(find mpv-dev -name '*mpv*.dll' | head -1)
+        if [ -z "$dll" ]; then
+          echo "::error::no libmpv DLL in the archive at mpv.lock's url."
+          echo "::error::that usually means it is the player archive; you want the -dev one."
+          find mpv-dev -maxdepth 3 -type f | head -30
+          exit 1
+        fi
+        name=$(basename "$dll")
+        echo "dll: $dll"
+
+        # Dash-prefixed MSVC flags, not slash-prefixed: MSYS rewrites `/exports` into a Windows
+        # path before dumpbin ever sees it. libmpv is plain C with no name decoration, so the
+        # exported names transfer verbatim.
+        {
+          echo "LIBRARY $name"
+          echo "EXPORTS"
+          dumpbin -exports "$dll" | sed -nE \
+            's/^[[:space:]]+[0-9]+[[:space:]]+[0-9A-Fa-f]+[[:space:]]+[0-9A-Fa-f]+[[:space:]]+([A-Za-z_][A-Za-z0-9_]*).*$/    \1/p'
+        } > mpv.def
+
+        exports=$(grep -c '^    ' mpv.def || true)
+        echo "parsed $exports exports"
+        # Two gates: a plausible count, and the one symbol whose absence means we parsed
+        # something other than an export table.
+        if [ "$exports" -lt 20 ] || ! grep -q '^    mpv_create$' mpv.def; then
+          echo "::error::export table did not parse ($exports symbols)"
+          dumpbin -exports "$dll" | head -30
+          exit 1
+        fi
+
+        lib.exe -def:mpv.def -out:mpv.lib -machine:X64
+        test -f mpv.lib
+
+        # rustc must find mpv.lib at link time. LIB is consumed by link.exe; exporting it
+        # through GITHUB_ENV makes it visible to every later step in the calling job.
+        echo "LIB=$(pwd -W);${LIB:-}" >> "$GITHUB_ENV"
+        # The DLL has to sit beside the .exe at run time, including for `cargo test`.
+        echo "$(pwd -W)/$(dirname "$dll" | sed 's|^\./||')" >> "$GITHUB_PATH"
+
+        { echo "dll=$dll"; echo "dll_name=$name"; echo "mpv_version=$ver"; } >> "$GITHUB_OUTPUT"

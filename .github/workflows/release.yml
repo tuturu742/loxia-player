@@ -62,8 +62,7 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
 
-      - name: Install libmpv and libdbus
-        run: sudo apt-get update && sudo apt-get install -y libmpv-dev libdbus-1-dev pkg-config
+      - uses: ./.github/actions/setup-libmpv
 
       - run: cargo fmt --all -- --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
@@ -201,78 +200,8 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
-      - uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Read the pinned libmpv build
-        id: mpv
-        shell: bash
-        run: |
-          set -euo pipefail
-          lock=packaging/windows/mpv.lock
-          get() { grep -m1 "^$1" "$lock" | sed -E 's/.*"(.*)".*/\1/'; }
-          url=$(get url); sha=$(get sha256); ver=$(get mpv_version)
-          for pair in "url:$url" "sha256:$sha" "mpv_version:$ver"; do
-            if [ "${pair#*:}" = "REPLACE_ME" ] || [ -z "${pair#*:}" ]; then
-              echo "::error::packaging/windows/mpv.lock has no ${pair%%:*}. See the comments in that file."
-              exit 1
-            fi
-          done
-          { echo "url=$url"; echo "sha256=$sha"; echo "version=$ver"; } >> "$GITHUB_OUTPUT"
-
-      - name: Fetch and verify the libmpv dev archive
-        id: dev
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl -fsSL "${{ steps.mpv.outputs.url }}" -o mpv-dev.7z
-          echo "${{ steps.mpv.outputs.sha256 }}  mpv-dev.7z" | sha256sum -c -
-          7z x mpv-dev.7z -ompv-dev
-
-          # Upstream has shipped this DLL under more than one name over time, and whatever
-          # it is called has to match the LIBRARY line of the import library built below —
-          # otherwise the executable looks for a DLL that is not the one we ship.
-          dll=$(find mpv-dev -name '*mpv*.dll' | head -1)
-          if [ -z "$dll" ]; then
-            echo "::error::no libmpv DLL in the archive at mpv.lock's url."
-            echo "::error::that usually means it is the player archive; you want the -dev one."
-            find mpv-dev -maxdepth 3 -type f | head -30
-            exit 1
-          fi
-          echo "dll: $dll"
-          { echo "dll=$dll"; echo "dll_name=$(basename "$dll")"; } >> "$GITHUB_OUTPUT"
-
-      - name: Generate the MSVC import library
-        shell: bash
-        run: |
-          set -euo pipefail
-          # Upstream ships headers, the DLL, and `libmpv.dll.a` — a GNU-format import
-          # library that MSVC's linker cannot consume. It ships no `mpv.def` and no `.lib`,
-          # while libmpv2-sys emits a bare `-lmpv`. So derive the module definition from the
-          # DLL's own export table and build mpv.lib from that. libmpv is plain C with no
-          # name decoration, so the exported names transfer verbatim.
-          #
-          # Dash-prefixed MSVC flags, not slash-prefixed: MSYS rewrites `/exports` into a
-          # Windows path before dumpbin ever sees it.
-          dll="${{ steps.dev.outputs.dll }}"
-          {
-            echo "LIBRARY ${{ steps.dev.outputs.dll_name }}"
-            echo "EXPORTS"
-            dumpbin -exports "$dll" | sed -nE \
-              's/^[[:space:]]+[0-9]+[[:space:]]+[0-9A-Fa-f]+[[:space:]]+[0-9A-Fa-f]+[[:space:]]+([A-Za-z_][A-Za-z0-9_]*).*$/    \1/p'
-          } > mpv.def
-
-          exports=$(grep -c '^    ' mpv.def || true)
-          echo "parsed $exports exports"
-          # Two sanity gates: a plausible count, and the one symbol whose absence would mean
-          # we parsed something other than an export table.
-          if [ "$exports" -lt 20 ] || ! grep -q '^    mpv_create$' mpv.def; then
-            echo "::error::export table did not parse ($exports symbols, mpv_create present: $(grep -c '^    mpv_create$' mpv.def || echo 0))"
-            dumpbin -exports "$dll" | head -30
-            exit 1
-          fi
-
-          lib.exe -def:mpv.def -out:mpv.lib -machine:X64
-          test -f mpv.lib
+      - uses: ./.github/actions/setup-libmpv
+        id: libmpv
 
       - name: Build
         # pwsh, deliberately not bash: `shell: bash` on a Windows runner is Git Bash, whose
@@ -280,8 +209,6 @@ jobs:
         # Git's coreutils `link`, and fails with "extra operand" on the first build script.
         shell: pwsh
         run: |
-          # libmpv2-sys emits a bare `-lmpv`, so the linker needs mpv.lib on LIB.
-          $env:LIB = "$($PWD.Path);$env:LIB"
           cargo build --release -p loxia-player
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -297,8 +224,8 @@ jobs:
           # The DLL must sit beside the exe: Windows searches the executable's own
           # directory first, so the portable ZIP works without touching PATH, and the user
           # can drop in a newer libmpv build by replacing this one file.
-          cp "${{ steps.dev.outputs.dll }}" "dist/$dir/"
-          test -f "dist/$dir/${{ steps.dev.outputs.dll_name }}"
+          cp "${{ steps.libmpv.outputs.dll }}" "dist/$dir/"
+          test -f "dist/$dir/${{ steps.libmpv.outputs.dll_name }}"
 
           cp LICENSE COPYING.LGPL THIRD_PARTY_LICENSES.md README.md CHANGELOG.md "dist/$dir/"
           cat > "dist/$dir/README.txt" <<EOF
@@ -307,7 +234,7 @@ jobs:
           Run loxia-player.exe. Windows Terminal is strongly recommended; the classic
           console lacks the colour and mouse support the interface expects.
 
-          ${{ steps.dev.outputs.dll_name }} in this directory is libmpv ${{ steps.mpv.outputs.version }}, from the
+          ${{ steps.libmpv.outputs.dll_name }} in this directory is libmpv ${{ steps.libmpv.outputs.mpv_version }}, from the
           mpv project, licensed LGPL-2.1-or-later. It is a separate, replaceable file —
           drop in a newer build if you want one. Source: https://github.com/mpv-player/mpv
           Licence text: COPYING.LGPL
@@ -326,13 +253,13 @@ jobs:
           dir="dist/loxia-player-${version}-x86_64-windows"
           fail=0
           # docs/11-packaging.md §7: these are blocking for any artifact carrying mpv binaries.
-          for required in "${{ steps.dev.outputs.dll_name }}" COPYING.LGPL LICENSE THIRD_PARTY_LICENSES.md; do
+          for required in "${{ steps.libmpv.outputs.dll_name }}" COPYING.LGPL LICENSE THIRD_PARTY_LICENSES.md; do
             if [ ! -s "$dir/$required" ]; then
               echo "::error::$required missing or empty from the Windows artifact"; fail=1
             fi
           done
           # Separate dynamic library, never statically linked into the exe.
-          if [ ! -f "$dir/${{ steps.dev.outputs.dll_name }}" ]; then
+          if [ ! -f "$dir/${{ steps.libmpv.outputs.dll_name }}" ]; then
             echo "::error::libmpv must ship as a standalone, replaceable DLL"; fail=1
           fi
           exit $fail
