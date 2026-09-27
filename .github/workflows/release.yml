@@ -342,8 +342,13 @@ jobs:
           # so the oldest still-supported macOS gives the widest reach. macOS 14 is deprecated and
           # macOS 13 has been retired outright, which makes 15 the floor. Its bottles serve macOS
           # 15 and 26 alike.
+          #
+          # No Intel macOS leg. Homebrew has demoted macOS Intel x86_64 to Tier 3 and publishes no
+          # bottles for it at all, so even our *dependencies* (llvm, rust, ffmpeg, mpv...) have to
+          # be built from source there — a bottle of loxia alone would save such a user almost
+          # nothing, and the leg cannot complete in CI anyway. Apple drops x86_64 in macOS 27 and
+          # GitHub retires those runners in 2027; Intel users build from source until then.
           - os: macos-15         # Apple Silicon -> arm64_sequoia
-          - os: macos-15-intel   # Intel         -> sequoia
           - os: ubuntu-latest    # x86_64_linux
     runs-on: ${{ matrix.os }}
     steps:
@@ -427,7 +432,11 @@ jobs:
   # ---------------------------------------------------------------------------------------
   tap-bottles:
     needs: [verify, bottles, release]
-    if: (github.event_name == 'push' || inputs.publish) && needs.bottles.result == 'success'
+    # Not `bottles.result == 'success'`: a matrix job reports failure if *any* leg fails, so one
+    # unbuildable platform would silently withhold the bottle block from the platforms that did
+    # build — which is exactly what happened on rc.3. Run whenever anything was produced, and let
+    # the merge step no-op if nothing was.
+    if: (github.event_name == 'push' || inputs.publish) && !cancelled()
     runs-on: ubuntu-latest
     steps:
       - uses: Homebrew/actions/setup-homebrew@main
@@ -448,7 +457,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          find artifacts -name '*.bottle.json' -exec cp {} . \;
+          find artifacts -name '*.bottle.json' -exec cp {} . \; 2>/dev/null || true
+          if ! ls ./*.bottle.json >/dev/null 2>&1; then
+            echo "no bottles were produced; leaving the formula's source build in place"
+            exit 0
+          fi
           ls -la ./*.bottle.json
 
           brew tap tuturu742/tap
