@@ -90,8 +90,13 @@ jobs:
             exit $fail
           fi
 
+      # The official action, rather than `cargo deny check` on a bare runner: cargo-deny is not
+      # preinstalled, so the step had been failing with "no such command: deny" since the day it
+      # was added. The action ships the binary and caches its advisory database.
       - name: cargo deny check
-        run: cargo deny check
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check
 
   test:
     strategy:

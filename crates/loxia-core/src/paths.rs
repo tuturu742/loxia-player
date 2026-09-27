@@ -214,6 +214,16 @@ fn default_cache_root(base: PathBuf) -> PathBuf {
 mod tests {
     use super::*;
 
+    /// What `Paths::resolve` makes of a cache base, per platform: Windows nests an extra `cache`
+    /// segment under it (`default_cache_root`), everything else uses it as-is. Mirrored here so
+    /// the expectations below assert the real contract on both instead of only on Unix — these
+    /// four tests asserted Unix layouts unconditionally and had never once run on Windows,
+    /// because CI could not compile the workspace there.
+    fn expect_cache_root(base: &str) -> PathBuf {
+        let p = PathBuf::from(base);
+        if cfg!(windows) { p.join("cache") } else { p }
+    }
+
     fn linux_dirs() -> FixedDirs {
         FixedDirs::new(
             Some(PathBuf::from("/home/u/.config")),
@@ -224,6 +234,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(not(target_os = "windows"))]
     fn linux_layout_matches_spec() {
         let dirs = linux_dirs();
         let cfg = CacheConfig::default();
@@ -322,18 +333,28 @@ mod tests {
             ..CacheConfig::default()
         };
         let paths = Paths::resolve(&dirs, &cfg).unwrap();
-        assert_eq!(paths.cache_root(), Path::new("/home/u/.cache/loxia-player"));
+        assert_eq!(
+            paths.cache_root(),
+            expect_cache_root("/home/u/.cache/loxia-player")
+        );
     }
 
     #[test]
     fn absolute_override_is_honoured() {
+        // `Path::is_absolute` needs a drive letter on Windows, so a `/mnt/...` override is
+        // *relative* there and gets rejected — the override has to be absolute per platform.
+        let override_dir = if cfg!(windows) {
+            r"C:\mnt\bigdisk\loxia-cache"
+        } else {
+            "/mnt/bigdisk/loxia-cache"
+        };
         let dirs = linux_dirs();
         let cfg = CacheConfig {
-            cache_dir: "/mnt/bigdisk/loxia-cache".to_string(),
+            cache_dir: override_dir.to_string(),
             ..CacheConfig::default()
         };
         let paths = Paths::resolve(&dirs, &cfg).unwrap();
-        assert_eq!(paths.cache_root(), Path::new("/mnt/bigdisk/loxia-cache"));
+        assert_eq!(paths.cache_root(), expect_cache_root(override_dir));
     }
 
     #[test]
@@ -372,7 +393,7 @@ mod tests {
         let paths = Paths::resolve(&dirs, &CacheConfig::default()).unwrap();
         assert_eq!(
             paths.cache_root(),
-            Path::new("/does/not/exist/cache/loxia-player")
+            expect_cache_root("/does/not/exist/cache/loxia-player")
         );
     }
 }
