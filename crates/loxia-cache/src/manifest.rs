@@ -1,4 +1,4 @@
-//! Atomic JSON cache index and its advisory lock (`docs/06-cache-and-offline.md` §§4, 9).
+//! Atomic JSON cache index and its advisory lock (9).
 
 use std::collections::HashMap;
 use std::fs::File;
@@ -12,8 +12,7 @@ use serde::{Deserialize, Serialize};
 use crate::error::CacheError;
 use crate::layout::CacheKey;
 
-/// `{ key, path, bytes, created_at, last_access, complete, duration_secs }`
-/// (`docs/06-cache-and-offline.md` §4).
+/// `{ key, path, bytes, created_at, last_access, complete, duration_secs }`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ManifestEntry {
     pub key: CacheKey,
@@ -32,7 +31,7 @@ struct ManifestFile {
     entries: Vec<ManifestEntry>,
 }
 
-/// A write debounced to at most once per second, per `docs/06-cache-and-offline.md` §4.
+/// A write debounced to at most once per second.
 const WRITE_DEBOUNCE: Duration = Duration::from_secs(1);
 
 /// The rolling cache's on-disk index plus its advisory `cache.lock` (`fs4`) — held for this
@@ -49,7 +48,7 @@ pub struct Manifest {
 impl Manifest {
     /// Opens (creating if absent) `root/cache_index.json`, taking `root/cache.lock`. If the lock
     /// is already held by another instance, this one runs in **read-only cache mode** instead of
-    /// refusing to start (`docs/06-cache-and-offline.md` §9) — logged once, here.
+    /// refusing to start — logged once, here.
     pub fn open(root: &Path) -> Result<Self, CacheError> {
         std::fs::create_dir_all(root).map_err(|source| CacheError::Io {
             path: root.to_path_buf(),
@@ -64,7 +63,7 @@ impl Manifest {
         // Fully-qualified: `std::fs::File` has its own inherent `try_lock` since Rust 1.89 that
         // would otherwise shadow `fs4`'s (inherent methods always win method resolution over an
         // in-scope trait) — calling through `FileExt` explicitly is what actually exercises the
-        // cross-platform `fs4` implementation `docs/06-cache-and-offline.md` §9 asks for.
+        // cross-platform `fs4` implementation the design asks for.
         let (lock_file, read_only) = match fs4::FileExt::try_lock(&lock_file) {
             Ok(()) => (Some(lock_file), false),
             Err(_) => {
@@ -119,7 +118,7 @@ impl Manifest {
         self.entries.values().map(|e| e.bytes).sum()
     }
 
-    /// A no-op in read-only mode (`docs/06-cache-and-offline.md` §9: serve hits, write nothing).
+    /// A no-op in read-only mode (serve hits, write nothing).
     pub fn insert(&mut self, entry: ManifestEntry) {
         if self.read_only {
             return;
@@ -154,7 +153,7 @@ impl Manifest {
     }
 
     /// Writes only if dirty and at least [`WRITE_DEBOUNCE`] has passed since the last write
-    /// (`docs/06-cache-and-offline.md` §4) — the routine call a periodic tick should make;
+    /// the routine call a periodic tick should make;
     /// `flush` is for the moments that can't wait.
     pub fn maybe_flush(&mut self) -> Result<(), CacheError> {
         if !self.dirty || self.read_only {
@@ -170,7 +169,7 @@ impl Manifest {
 }
 
 /// `.tmp` in the same directory, `fsync`, rename — a power cut must never leave a corrupt index
-/// (`docs/06-cache-and-offline.md` §9). Never escapes `root` since both paths it touches are
+///. Never escapes `root` since both paths it touches are
 /// always `root`'s own direct children, constructed here rather than from any external input.
 fn write_atomic(root: &Path, entries: &HashMap<CacheKey, ManifestEntry>) -> Result<(), CacheError> {
     let index_path = root.join("cache_index.json");
@@ -205,7 +204,7 @@ fn write_atomic(root: &Path, entries: &HashMap<CacheKey, ManifestEntry>) -> Resu
 /// A missing index (first run) is just an empty cache. A corrupt one is quarantined to
 /// `cache_index.json.bad` (overwriting any previous quarantine — only the latest failure is worth
 /// keeping around) and this instance starts fresh rather than refusing to run
-/// (`docs/06-cache-and-offline.md` §9); `lru::RollingCache::reconcile` is what actually reclaims
+///; `lru::RollingCache::reconcile` is what actually reclaims
 /// the now-orphaned files this leaves behind on the next full reconciliation pass.
 fn load_or_quarantine(index_path: &Path, root: &Path) -> HashMap<CacheKey, ManifestEntry> {
     let Ok(text) = std::fs::read_to_string(index_path) else {

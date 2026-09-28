@@ -1,5 +1,4 @@
-//! Emby REST and WebSocket client. Depends only on loxia-core for domain types —
-//! see docs/01-architecture.md §3.2.
+//! Emby REST and WebSocket client. Depends only on loxia-core for domain types —.
 
 pub mod auth;
 pub mod client;

@@ -30,12 +30,12 @@ tokio-tungstenite = { workspace = true }
 # for `loxia-core`'s seeded shuffle; this is its first use in the `loxia` binary crate itself.
 rand = { workspace = true }
 # `10-01`: `workers::network`'s own `FetchImage` handling decodes off the async runtime thread
-# (`tokio::task::spawn_blocking`), proving `docs/07-ui-spec.md` §11's "decoding happens off the
+# (`tokio::task::spawn_blocking`), proving"decoding happens off the
 # main thread" for real, ahead of whichever task actually wires an `ArtCache` to consume it.
 image = { workspace = true }
 
 [build-dependencies]
-# `loxia-audio`'s own build.rs fix (`docs/12-decisions.md`, task `05-03`) only ever applies to
+# `loxia-audio`'s own build.rs fix (task `05-03`) only ever applies to
 # *its own* compiled artifacts — `rustc-link-arg` (the rpath) does not propagate to a dependent
 # package's final binary, only `rustc-link-lib`/`rustc-link-search` do. Since `loxia` is the
 # actual final binary linking libmpv (transitively via `loxia-audio`), it needs the identical

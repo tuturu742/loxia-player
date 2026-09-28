@@ -1,6 +1,6 @@
 //! The ALBUMS / APPEARS ON split, shared between the online path (`loxia-emby`) and the
-//! offline path (`loxia-cache`), so the two never drift apart (`docs/06-cache-and-offline.md`
-//! §6, `docs/12-decisions.md`).
+//! offline path (`loxia-cache`), so the two never drift apart (
+//! §6).
 
 use crate::model::{Album, AlbumRelation, ItemId, Track};
 
@@ -17,12 +17,12 @@ pub struct Discography {
 }
 
 /// Whether `track` is `artist`'s own primary release or one they merely appear on, derived purely
-/// from `track`'s own fields — `docs/03-emby-api.md` §4's rule ("primary iff the album's own
+/// from `track`'s own fields — the rule ("primary iff the album's own
 /// album-artist(s) include this artist") expressed against data a single downloaded track
 /// actually carries. This is the offline path's *only* option: unlike the online path (which diffs
 /// two id-filtered album-level queries), there is no `AlbumArtistIds` server query to run against a
 /// local sidecar, and `Track` itself has no `album_artist_ids` field, only
-/// `album_artist_names: Vec<String>` (`docs/12-decisions.md`) — so this locates `artist` among
+/// `album_artist_names: Vec<String>` — so this locates `artist` among
 /// `track.artist_ids` first (id-based, never ambiguous), reads *that* contributor's own name back
 /// out of the parallel `track.artist_names`, and checks whether *that* name appears in
 /// `track.album_artist_names`. `None` if `artist` is not a contributor to `track` at all.

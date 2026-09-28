@@ -140,7 +140,7 @@ def cmd_capture(base, library_id):
     )
     save("favorites.json", favorites)
 
-    print("done — see docs/12-decisions.md §10 for the artist/album/track-specific captures")
+    print("done")
 
 
 def main():

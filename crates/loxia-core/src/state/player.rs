@@ -1,7 +1,7 @@
 //! PlayerState mirror of the audio engine.
 //!
 //! Written **only** in response to `Event::Audio(..)` — never speculatively. The reducer must not
-//! claim playback the engine has not confirmed (`docs/04-state-and-input.md` §4 rule 6).
+//! claim playback the engine has not confirmed.
 
 use std::time::Duration;
 
@@ -32,7 +32,7 @@ pub enum PlaybackSource {
     /// Distinct from `Streaming` because a user who has turned caching on wants to see it
     /// happening: with only two states the readout said "stream" for the whole track and looked
     /// exactly like caching being switched off — reported as "force cache is enabled but the source
-    /// still shows stream" (`docs/12-decisions.md`). The bytes really are coming off the network
+    /// still shows stream". The bytes really are coming off the network
     /// for this play; the copy is for the next one.
     Caching,
     Cache,
@@ -85,7 +85,7 @@ pub struct SleepTimer {
     /// The entry current when armed — `SleepTrigger::EndOfTrack` waits specifically for
     /// *this* entry's own `TrackEnded`, not just "whatever is current when a `TrackEnded` next
     /// arrives" (which a skip to a different track would otherwise satisfy early). Extends this
-    /// the given `SleepTimer` shape; see `docs/12-decisions.md`.
+    /// the given `SleepTimer` shape;.
     pub armed_entry: Option<QueueEntryId>,
     /// The volume in effect the moment the fade-out ramp actually begins (the first
     /// `Tick` where remaining time drops into the 10-second window) — captured once, lazily,
@@ -95,7 +95,7 @@ pub struct SleepTimer {
     pub pre_fade_volume: Option<u8>,
 }
 
-/// Which ReplayGain path is in effect for the current track (`docs/05-audio-engine.md` §6) —
+/// Which ReplayGain path is in effect for the current track —
 /// lives here, not `loxia-audio`, so `loxia-tui`'s inspector can
 /// read it without that crate depending on `loxia-audio` (the dependency runs the other way).
 /// `loxia_audio::replaygain::resolve_gain` is the pure function that decides this.
@@ -193,7 +193,7 @@ pub struct PlayerState {
     /// report would make Emby treat every update as a new session, corrupting the resume point.
     pub session: Option<PlaySessionId>,
     /// Backs [`PlayerState::next_session_id`] — **not** a real `Uuid::new_v4()` (which needs the
-    /// OS RNG, unusable inside the deterministic reducer; see `docs/12-decisions.md`, the same
+    /// OS RNG, unusable inside the deterministic reducer;`, the same
     /// tension the shuffle seed already hit). A monotonic counter formatted to look like one
     /// is all Emby actually needs: a stable, per-load-unique opaque string.
     next_session_seq: u64,
@@ -203,7 +203,7 @@ pub struct PlayerState {
     /// Set by `reducer::modal::submit`'s `DevicePicker` arm at the moment it optimistically writes
     /// `config.audio.{device_id,output_driver}` — there is no "the swap succeeded" reply
     /// event to key a success-clear off, only `AudioEvent::DeviceUnavailable` on failure
-    /// (`docs/12-decisions.md`), so a matching failure is what both reverts the config and clears
+    ///, so a matching failure is what both reverts the config and clears
     /// this. An unrelated later swap attempt simply overwrites it, so at most one stale entry can
     /// ever accumulate.
     pub pending_device_swap: Option<PendingDeviceSwap>,
@@ -225,7 +225,7 @@ pub struct PlayerState {
     /// emitted at all — only Progress and Stopped were. Emby answers those with `204` and marks the
     /// item watched, but records **no play**: `PlayCount` stays 0, `LastPlayedDate` is never set,
     /// and no `PlaybackStopped` session event fires — which is exactly the event the server-side
-    /// Last.fm plugin scrobbles from, so nothing ever scrobbled (`docs/12-decisions.md`).
+    /// Last.fm plugin scrobbles from, so nothing ever scrobbled.
     ///
     /// A flag rather than a smarter transition test: what matters is "has this play been announced
     /// yet", which no pair of adjacent statuses can express — the engine may pass through

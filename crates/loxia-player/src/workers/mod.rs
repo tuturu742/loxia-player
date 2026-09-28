@@ -1,6 +1,6 @@
 //! Background workers owning I/O resources.
 //!
-//! Five workers, one per node in the runtime diagram (`docs/01-architecture.md` §4), each holding
+//! Five workers, one per node in the runtime diagram, each holding
 //! its own `UnboundedSender<Effect>`/`UnboundedReceiver<Effect>` pair.
 //!
 //! Every worker's channel carries the *whole* `Effect` enum rather than a narrowed-down sub-type:
@@ -33,7 +33,7 @@ use tokio::task::JoinHandle;
 /// same worker also handle `PersistSession`/`AppendHistory` — both are local-only (no network),
 /// so piggybacking them on the *cache* worker specifically means they silently don't happen
 /// whenever `cache` is `None` (no server connection, or the cache root itself failed to open,
-/// `docs/12-decisions.md`) even though neither reason should actually prevent saving a session.
+///) even though neither reason should actually prevent saving a session.
 pub struct CacheWorkerConfig {
     pub server: ServerId,
     pub target_codec: TargetCodec,
@@ -46,7 +46,7 @@ pub struct CacheWorkerConfig {
 pub struct Workers {
     /// Decoded cover images, written by the network worker and read by the render layer's own
     /// art cache. Not part of `AppState`: a decoded image is render data, and actions/state stay
-    /// plain serialisable values (`docs/12-decisions.md`).
+    /// plain serialisable values.
     pub art_store: loxia_tui::widgets::album_art::ArtStore,
     pub network: mpsc::UnboundedSender<Effect>,
     pub audio: mpsc::UnboundedSender<Effect>,
@@ -69,7 +69,7 @@ impl Workers {
     /// `audio_backend` (selected in `main` independently of whether the Emby server connected —
     /// audio and library connectivity are orthogonal), and the cache worker is the real one from
     /// `cache.rs` whenever `cache` is `Some` — `None` if the rolling cache's own root
-    /// couldn't be opened (`docs/06-cache-and-offline.md` §9: caching is a nicety, never a hard
+    /// couldn't be opened (caching is a nicety, never a hard
     /// requirement for playback, so this degrades to the same stub `spawn_stubs` always used
     /// rather than losing the *network* connection too just because the cache didn't open).
     ///
@@ -178,7 +178,7 @@ impl Workers {
     /// `notify` (and `events`) completely untouched, since a server switch has nothing to do with
     /// audio-device or MPRIS/notification connectivity. The old network/cache senders are dropped
     /// here, which signals those two worker loops to end once whatever was already queued drains
-    /// — their `JoinHandle`s are appended to `self.handles` (not awaited here) so `drain` still
+    /// their `JoinHandle`s are appended to `self.handles` (not awaited here) so `drain` still
     /// sees them at final shutdown; nothing in this method blocks the caller.
     pub fn reconnect(
         &mut self,
@@ -324,7 +324,7 @@ fn spawn_stub(
 /// that one effect for real (the same `test_server_connection` helper `network::spawn`'s own real
 /// worker uses) and falls back to the ordinary log-and-drop stub behaviour for everything else —
 /// exactly what the real worker's own `TestServerConnection` arm already does, since it too
-/// ignores its own connected `client` entirely (`docs/12-decisions.md`).
+/// ignores its own connected `client` entirely.
 fn spawn_network_stub(
     mut effects: mpsc::UnboundedReceiver<Effect>,
     events: mpsc::UnboundedSender<Event>,

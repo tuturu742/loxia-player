@@ -1,4 +1,4 @@
-//! Applies a restored `SessionSnapshot` onto `AppState` (`docs/06-cache-and-offline.md` §8,
+//! Applies a restored `SessionSnapshot` onto `AppState` (
 //! steps 2-6) — `loxia_cache::session::load` owns the actual
 //! file I/O and the `schema_version` check (self-contained there, since it needs no `Config`);
 //! this is the half that needs `state.config.active_server`/`ui.restore_autoplay`, which only the
@@ -28,7 +28,7 @@ fn format_position(d: Duration) -> String {
     }
 }
 
-/// The restore toast's own wording (`docs/06-cache-and-offline.md` §8: "a user who does not know
+/// The restore toast's own wording ("a user who does not know
 /// the feature exists otherwise finds a queue they did not create"). Adapts the literal
 /// example ("restored 14 tracks — paused at 01:24") to the `restore_autoplay` case too ("resuming
 /// at", since it is no longer actually paused) and to an empty queue (no position clause at all —
@@ -55,8 +55,7 @@ fn restore_toast_message(
 /// queue of unplayable entries. Otherwise rebuilds `QueueState` **entirely from the snapshot
 /// itself** and never touches the network: every entry keeps whatever `Availability` it was saved
 /// with rather than being eagerly re-checked against the server — a track the server no longer
-/// resolves is only marked `Unavailable` lazily, whenever something *else* later tries to use it
-/// (`docs/12-decisions.md`).
+/// resolves is only marked `Unavailable` lazily, whenever something *else* later tries to use it.
 pub fn restore(state: &mut AppState, snapshot: SessionSnapshot) -> Vec<Effect> {
     // The *server's* identity, not the profile's — otherwise switching between two addresses for
     // one server (a LAN one and an external one) throws the restored queue away as if it belonged
@@ -88,14 +87,14 @@ pub fn restore(state: &mut AppState, snapshot: SessionSnapshot) -> Vec<Effect> {
     // The engine starts every run at its own default (100) and knows nothing of the snapshot, so
     // restoring the *mirror* alone left the bar reading the saved volume while playback was
     // actually full-scale — the number on screen was right and the sound was not
-    // (`docs/12-decisions.md`). Same shape as `hydrate_from_config`'s ReplayGain/EQ effects, for
+    //. Same shape as `hydrate_from_config`'s ReplayGain/EQ effects, for
     // the one setting that lives in the session rather than the config.
     let mut effects = vec![Effect::Audio(crate::effect::AudioEffect::SetVolume(
         state.player.volume,
     ))];
     // "Restore paused" is the always-safe default — auto-play on launch seizes the audio device
     // and startles the user; `ui.restore_autoplay` is the explicit opt-in
-    // (`docs/06-cache-and-offline.md` §8, step 5).
+    // (step 5).
     state.player.status = match (state.player.current, autoplay) {
         (Some(_), true) => {
             // Unlike the paused branch below, autoplay can't wait for a keypress to
@@ -174,7 +173,7 @@ mod tests {
 
     /// Two profiles, one server: a session saved under one address must restore under the other.
     /// The comparison used to be against the *profile* id, so switching between a LAN address and
-    /// an external one silently threw the queue away (`docs/12-decisions.md`).
+    /// an external one silently threw the queue away.
     #[test]
     fn a_session_restores_across_two_profiles_for_one_server() {
         let mut state = fixtures::fixture_empty();
@@ -335,7 +334,7 @@ mod tests {
     /// `restore` sets `state.player`/`state.queue` fields directly and never calls
     /// `reducer::queue::load_current` (the one place `notify_track_change` is invoked) — a
     /// restored session is not a track the user just chose, and must produce no desktop
-    /// notification (`docs/12-decisions.md`).
+    /// notification.
     #[test]
     fn does_not_notify_on_session_restore() {
         let mut state = state_for_server("srv1");

@@ -1,5 +1,5 @@
 //! Event — a result from the outside world. The runtime converts every `Event` 1:1 into an
-//! `Action` (`docs/04-state-and-input.md` §1); `Event::Data`/`Audio`/`System` reuse the exact
+//! `Action`; `Event::Data`/`Audio`/`System` reuse the exact
 //! payload types `Action::Data`/`Audio`/`System` carry so that conversion is a plain wrap, never a
 //! translation.
 

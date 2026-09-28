@@ -1,10 +1,10 @@
-//! `AudioDevice` grouping and labelling (`docs/05-audio-engine.md` §4). Enumeration itself
+//! `AudioDevice` grouping and labelling. Enumeration itself
 //! (mpv's `audio-device-list` property) and hot-swap (`AudioCommand::SetDevice`) live in
 //! `mpv/handle.rs`, which already owns every other mpv property/command translation; this module is
 //! the OS-agnostic part they feed into — grouping and labelling devices for the device picker.
 //!
 //! Nothing here is platform-specific any more: the per-OS `linux`/`macos`/`windows` children existed
-//! solely for bit-perfect capability detection, and went with it (`docs/12-decisions.md`).
+//! solely for bit-perfect capability detection, and went with it.
 
 /// Grouping and labelling are pure functions of `AudioDevice`'s own fields, so they live in
 /// `loxia-core` (needed there by `loxia-tui`'s device-picker modal, which cannot depend on this
@@ -14,7 +14,7 @@ pub use loxia_core::model::{device_label as label, group_by_driver};
 #[cfg(test)]
 mod tests {
 
-    /// `docs/README.md` rule 5: `#[cfg(target_os = ...)]` is confined to `loxia-audio::device` and
+    /// `CONTRIBUTING.md` rule 5: `#[cfg(target_os = ...)]` is confined to `loxia-audio::device` and
     /// `loxia-core::paths`. A grep test over this crate's own source tree, not a doc-comment
     /// promise. Since bit-perfect's removal took the per-OS children with it, this crate now has no
     /// platform conditionals at all — the test stands as a guard against reintroducing one loosely.

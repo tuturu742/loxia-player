@@ -1,5 +1,5 @@
 //! Effect — a request for I/O, emitted by the reducer. Plain data; never a closure or a channel
-//! handle (`docs/04-state-and-input.md` §3).
+//! handle.
 
 use std::collections::BTreeMap;
 use std::fmt;
@@ -15,7 +15,7 @@ use crate::state::player::SeekTarget;
 use crate::state::queue::HistoryEntry;
 
 /// A URL string with `api_key` redacted from `Debug`/`Display` — `Effect` must stay plain,
-/// serialisable data, but the access token embedded in a stream URL (`docs/03-emby-api.md` §5)
+/// serialisable data, but the access token embedded in a stream URL
 /// must never leak through a derived `Debug` used for effect-dispatch tracing or replay logs.
 /// Deliberately independent of `loxia-emby::stream::StreamUrl` (which wraps `reqwest::Url`):
 /// `loxia-core` cannot depend on `reqwest`, so this does plain string surgery on `api_key=...`
@@ -91,7 +91,7 @@ pub type EqCurve = [f32; 10];
 /// crate cannot depend on `loxia-cache`, so the pair is mapped at the worker boundary. `Artist` was
 /// missing here (the cache side always had it), and `Track` carried only an id although the
 /// downloader needs the whole track to name the file and write its sidecar: both gaps went
-/// unnoticed because nothing ever constructed this type at all (`docs/12-decisions.md`).
+/// unnoticed because nothing ever constructed this type at all.
 #[derive(Debug, Clone, PartialEq)]
 pub enum DownloadScope {
     Track(Box<crate::model::Track>),
@@ -146,11 +146,11 @@ pub enum NetEffect {
         kind: ColumnKind,
         page: usize,
     },
-    /// the text says `FetchColumn { Favourites }`, but `ColumnKind` has no
+    /// The text says `FetchColumn { Favourites }`, but `ColumnKind` has no
     /// such variant — `favorites()` (`loxia-emby`) returns the same three-section
     /// artists/albums/tracks split `search()` does, not a single homogeneous list a `ColumnKind`
     /// column could hold. A dedicated effect, mirroring `Search`, is what the actual
-    /// data shape needs (`docs/12-decisions.md`).
+    /// data shape needs.
     FetchFavourites,
     FetchDiscography {
         tab: Tab,
@@ -166,7 +166,7 @@ pub enum NetEffect {
     /// Pressing `a`/`A` on an unopened Album row — distinct from `FetchAlbumTracks`
     /// (which populates a Miller column at `tab`/`depth`): this queues instead, so it carries
     /// neither. Always requests the *complete* tracklist regardless of which key was pressed
-    /// (`docs/03-emby-api.md` §4: the `ArtistOnly` filter is applied client-side to the reply, not
+    /// (the `ArtistOnly` filter is applied client-side to the reply, not
     /// baked into the fetch) — the filter decision made at key-press time is remembered in
     /// `AppState::pending_album_queue_fetch`, keyed by `album`, and consumed when the
     /// `DataAction::TracksLoaded` reply lands.
@@ -174,14 +174,14 @@ pub enum NetEffect {
         album: ItemId,
     },
     /// Pressing `a`/`A` on an Artist row — "every track by that artist"
-    /// (`discography::artist_tracks`, `docs/03-emby-api.md` §4). Both keys are identical: there is
+    /// (`discography::artist_tracks`). Both keys are identical: there is
     /// nothing to filter for an artist's own full track list.
     FetchArtistTracksForQueue {
         artist: ItemId,
     },
     /// `Enter`/`a`/`A` on a Genre row — every track in it. Genres were refused outright with a
     /// toast on the grounds that one can span tens of thousands of tracks, but a user queueing a
-    /// genre deliberately is asking for exactly that (`docs/12-decisions.md`). Carries the genre
+    /// genre deliberately is asking for exactly that. Carries the genre
     /// name, since Emby filters genres by name rather than id.
     FetchGenreTracksForQueue {
         genre: String,
@@ -196,7 +196,7 @@ pub enum NetEffect {
     /// Pressing `a`/`A`/`Enter` on a Playlist row directly in the Playlists tab's own top-level
     /// list (not yet drilled into its tracks) — a real gap found in the field: every other
     /// container row type (`Album`/`Artist`/`Folder`) already queues this way, but `Playlist` had
-    /// no equivalent at all, so it silently queued nothing (`docs/12-decisions.md`). Reuses the
+    /// no equivalent at all, so it silently queued nothing. Reuses the
     /// exact same endpoint drilling into `ColumnKind::PlaylistTracks` already calls.
     FetchPlaylistTracksForQueue {
         playlist: PlaylistId,
@@ -261,7 +261,7 @@ pub enum NetEffect {
         size: ImageSize,
         tag: String,
     },
-    /// The connectivity probe (`docs/06-cache-and-offline.md` §6): `GET
+    /// The connectivity probe: `GET
     /// /System/Info/Public`, unauthenticated, on a jittered 5s-30s backoff while offline (plus
     /// immediately whenever the user takes an action needing the network) —
     /// `reducer::connectivity::maybe_probe`/`maybe_immediate_probe` emit it,
@@ -274,14 +274,14 @@ pub enum NetEffect {
     /// `url`/`headers` rather than using its own already-connected `EmbyClient`, since the whole
     /// point is testing a profile that might not match it at all. Also reused, unchanged, by
     /// "Save" itself — saving a profile always (re-)authenticates so the persisted
-    /// `user_id`/`access_token` are always freshly derived, never typed (`docs/12-decisions.md`).
+    /// `user_id`/`access_token` are always freshly derived, never typed.
     TestServerConnection {
         url: String,
         headers: BTreeMap<String, String>,
         /// Found the hard way against a real server: Emby's `AuthenticateByName` rejects a
         /// request with no `X-Emby-Authorization` identification header at all, even at login,
         /// before any access token exists — this is what that header's own `DeviceId=` field
-        /// needs (`docs/12-decisions.md`). The draft's own `device_id` (stamped immediately when
+        /// needs. The draft's own `device_id` (stamped immediately when
         /// the profile is created, never generated lazily) is what the caller always has on hand.
         device_id: String,
         username: String,
@@ -346,12 +346,12 @@ pub enum CacheEffect {
     AppendScrobble(PlaybackReport),
     DrainScrobbles,
     /// "removing any profile offers to delete its cached files and downloads" — deletes
-    /// every on-disk tracks/downloads entry scoped to this server id (`docs/06-cache-and-offline.md`
+    /// every on-disk tracks/downloads entry scoped to this server id (
     /// §1's own `tracks/<server_id>/...`/`downloads/<server_id>/...` layout already keys every
     /// path by server, so this is a directory-subtree removal, not a per-item walk through the
     /// rolling cache's or `Downloads`' own in-memory bookkeeping — safe precisely because the
     /// profile being removed is never the *active* one (removal is refused for that one,
-    /// `docs/12-decisions.md`), so nothing currently open on this run ever touches that subtree.
+    ///), so nothing currently open on this run ever touches that subtree.
     DeleteServerData(crate::model::ServerId),
     /// Settings → Interface → "clear saved session" — deletes the single unsuffixed
     /// `session.json` (never a per-server one; that scope is `DeleteServerData`'s job, tied to
@@ -377,11 +377,11 @@ pub enum SysEffect {
     /// session's own snapshot. Handled directly in `runtime::run` (like `SetMouseCapture`, ahead
     /// of the generic per-worker `dispatch::dispatch` fan-out): rebuilding the `EmbyClient` and
     /// respawning the network/cache workers needs `&mut Workers`/`&Paths`, neither of which any
-    /// worker's own channel has access to (`docs/12-decisions.md`).
+    /// worker's own channel has access to.
     ReconnectServer(crate::model::ServerId),
     /// "[d] Copy diagnostics" — the reducer builds the text (`reducer::settings::
     /// about_diagnostics_text`), redacting the access token and any custom header values; the
-    /// runtime writes it out via an OSC 52 terminal escape sequence (`docs/12-decisions.md`),
+    /// runtime writes it out via an OSC 52 terminal escape sequence,
     /// which needs no new dependency and, unlike an X11/Wayland clipboard crate, works over SSH —
     /// exactly the environment a terminal music client is most likely to be copying a bug report
     /// from.

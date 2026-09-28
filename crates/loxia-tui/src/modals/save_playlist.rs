@@ -96,7 +96,7 @@ pub fn render(f: &mut Frame, area: Rect, state: &AppState, theme: &Theme, _hits:
     }
 
     let is_new = *target == PlaylistTarget::New;
-    // summary, blank, target row, (name + description rows, only for New), blank, sort checkbox,
+    // Summary, blank, target row, (name + description rows, only for New), blank, sort checkbox,
     // (error row, only when set), blank, footer — 7 rows always present, plus the conditional ones.
     let content_rows = 7 + if is_new { 2 } else { 0 } + usize::from(error.is_some());
     let width = MODAL_WIDTH.min(area.width).max(1);
@@ -116,7 +116,7 @@ pub fn render(f: &mut Frame, area: Rect, state: &AppState, theme: &Theme, _hits:
     let inner = block.inner(modal_area);
     // Wipe whatever the view underneath drew before painting the modal — a `Block` only paints its
     // border, so without this the canvas text showed *through* the modal body (seen in the field
-    // with the sort menu over Now Playing). `docs/12-decisions.md`.
+    // with the sort menu over Now Playing)..
     f.render_widget(ratatui::widgets::Clear, modal_area);
     f.render_widget(block, modal_area);
     if inner.width == 0 || inner.height == 0 {

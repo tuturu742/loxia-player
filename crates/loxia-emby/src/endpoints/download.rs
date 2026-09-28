@@ -1,5 +1,5 @@
 //! Streams a track's audio bytes straight to disk, resumable via HTTP `Range`
-//! (`docs/06-cache-and-offline.md` §§4-5) — shared by the rolling cache's background fetch and
+//! shared by the rolling cache's background fetch and
 //! permanent downloads.
 
 use std::path::Path;
@@ -18,7 +18,7 @@ use crate::stream::StreamUrl;
 /// Fetches `url` to `dest`, resuming from `dest`'s own current size (an HTTP `Range` request) if
 /// it already exists — a prior attempt's partial file, or `dest` itself passed in as `<final>.part`
 /// mid-download. Checked against `cancel` between chunks, so a caller can stop an in-progress
-/// fetch the moment it's no longer relevant (`docs/06-cache-and-offline.md` §4: "a user skipping
+/// fetch the moment it's no longer relevant ("a user skipping
 /// quickly through an album should not queue up twenty downloads") — a cancellation returns
 /// `Ok` with however many bytes had already landed, **not** an error, since stopping on purpose
 /// isn't a failure.

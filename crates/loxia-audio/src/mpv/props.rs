@@ -1,4 +1,4 @@
-//! Typed mpv property/option name constants (`docs/05-audio-engine.md` §3). No string literal for
+//! Typed mpv property/option name constants. No string literal for
 //! an mpv property or option may appear anywhere else in this crate — a typo in one is a silent
 //! no-op that is very hard to find; `property_names_are_centralised` (in `handle.rs`) greps the
 //! rest of the crate to enforce this.
@@ -22,12 +22,11 @@ pub const OPT_VOLUME_MAX: &str = "volume-max";
 pub const OPT_USER_AGENT: &str = "user-agent";
 /// mpv's youtube-dl/yt-dlp hook. Off: this plays files from a media server, never a video site, and
 /// leaving it on means any URL mpv cannot parse — an HTML error page from a proxy, say — triggers a
-/// youtube-dl subprocess whose failure buries the real cause under `ytdl_hook` noise
-/// (`docs/12-decisions.md`).
+/// youtube-dl subprocess whose failure buries the real cause under `ytdl_hook` noise.
 pub const OPT_YTDL: &str = "ytdl";
 /// Options passed through to libavformat's stream (protocol) layer — used to turn on ffmpeg's HTTP
 /// auto-reconnect so a long pause (which lets the server drop the idle connection) can resume
-/// instead of dying (`docs/05-audio-engine.md` §3, `docs/12-decisions.md`).
+/// instead of dying.
 pub const OPT_STREAM_LAVF_O: &str = "stream-lavf-o";
 /// Never set by production code — mpv auto-selects the real output. Only the `mpv-tests` suite
 /// forces this, to `"null"`, for deterministic hardware-independent playback timing.
@@ -43,7 +42,7 @@ pub const PROP_PAUSE: &str = "pause";
 pub const PROP_VOLUME: &str = "volume";
 pub const PROP_MUTE: &str = "mute";
 pub const PROP_AUDIO_DEVICE: &str = "audio-device";
-/// `docs/05-audio-engine.md` §5 — the equalizer's own `anequalizer` chain is installed
+/// The equalizer's own `anequalizer` chain is installed
 /// and updated by resetting this property (`mpv::filters::apply`/`clear`).
 pub const PROP_AF: &str = "af";
 pub const PROP_TIME_POS: &str = "time-pos";
@@ -63,9 +62,9 @@ pub const PROP_AUDIO_BITRATE: &str = "audio-bitrate";
 pub const PROP_AUDIO_CODEC_NAME: &str = "audio-codec-name";
 /// Also an mpv `Node` (an array of maps) — same limitation as `audio-params` above. Not observed;
 /// `EnumerateDevices` reads it directly on demand (raw FFI, `handle::read_device_list`) instead
-/// of through the observe/event mechanism. See `docs/12-decisions.md`.
+/// of through the observe/event mechanism.
 pub const PROP_AUDIO_DEVICE_LIST: &str = "audio-device-list";
-/// `demuxer-cache-state` (`docs/05-audio-engine.md` §3's own name) is *also* a `Node` (cache
+/// `demuxer-cache-state` (its own name) is *also* a `Node` (cache
 /// ranges, durations, ...) with no plain percentage in it directly — `cache-buffering-state`, a
 /// separate plain `Int64` property mpv already computes (0-100), is what `AudioEvent::Buffering`
 /// actually needs and is used instead. Verified against a real running mpv (`mpv-tests`
@@ -77,9 +76,9 @@ pub const PROP_PATH: &str = "path";
 pub const PROP_PLAYLIST_POS: &str = "playlist-pos";
 
 /// Every property the event pump actually installs an `observe_property` call for.
-/// `docs/05-audio-engine.md` §3's own list names `audio-params` and `audio-device-list` directly;
+/// the list names `audio-params` and `audio-device-list` directly;
 /// both are `Node`-typed and unobservable through this binding (see their own doc comments above)
-/// — replaced with `audio-params`'s three observable sub-fields plus `audio-codec-name` (needed
+/// replaced with `audio-params`'s three observable sub-fields plus `audio-codec-name` (needed
 /// for `Format`'s codec field, per §2, but missing from §3's own list entirely), and
 /// `cache-buffering-state` in place of the also-`Node` `demuxer-cache-state`.
 pub const OBSERVED_PROPERTIES: &[&str] = &[

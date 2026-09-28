@@ -1,5 +1,5 @@
 //! Reducer: navigation. Handles `Action::Nav`, `Action::Select`, and the column-loading half of
-//! `Action::Data` (`docs/04-state-and-input.md` §4).
+//! `Action::Data`.
 
 use crate::action::{DataAction, LoadTarget, NavAction, SelectAction};
 use crate::effect::{Effect, NetEffect};
@@ -14,7 +14,7 @@ use crate::state::toast::ToastLevel;
 /// Rows kept visible above/below the cursor when recomputing `scroll_offset`.
 const SCROLL_MARGIN: usize = 2;
 
-/// `docs/07-ui-spec.md` §9: typing resets the debounce deadline to `state.clock + 250ms` —
+/// Typing resets the debounce deadline to `state.clock + 250ms` —
 /// `state.clock` (the last `Tick`'s timestamp), never a live clock read, per the reducer's own
 /// no-time-reads rule.
 const SEARCH_DEBOUNCE_MS: i64 = 250;
@@ -24,7 +24,7 @@ const SEARCH_MIN_QUERY_LEN: usize = 2;
 const SEARCH_LIMIT: usize = 50;
 
 /// Placeholder pending real viewport-height communication from the render layer — see
-/// `docs/12-decisions.md`. `HalfPageUp`/`HalfPageDown` already carry a real `n` from the caller;
+///. `HalfPageUp`/`HalfPageDown` already carry a real `n` from the caller;
 /// plain `scroll_offset` margin-keeping for `MoveUp`/`MoveDown` has no such input yet.
 pub(crate) const ASSUMED_VIEWPORT_ROWS: usize = 20;
 
@@ -97,7 +97,7 @@ fn focus_column_at(state: &mut AppState, column: usize, index: usize) -> Vec<Eff
 /// whatever row is on screen, header included, but `nav_right`'s own `unreachable!("section
 /// headers are never selectable")` means the cursor must never actually land on one — every other
 /// cursor-setter (`move_cursor`) already enforces this by construction; this is `FocusColumnAt`'s
-/// own version of the same invariant. See `docs/12-decisions.md`.
+/// own version of the same invariant.
 fn nearest_selectable(column: &Column, target: usize) -> usize {
     let selectable: Vec<usize> = column.selectable_indices().collect();
     selectable
@@ -127,7 +127,7 @@ fn scroll_column(state: &mut AppState, column: usize, delta: i32) -> Vec<Effect>
     state.touch();
     // The wheel has to pull pages exactly as `j`/`↓` do. Without this the cursor walked to the end
     // of the loaded page and stopped there for good, so a long list "wouldn't scroll past the
-    // first pagination" by mouse while the keyboard went all the way (`docs/12-decisions.md`).
+    // first pagination" by mouse while the keyboard went all the way.
     // Keyed to the scrolled column, not the focused one — scrolling still never moves focus.
     pagination_trigger_at(state, column)
 }
@@ -149,7 +149,7 @@ fn focus_queue_entry(state: &mut AppState, id: crate::model::QueueEntryId) -> Ve
     state.now_playing_user_scrolled = true;
     // `now_playing_scroll` is deliberately left alone: the row was under the pointer, so it is
     // already on screen, and moving the view would slide it out from under the second click of a
-    // double-click (`docs/12-decisions.md`).
+    // double-click.
     state.touch();
     Vec::new()
 }
@@ -248,7 +248,7 @@ pub fn apply_data(state: &mut AppState, action: DataAction) -> Vec<Effect> {
         }
         // There is still no decoded-image state on `AppState` to update (the decoded
         // image itself lives entirely on the `loxia-tui`/worker side, never in `loxia-core` —
-        // `docs/12-decisions.md`), but a redraw is genuinely needed now that one is ready, so this
+        //), but a redraw is genuinely needed now that one is ready, so this
         // is no longer a bare no-op.
         DataAction::ImageLoaded { .. } => {
             state.touch();
@@ -256,8 +256,7 @@ pub fn apply_data(state: &mut AppState, action: DataAction) -> Vec<Effect> {
         }
         // Previously a no-op alongside `ImageLoaded`: the picker fired
         // `EnumerateDevices` on open but had nowhere for the reply to land, so it would have shown
-        // nothing, forever. Also backs the Settings tab's own output-device dropdown
-        // (`docs/12-decisions.md`).
+        // nothing, forever. Also backs the Settings tab's own output-device dropdown.
         DataAction::DevicesLoaded { devices } => {
             state.player.known_devices = devices.clone();
             if let Some(Modal::DevicePicker {
@@ -317,13 +316,13 @@ pub fn apply_data(state: &mut AppState, action: DataAction) -> Vec<Effect> {
 }
 
 /// `↑`/`↓` (and `j`/`k`) either switch sidebar tabs or move within the focused content, depending
-/// on where focus is (`docs/12-decisions.md`):
+/// on where focus is:
 ///
-/// - On the tab sidebar — `focus == NavFocus::Sidebar` for a Miller tab, or `nav.sidebar_focused`
+/// On the tab sidebar — `focus == NavFocus::Sidebar` for a Miller tab, or `nav.sidebar_focused`
 ///   for `Search`/`NowPlaying` (which have no column stack to hang `NavFocus::Sidebar` off) — they
 ///   switch tabs. A user coming from almost any other TUI reasonably expects the arrow keys to move
 ///   over "the tab list."
-/// - Otherwise they move within the content: the focused Miller column, the flat search results, or
+/// Otherwise they move within the content: the focused Miller column, the flat search results, or
 ///   the Now Playing queue/history.
 fn move_focused(state: &mut AppState, delta: isize) -> Vec<Effect> {
     if state.nav.active_tab == Tab::Search {
@@ -344,7 +343,7 @@ fn move_focused(state: &mut AppState, delta: isize) -> Vec<Effect> {
     // here, so it fell through to the `NavFocus::Sidebar` case below (its stack is empty, so that
     // is always what `nav.focus` holds) and `↑`/`↓` switched sidebar tabs instead of moving through
     // the favourites. There was no way to put the cursor on a row at all, which is what a live user
-    // reported as "I can't select anything from favourites" (`docs/12-decisions.md`).
+    // reported as "I can't select anything from favourites".
     if state.nav.active_tab == Tab::Favourites {
         return if state.nav.sidebar_focused {
             switch_tab(state, delta)
@@ -444,7 +443,7 @@ fn keep_now_playing_cursor_visible(state: &mut AppState, count: usize) {
 }
 
 /// `j`/`k` (and half-page) over the Search tab's results, treated as **one flat list** across all
-/// three sections in `Artists`/`Albums`/`Tracks` order (`docs/12-decisions.md`). Previously this
+/// three sections in `Artists`/`Albums`/`Tracks` order. Previously this
 /// moved only *within* the one focused section and did nothing at all while the query line was
 /// focused — so a search returning a single artist plus some albums/songs left the user stuck on
 /// that lone artist with no way to reach the rest except `Tab`, which read as "arrows don't work."
@@ -554,11 +553,11 @@ enum SectionStep {
 
 /// Treats the three sections of a `SearchResults` as one flat list in display order and steps
 /// `delta` rows through it, skipping empty sections. Shared by the two tabs built on that shape so
-/// they cannot drift apart (`docs/12-decisions.md`).
+/// they cannot drift apart.
 ///
 /// `saturating_sub` on the focused section's own count, not `- 1`: a `focused_section` holding no
 /// results is not in `sections` at all, and the plain subtraction underflowed — a panic the reducer
-/// is not allowed to have (`docs/04-state-and-input.md` §4 rule 1) even though nothing currently
+/// is not allowed to have even though nothing currently
 /// reaches it.
 fn step_sectioned_cursor(
     results: &SearchResults,
@@ -621,7 +620,7 @@ const PAGINATION_LOOKAHEAD: usize = 50;
 /// but one that always re-fetches the *entire* list regardless of the requested page — the reply
 /// came back reporting `page: 1`, and `items_loaded`'s "page 0 replaces, page > 0 appends" rule then
 /// appended that same full list a second time onto the column already showing it, doubling every
-/// playlist on screen. See `docs/12-decisions.md`.
+/// playlist on screen.
 fn column_kind_paginates(kind: &ColumnKind) -> bool {
     matches!(
         kind,
@@ -632,7 +631,7 @@ fn column_kind_paginates(kind: &ColumnKind) -> bool {
             | ColumnKind::GenreArtists { .. }
             // Only a real folder's children paginate; the Folders *root* is the (single-shot,
             // never-paginated) list of music libraries — treating it as paginated would double it
-            // the same way the Playlists column once doubled (`docs/12-decisions.md`).
+            // the same way the Playlists column once doubled.
             | ColumnKind::Folders { of_parent: Some(_) }
     )
 }
@@ -640,8 +639,7 @@ fn column_kind_paginates(kind: &ColumnKind) -> bool {
 /// `docs`'s own trigger condition, `column.page_loaded * PAGE_SIZE < total`, is followed exactly
 /// as given even though it re-fires once more than strictly necessary at the very end of a fully
 /// loaded list (e.g. once `page_loaded * 200 >= total` never becomes false-then-true again, a
-/// server that returns zero items for the extra request is harmless, just slightly wasteful) —
-/// see `docs/12-decisions.md`.
+/// server that returns zero items for the extra request is harmless, just slightly wasteful) —.
 fn pagination_trigger(state: &mut AppState) -> Vec<Effect> {
     let NavFocus::Column(depth) = state.nav.focus else {
         return Vec::new();
@@ -784,7 +782,7 @@ fn nav_right(state: &mut AppState) -> Vec<Effect> {
 /// list** (Artists / Albums) at depth 0, and the drilled result's column on top of it. A live user
 /// found the old behaviour — a single-column stack with just the drilled result — a dead end: after
 /// drilling into a search artist they were on the Artists tab showing only that one artist's albums,
-/// with no way left to browse any other artist (`docs/12-decisions.md`). Seeding the root beneath it
+/// with no way left to browse any other artist. Seeding the root beneath it
 /// means `←` steps back to a normal, browsable list. Drilling a `Track` result is a no-op: a track
 /// has no discography to hand off to, exactly like drilling a `Track` row in a Miller column already
 /// is (`drill_into_track_is_a_noop`).
@@ -982,7 +980,7 @@ fn drill_right(state: &mut AppState) -> Vec<Effect> {
         // land the cursor on a header despite this invariant (fixed at the source, see their own
         // `nearest_selectable` calls), but the reducer must never crash the whole process over an
         // input-shape assumption elsewhere turning out wrong — nothing to drill into, same as a
-        // `Track`, is the correct behaviour regardless (`docs/12-decisions.md`).
+        // `Track`, is the correct behaviour regardless.
         MediaItem::SectionHeader(_) => return Vec::new(),
     };
 
@@ -1066,7 +1064,7 @@ fn seed_column_for_tab(tab: Tab) -> Option<(ColumnKind, String)> {
             "Folders".to_string(),
         )),
         Tab::Playlists => Some((ColumnKind::Playlists, "Playlists".to_string())),
-        // Dedicated views, not generic Miller-column browsers (docs/01-architecture.md §3.5).
+        // Dedicated views, not generic Miller-column browsers.
         Tab::NowPlaying | Tab::Favourites | Tab::Search | Tab::Settings => None,
     }
 }
@@ -1082,7 +1080,7 @@ pub(crate) fn set_tab(state: &mut AppState, tab: Tab) -> Vec<Effect> {
     }
     // A selection does not survive leaving its tab. It is a transient mode, not a property of the
     // list, and one left behind reappeared — count and all — on returning, with no memory of having
-    // made it (`docs/12-decisions.md`).
+    // made it.
     if let Some(column) = state.active_column_mut() {
         column.selection.visual_mode = false;
         column.selection.selected.clear();
@@ -1125,14 +1123,14 @@ pub(crate) fn set_tab(state: &mut AppState, tab: Tab) -> Vec<Effect> {
     state.settings.section_list_focused = false;
     recompute_window(state);
 
-    // "The query line is focused on tab entry" (`docs/07-ui-spec.md` §9) — every switch *onto*
+    // "The query line is focused on tab entry" — every switch *onto*
     // Search re-focuses it, even on a return visit whose results/cursors are otherwise preserved
     // untouched (matching every other tab's own "stack preserved" convention above).
     if tab == Tab::Search {
         state.search.query_focused = true;
     }
 
-    // Loaded on first tab entry only (`docs/07-ui-spec.md` §9) — `LoadState::Idle` is the same
+    // Loaded on first tab entry only — `LoadState::Idle` is the same
     // "never fetched yet" signal `seed_column_for_tab`'s own vacant-entry check uses for Miller
     // columns; Favourites has no column of its own to key that off, so this checks the load
     // state directly instead. A return visit leaves whatever's already loaded untouched; `Ctrl+R`
@@ -1147,7 +1145,7 @@ pub(crate) fn set_tab(state: &mut AppState, tab: Tab) -> Vec<Effect> {
 }
 
 /// On the Search tab, once the query line has been left (`Enter`), `Tab`/`Shift+Tab` cycle result
-/// sections instead of switching sidebar tabs — `docs/07-ui-spec.md` §9's own text for `search.rs`
+/// sections instead of switching sidebar tabs — the text for `search.rs`
 /// ("`Tab` cycles sections") overrides the global `NextTab`/`PrevTab` binding in that one context.
 fn next_tab(state: &mut AppState) -> Vec<Effect> {
     if state.nav.active_tab == Tab::Search
@@ -1187,7 +1185,7 @@ fn prev_tab(state: &mut AppState) -> Vec<Effect> {
 /// Landing on a section with nothing in it is a dead stop, and Search gained a permanently empty
 /// one when `SearchSection::Playlists` was added for the Favourites tab (Search does not query
 /// playlists). Skipping is the honest rule for both: a section with no results is not somewhere a
-/// user can be (`docs/12-decisions.md`).
+/// user can be.
 ///
 /// With *every* section empty there is nowhere to go, so focus stays put rather than cycling
 /// through four equally empty headings.
@@ -1207,7 +1205,7 @@ fn cycle_search_section(state: &mut AppState, delta: isize) {
 
 /// `g a`: open the playing track's own artist, not merely the Artists tab. It used to do the
 /// latter — land on the tab's plain artist list and leave the user to find the artist by hand,
-/// which is not what "go to artist" means (`docs/12-decisions.md`). Reuses the same two-level
+/// which is not what "go to artist" means. Reuses the same two-level
 /// stack a search drill-down builds, so `←` still steps back into a browsable list.
 ///
 /// The track's *first* artist is the destination when it credits several: it is the one the UI
@@ -1241,10 +1239,10 @@ fn go_to_album(state: &mut AppState) -> Vec<Effect> {
 }
 
 /// `/` always resets to an empty needle and (re-)enters editing, even if a filter was already
-/// committed — `docs/07-ui-spec.md` §5 literally says "sets
+/// committed — literally says "sets
 /// `column.filter = Some(String::new())`", not "resume the previous query".
 /// `/` — for a Miller column, opens the inline filter; for the Search tab, returns focus to the
-/// query line (`docs/07-ui-spec.md` §9: "`/` returns to the query line").
+/// query line ("`/` returns to the query line").
 fn open_filter(state: &mut AppState) -> Vec<Effect> {
     if state.nav.active_tab == Tab::Search {
         state.search.query_focused = true;
@@ -1274,7 +1272,7 @@ fn set_filter(state: &mut AppState, text: String) -> Vec<Effect> {
         state.touch();
     }
     // The inline filter only ever matched against rows *already paginated in*, so a band near the
-    // end of a long Artists list simply never appeared (`docs/12-decisions.md`). Applying a filter
+    // end of a long Artists list simply never appeared. Applying a filter
     // now pulls the next page too; `items_loaded` keeps pulling further pages while the filter
     // stays active, so the whole list is progressively searched.
     load_next_page_for_filter(state)
@@ -1317,7 +1315,7 @@ fn load_next_page_for_filter(state: &AppState) -> Vec<Effect> {
     })]
 }
 
-/// Typing into the Search tab's query line resets the debounce deadline (`docs/07-ui-spec.md`
+/// Typing into the Search tab's query line resets the debounce deadline (
 /// §9) — `state.clock` (the last `Tick`'s timestamp), never a live clock read.
 fn search_set_query(state: &mut AppState, text: String) -> Vec<Effect> {
     state.search.query = text;
@@ -1362,8 +1360,7 @@ fn filter_backspace(state: &mut AppState) -> Vec<Effect> {
 
 /// `Enter` while editing the inline filter: keeps `filter`'s text but leaves `filter_editing`, so
 /// `InputContext` reverts to `Normal` and ordinary navigation resumes over the still-narrowed
-/// list. On the Search tab: leaves the query line and focuses the first non-empty section
-/// (`docs/07-ui-spec.md` §9).
+/// list. On the Search tab: leaves the query line and focuses the first non-empty section.
 fn commit_filter(state: &mut AppState) -> Vec<Effect> {
     if state.nav.active_tab == Tab::Search {
         if state.search.query_focused {
@@ -1401,7 +1398,7 @@ fn cancel(state: &mut AppState) -> Vec<Effect> {
         // only the *mode*: the checkboxes go with it (`widgets::column` draws them only in visual
         // mode), so the rows stayed selected while nothing on screen said so — the inspector kept
         // counting them and `Enter`/`a`/`i` kept acting on all of them. Reported as "when you close
-        // selection it still says how many items were selected" (`docs/12-decisions.md`).
+        // selection it still says how many items were selected".
         if column.selection.visual_mode || !column.selection.selected.is_empty() {
             column.selection.visual_mode = false;
             column.selection.selected.clear();
@@ -1426,7 +1423,7 @@ fn toggle_visual_mode(state: &mut AppState) -> Vec<Effect> {
 /// A visual selection holds **one kind of row at a time**. A column can mix kinds (a Folders
 /// column lists folders and tracks together), and a selection spanning both behaved unpredictably
 /// enough that a user asked for it to be disallowed outright rather than made to work
-/// (`docs/12-decisions.md`). The first selected row fixes the kind; a row of any other kind is
+///. The first selected row fixes the kind; a row of any other kind is
 /// refused with a toast rather than silently ignored or silently clearing what is already selected.
 fn toggle_item(state: &mut AppState) -> Vec<Effect> {
     let Some(item) = state.selected_item().cloned() else {
@@ -1557,7 +1554,7 @@ fn items_loaded(
     // guard deregisters a key *before* its reply reaches the reducer, so a second request issued in
     // that window escapes coalescing and fetches the same page again. A user filtering for an
     // artist saw them listed twice, and the duplicate vanished as soon as a later page-0 reply
-    // rebuilt the list (`docs/12-decisions.md`).
+    // rebuilt the list.
     //
     // Only ever `page_loaded + 1` is requested, so any `page` at or below it has been applied
     // already. Page 0 is exempt: it *replaces* rather than appends, and is how a refresh works.
@@ -1589,7 +1586,7 @@ fn items_loaded(
     // A real crash found in the field: a bare `.min(len - 1)` only keeps the cursor in bounds, not
     // off a `SectionHeader` — `nearest_selectable` (already relied on by `focus_column_at` for the
     // identical reason) is what every cursor-setter actually needs, not just the ones a click can
-    // reach (`docs/12-decisions.md`).
+    // reach.
     column.cursor = nearest_selectable(
         column,
         column.cursor.min(column.items.len().saturating_sub(1)),
@@ -1630,7 +1627,7 @@ fn discography_loaded(
     };
     let total = primary.len() + appears_on.len();
     let mut items: Vec<MediaItem> = Vec::with_capacity(total + 2);
-    // `docs/03-emby-api.md` §4: both sections get a header; either is omitted entirely (not
+    // Both sections get a header; either is omitted entirely (not
     // rendered as an empty header) when its own count is zero.
     if !primary.is_empty() {
         items.push(MediaItem::SectionHeader(SectionHeader {
@@ -1653,7 +1650,7 @@ fn discography_loaded(
     // Same real crash as `items_loaded`'s identical fix: this column's own first row is a
     // `SectionHeader` ("ALBUMS") whenever there's at least one primary album — a bare
     // `.min(len - 1)` left `cursor` (still `0` from `Column::new`, untouched by any real
-    // navigation yet) resting squarely on it (`docs/12-decisions.md`).
+    // navigation yet) resting squarely on it.
     column.cursor = nearest_selectable(
         column,
         column.cursor.min(column.items.len().saturating_sub(1)),
@@ -1714,7 +1711,7 @@ pub(crate) fn refresh_favourites(state: &mut AppState) -> Vec<Effect> {
 /// no longer the one currently playing (the fetch can easily outlive a fast skip past it), the
 /// same shape `stale_search_reply_is_discarded` already established for Search. `lyrics.rs`'s own
 /// `fetch` never actually returns an `Err` (a fetch failure degrades to `Lyrics::Unsynced(vec![])`
-/// — lyrics are cosmetic and never worth a user-visible error, `docs/03-emby-api.md` §7), so
+/// lyrics are cosmetic and never worth a user-visible error), so
 /// there is no failure branch to handle here at all; the widget itself treats an empty result
 /// exactly like "no lyrics" and hides the pane.
 /// Stores the reply **unconditionally**, keyed by the track it is for.
@@ -1724,7 +1721,7 @@ pub(crate) fn refresh_favourites(state: &mut AppState) -> Vec<Effect> {
 /// stored id (`state.lyrics.filter(|(id, _)| *id == entry.track.id)`), so a reply for a track the
 /// user has skipped past is ignored at render time anyway, while *any* mismatch here — however it
 /// arises — threw away a perfectly good fetch and left the pane on "loading lyrics…" for good, with
-/// a successful fetch in the logs and nothing on screen to match it (`docs/12-decisions.md`).
+/// a successful fetch in the logs and nothing on screen to match it.
 fn lyrics_loaded(state: &mut AppState, track: ItemId, lyrics: crate::model::Lyrics) -> Vec<Effect> {
     // A new set of lyrics starts at the top; keeping the previous track's offset would open
     // mid-song, or past the end of a shorter lyric.
@@ -1734,7 +1731,7 @@ fn lyrics_loaded(state: &mut AppState, track: ItemId, lyrics: crate::model::Lyri
     Vec::new()
 }
 
-/// `Tick`'s half of the debounce (`docs/07-ui-spec.md` §9, `docs/04-state-and-input.md` §9 rule
+/// `Tick`'s half of the debounce ( rule
 /// 5-adjacent — search shares the same "periodic reducer-driven work" home as the progress report
 /// and toast expiry, called from `reducer::mod`'s own `tick` alongside them).
 pub(crate) fn maybe_fire_search(state: &mut AppState) -> Vec<Effect> {
@@ -2079,7 +2076,7 @@ mod tests {
     /// The wheel over the Now Playing pane scrolls the pane itself, and — like `ScrollColumn` —
     /// targets what is under the pointer rather than what holds focus. With focus parked on the
     /// tab sidebar a plain `MoveDown` would switch tabs instead, which is not what a wheel over
-    /// the queue means (`docs/12-decisions.md`).
+    /// the queue means.
     #[test]
     fn scroll_now_playing_moves_the_pane_cursor_even_from_the_sidebar() {
         let mut state = fixtures::fixture_playing_queue();
@@ -2116,7 +2113,7 @@ mod tests {
     }
 
     /// `g a` used to only switch to the Artists tab, dropping the user on a plain alphabetical
-    /// list with the playing artist still to be found by hand (`docs/12-decisions.md`). It must
+    /// list with the playing artist still to be found by hand. It must
     /// land *on* that artist's albums, with the root list beneath so `←` still browses.
     #[test]
     fn go_to_artist_opens_the_playing_artists_albums() {
@@ -2344,7 +2341,7 @@ mod tests {
         // Real bug: arrow keys did nothing at all while focus was on the sidebar (e.g. right after
         // popping out of the last column, or on any tab with no Miller column of its own) — only
         // `Tab`/`Shift+Tab` could switch tabs, which a user coming from almost any other TUI
-        // reasonably didn't expect (`docs/12-decisions.md`).
+        // reasonably didn't expect.
         let mut state = fixtures::fixture_empty();
         state.nav.active_tab = Tab::Artists;
         state.nav.focus = NavFocus::Sidebar;
@@ -2452,7 +2449,7 @@ mod tests {
     }
 
     /// The reply is stored whatever the queue is doing — discarding it on a track mismatch threw
-    /// away a successful fetch and stranded the pane on "loading lyrics…" (`docs/12-decisions.md`).
+    /// away a successful fetch and stranded the pane on "loading lyrics…".
     /// `widgets::lyrics` filters on the stored id, so a genuinely stale reply is still never shown.
     #[test]
     fn lyrics_are_stored_even_if_the_current_entry_has_moved_on() {
@@ -2592,7 +2589,7 @@ mod tests {
     /// `Esc` used to turn off visual mode and leave the rows selected. The checkboxes go with the
     /// mode (`widgets::column` draws them only in visual mode), so the selection became invisible
     /// while the inspector still counted it and every queue key still acted on it — "when you close
-    /// selection it still says how many items were selected" (`docs/12-decisions.md`).
+    /// selection it still says how many items were selected".
     #[test]
     fn escaping_a_selection_clears_it_in_one_press() {
         let mut state = focus_column(fixtures::fixture_visual_select(), Tab::Artists, 0);
@@ -2967,8 +2964,7 @@ mod tests {
 
     /// Reported in the field as "the artists page doesn't scroll past the first pagination". The
     /// keyboard path pulls pages (`move_focused` -> `pagination_trigger`); the wheel returned no
-    /// effects at all, so it walked to the end of the loaded page and stopped there permanently
-    /// (`docs/12-decisions.md`).
+    /// effects at all, so it walked to the end of the loaded page and stopped there permanently.
     #[test]
     fn scrolling_with_the_wheel_pulls_the_next_page() {
         let state = artists_column_loaded(500, 0, 160);
@@ -3036,7 +3032,7 @@ mod tests {
     /// disappeared once scrolling pulled a further page. Two paths independently request
     /// `page_loaded + 1` (cursor proximity and the active filter), and the worker's in-flight guard
     /// frees a key before its reply is applied — so the same page can be fetched twice and appended
-    /// twice (`docs/12-decisions.md`).
+    /// twice.
     #[test]
     fn a_page_delivered_twice_is_only_applied_once() {
         let mut state = artists_column_loaded(500, 0, 0);
@@ -3164,7 +3160,7 @@ mod tests {
         // trigger `FetchColumn { page: 1 }` as soon as the cursor was within 50 of the end (true for
         // almost any real playlist count) — the worker's `Playlists` handler always re-fetches the
         // *whole* list regardless of the page it's asked for, so this doubled every playlist on
-        // screen once the reply came back reporting `page: 1` (`docs/12-decisions.md`).
+        // screen once the reply came back reporting `page: 1`.
         let mut state = focus_column(fixtures::fixture_empty(), Tab::Playlists, 0);
         let mut column = Column::new(ColumnKind::Playlists, "Playlists");
         column.items = (0..5)
@@ -3196,7 +3192,7 @@ mod tests {
     fn pagination_never_triggers_for_a_discography_albums_column() {
         // Same bug, the other shape: an `Albums { of_artist: Some(_) }` column (loaded via
         // `FetchDiscography`, never `FetchColumn`) has no `page_loaded` tracking of its own — this
-        // used to fire a `FetchColumn` the worker just logs and drops (`docs/12-decisions.md`).
+        // used to fire a `FetchColumn` the worker just logs and drops.
         let a = fixtures::artist("Boy Harsher");
         let mut state = focus_column(fixtures::fixture_empty(), Tab::Artists, 0);
         let mut column = Column::new(
@@ -3609,7 +3605,7 @@ mod tests {
     /// The Favourites tab is sectioned like Search, but `move_focused` had no branch for it — so
     /// `nav.focus` (always `Sidebar`, since the tab has no column stack) sent `↑`/`↓` to
     /// `switch_tab` and the cursor could never be put on a favourite at all. A live user reported
-    /// it as "I can't select anything from favourites" (`docs/12-decisions.md`).
+    /// it as "I can't select anything from favourites".
     #[test]
     fn arrows_move_through_favourites_instead_of_switching_tabs() {
         let artist = artist("Sync24");
@@ -4110,8 +4106,7 @@ mod tests {
     #[test]
     fn folders_root_is_the_library_list_and_never_paginates() {
         // The Folders root lists music libraries (a handful, one shot) — it must not fire a
-        // `page: 1` fetch the way a real directory does, or the libraries would double
-        // (`docs/12-decisions.md`).
+        // `page: 1` fetch the way a real directory does, or the libraries would double.
         let mut state = focus_column(fixtures::fixture_empty(), Tab::Folders, 0);
         let mut column = Column::new(ColumnKind::Folders { of_parent: None }, "Folders");
         column.items = (0..3)

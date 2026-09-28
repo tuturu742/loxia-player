@@ -17,7 +17,7 @@ use crate::style;
 const MODAL_WIDTH: u16 = 78;
 /// The dB-value label plus its tee/cross character, e.g. `" +12dB ┤"`.
 const GUTTER_WIDTH: u16 = 8;
-/// `docs/12-decisions.md` / the spec: "below 16 rows the ±6 dB gridlines are dropped
+/// / the spec: "below 16 rows the ±6 dB gridlines are dropped
 /// before the bars are" — this is the "16" the spec names, checked against the *available* area,
 /// not the modal's own (content-driven) height.
 const REDUCED_GRID_HEIGHT: u16 = 16;
@@ -137,7 +137,7 @@ pub fn render(f: &mut Frame, area: Rect, state: &AppState, theme: &Theme, hits: 
     let inner = block.inner(modal_area);
     // Wipe whatever the view underneath drew before painting the modal — a `Block` only paints its
     // border, so without this the canvas text showed *through* the modal body (seen in the field
-    // with the sort menu over Now Playing). `docs/12-decisions.md`.
+    // with the sort menu over Now Playing)..
     f.render_widget(ratatui::widgets::Clear, modal_area);
     f.render_widget(block, modal_area);
     if inner.width <= GUTTER_WIDTH || inner.height == 0 {
@@ -365,7 +365,7 @@ fn render_freq_row(
 /// Every key that *leaves* this modal is named, `Enter` above all. It used to read only
 /// "[Esc] Close" — and `Esc` **cancels**, restoring the gains from when the modal opened. So the
 /// single exit the footer advertised was the one that threw the edit away, and the equalizer
-/// looked like it had stopped working (`docs/12-decisions.md`).
+/// looked like it had stopped working.
 ///
 /// Hints are dropped from the front when the modal is too narrow, never truncated mid-word: the
 /// leading ones are the arrow keys, which a user will try anyway, while Apply/Cancel are the two
@@ -464,7 +464,7 @@ mod tests {
     }
 
     /// `Esc` cancels — the footer must never advertise it as the way to keep an edit, and `Enter`
-    /// must always be visible however narrow the modal gets (`docs/12-decisions.md`).
+    /// must always be visible however narrow the modal gets.
     #[test]
     fn the_footer_always_names_apply_and_cancel() {
         for width in [10, 20, 40, 60, 80, 200] {

@@ -1,4 +1,4 @@
-//! In-UI keybinding remapper (`docs/04-state-and-input.md` §7). Every row is generated
+//! In-UI keybinding remapper. Every row is generated
 //! from the live `KeyMap`, grouped by `HelpCategory` exactly like the help modal's own cheat
 //! sheet — this file reuses that module's per-action label table and declared category order
 //! directly (`crate::modals::help::{action_label, category_title, CATEGORY_ORDER}`) rather than
@@ -110,7 +110,7 @@ pub fn render(f: &mut Frame, area: Rect, state: &AppState, theme: &Theme, hits: 
     let inner = block.inner(modal_area);
     // Wipe whatever the view underneath drew before painting the modal — a `Block` only paints its
     // border, so without this the canvas text showed *through* the modal body (seen in the field
-    // with the sort menu over Now Playing). `docs/12-decisions.md`.
+    // with the sort menu over Now Playing)..
     f.render_widget(ratatui::widgets::Clear, modal_area);
     f.render_widget(block, modal_area);
     if inner.width == 0 || inner.height == 0 {
@@ -174,8 +174,7 @@ fn render_list(
     // visible window — `is_cursor` (below) then never matched `action_cursor` again for the rest
     // of the session, and `HitTarget::ModalField(this_index)` pointed a click at the wrong action
     // entirely. Seeding it with however many `Row::Action` entries precede `start` keeps it a true
-    // *global* action index throughout, matching `action_cursor`'s own numbering
-    // (`docs/12-decisions.md`).
+    // *global* action index throughout, matching `action_cursor`'s own numbering.
     let mut flat_action_index = rows[..start]
         .iter()
         .filter(|r| matches!(r, Row::Action(_)))

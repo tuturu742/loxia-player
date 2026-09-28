@@ -43,7 +43,7 @@ impl ConfigWarning {
 
 /// A config file failed to parse as TOML, or its structure didn't deserialize into `Config`. The
 /// underlying `toml` error is captured as a message only — `loxia-core` owns the `toml` dependency
-/// (`docs/13-dependencies.md`), so this type lets `loxia` (the binary) handle a parse failure
+///, so this type lets `loxia` (the binary) handle a parse failure
 /// without depending on `toml` itself.
 #[derive(Debug, Clone, thiserror::Error)]
 #[error("{0}")]
@@ -344,7 +344,7 @@ fn validate_log_level(cfg: &mut Config, warnings: &mut Vec<ConfigWarning>) {
 }
 
 /// A hand-rolled UUID v4 generator (RFC 4122) — `loxia-core` may not depend on the `uuid` crate
-/// (see `docs/13-dependencies.md`: only `loxia-emby` does), so this uses `rand` directly, which is
+/// (`: only `loxia-emby` does), so this uses `rand` directly, which is
 /// already an allowed dependency, and sets the version/variant bits manually. `pub(crate)`
 /// because the server-profile editor stamps a new profile's `device_id` immediately at creation
 /// time, rather than leaving it for `ensure_device_id`'s own lazy fill on the next `validate()` —

@@ -1,4 +1,4 @@
-//! `session.json` and `history.json` save/restore (`docs/06-cache-and-offline.md` §8).
+//! `session.json` and `history.json` save/restore.
 //!
 //! Server-id/config validation and applying a loaded snapshot onto `AppState` (schema-version
 //! checking aside, both need context this module deliberately doesn't have — `load`'s own given
@@ -17,14 +17,14 @@ use loxia_core::state::queue::HistoryEntry;
 use crate::error::CacheError;
 
 /// Bumped whenever `SessionSnapshot`'s own shape changes in a way that makes an old snapshot
-/// unsafe to deserialise as the new one (`docs/06-cache-and-offline.md` §8, step 1). A
+/// unsafe to deserialise as the new one (step 1). A
 /// re-export of `loxia_core::state::SESSION_SCHEMA_VERSION`, not a second copy — that crate's own
 /// server-switch reducer code needs to stamp a fresh `SessionSnapshot` itself and cannot depend on
 /// `loxia-cache` to borrow this constant, so the canonical value lives there instead; re-exporting
 /// it here keeps every existing caller of `session::SCHEMA_VERSION` unchanged.
 pub const SCHEMA_VERSION: u32 = loxia_core::state::SESSION_SCHEMA_VERSION;
 
-/// "A JSON array capped at 50, newest first" (`docs/06-cache-and-offline.md` §8).
+/// "A JSON array capped at 50, newest first".
 const HISTORY_CAP: usize = 50;
 
 /// Atomic write (`.tmp`, `fsync`, rename) to `paths.session_file()`.
@@ -59,7 +59,7 @@ pub fn delete(paths: &Paths) -> Result<(), CacheError> {
 
 /// `Ok(None)` for "nothing to restore" — no snapshot ever saved, a `schema_version` mismatch, or a
 /// corrupt file — all three are equally "start with an empty queue," never a hard error
-/// (`docs/06-cache-and-offline.md` §8: "losing a queue is annoying; failing to start is worse").
+/// ("losing a queue is annoying; failing to start is worse").
 /// A schema mismatch or corrupt parse quarantines the file to `session.json.bad`, logged with
 /// `warn!`; a missing file needs no quarantine, there being nothing to move.
 pub fn load(paths: &Paths) -> Result<Option<SessionSnapshot>, CacheError> {
@@ -102,8 +102,7 @@ fn load_from(path: &Path) -> Result<Option<SessionSnapshot>, CacheError> {
 
 /// Prepends `e` to `paths.history_file()`'s own array (newest first) and caps it at
 /// [`HISTORY_CAP`] — a full read-modify-write, unlike the scrobble buffer's line-oriented append,
-/// since history is a single bounded JSON array, not an unbounded append-only log
-/// (`docs/06-cache-and-offline.md` §8).
+/// since history is a single bounded JSON array, not an unbounded append-only log.
 pub fn append_history(paths: &Paths, e: &HistoryEntry) -> Result<(), CacheError> {
     let path = paths.history_file();
     let mut entries = read_history(&path);

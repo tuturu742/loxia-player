@@ -58,7 +58,7 @@ pub struct CacheStats {
     /// Total on-disk size of permanent downloads (`loxia_cache::downloads`) — distinct
     /// from `pinned_count`, which is only ever the number of entries. Read once at startup for the
     /// About view's "Downloads … (14.7 GB, 312 tracks)" line; this crate has no I/O of its own to
-    /// keep it live thereafter (`docs/12-decisions.md`).
+    /// keep it live thereafter.
     pub download_bytes: u64,
 }
 
@@ -98,7 +98,7 @@ impl Default for LibmpvStatus {
 /// and `loxia-core` cannot depend on `loxia-cache` to borrow its constant.
 pub const SESSION_SCHEMA_VERSION: u32 = 1;
 
-/// `session.json` (`docs/02-data-model.md` §9). Defined here because
+/// `session.json`. Defined here because
 /// `Action::System::SessionRestored` needs a concrete payload type, even though reading/writing
 /// the file is `loxia-cache`'s job.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -126,7 +126,7 @@ pub struct AppState {
     pub nav: NavState,
     pub queue: QueueState,
     /// Correlates a `FetchAlbumTracksForQueue` reply back to the `a`/`A` press that triggered it
-    /// — the effect itself is identical either way (`docs/03-emby-api.md` §4: filtering
+    /// the effect itself is identical either way (filtering
     /// happens client-side on the reply, never before the fetch), so the filter decision has
     /// nowhere else to survive the round trip. Keyed by album id so two rapid presses on different
     /// albums don't clobber each other; `None` means "queue everything" (Primary album, or `A` on
@@ -149,7 +149,7 @@ pub struct AppState {
     /// the current play, not persisted state.
     pub history_recorded_this_play: bool,
     /// Correlates an in-flight `Effect::Net(InstantMix)` reply back to the seed's display name
-    /// — `DataAction::TracksLoaded`'s `source: QueueSource::InstantMix { seed }` carries
+    /// `DataAction::TracksLoaded`'s `source: QueueSource::InstantMix { seed }` carries
     /// only the `ItemId`, not a name, and the toast on reply ("instant mix: N tracks from
     /// `<name>`" / "no instant mix available for `<name>`") needs one. `None` once no mix is
     /// in flight; consumed (taken) when the reply lands.
@@ -164,7 +164,7 @@ pub struct AppState {
     /// mirroring `SearchState::debounce_until`'s own shape; `reducer::tick` fires the actual
     /// `Effect::Sys(WriteConfig)` once this deadline passes. `None` while nothing is pending.
     /// Every *other* pre-existing config-writing path in this codebase writes immediately — this
-    /// debounce is deliberately scoped to the settings view's own edits only (`docs/12-decisions.md`).
+    /// debounce is deliberately scoped to the settings view's own edits only.
     pub settings_write_debounce_until: Option<Timestamp>,
     /// One in-flight optimistic `ToggleFavorite` per item, keyed by id — consumed
     /// (removed) once the matching `SetFavorite` reply (success, or `LoadFailed` triggering a
@@ -172,7 +172,7 @@ pub struct AppState {
     pub pending_favorite_toggles: HashMap<ItemId, PendingFavoriteToggle>,
     /// One in-flight optimistic playlist mutation per playlist — consumed (removed)
     /// only on failure (a success needs no rollback, so nothing removes it then; see
-    /// `docs/12-decisions.md` for the same bounded-leak reasoning the own
+    /// for the same bounded-leak reasoning the own
     /// `pending_favorite_toggles` already accepted).
     pub pending_playlist_mutations: HashMap<PlaylistId, PendingPlaylistMutation>,
     pub toasts: Vec<Toast>,
@@ -180,7 +180,7 @@ pub struct AppState {
     /// distinct from `message` equality, which the same method's own deduplication uses instead.
     pub next_toast_id: u64,
     pub connectivity: Connectivity,
-    /// Consecutive `EmbyError::Offline` failures (`docs/06-cache-and-offline.md` §6) —
+    /// Consecutive `EmbyError::Offline` failures —
     /// reset by any successful reply, incremented only by `DataAction::LoadFailed { offline:
     /// true, .. }`. Reaching `reducer::connectivity`'s threshold (2) enters `Offline`.
     pub offline_failures: u32,
@@ -189,26 +189,25 @@ pub struct AppState {
     /// next `Tick`). Advanced by `reducer::connectivity::schedule_next_probe`.
     pub next_probe_at: Option<Timestamp>,
     /// The current probe backoff, in seconds — starts at 5, doubles on every scheduled probe, capped
-    /// at 30 (`docs/06-cache-and-offline.md` §6).
+    /// at 30.
     pub probe_backoff_secs: i64,
     /// Probes made since going offline, reset on every return to `Online`.
     ///
     /// Counted separately from `probe_backoff_secs` rather than inferred from it: the backoff is
     /// clamped at the probe backoff's own cap, so past the cap it no
     /// longer says how many attempts have been made — and "have the cheap attempts been spent yet"
-    /// is exactly the question deciding when to try a profile's other addresses
-    /// (`docs/12-decisions.md`).
+    /// is exactly the question deciding when to try a profile's other addresses.
     pub probes_since_offline: u32,
     pub zen_mode: bool,
     /// `Some((track_id, lyrics))` for at most one track at a time — a new
     /// `DataAction::LyricsLoaded` replaces it outright, never merges. Pane *visibility* is
     /// `config.ui.show_lyrics` itself (`ActionId::ToggleLyrics` flips and persists that field
-    /// directly, `docs/12-decisions.md`); there is deliberately no separate session-only flag.
+    /// directly); there is deliberately no separate session-only flag.
     pub lyrics: Option<(ItemId, Lyrics)>,
     /// How many lyric lines are scrolled off the top of the pane, for **unsynced** lyrics only —
     /// timed ones follow playback and have nothing to scroll manually. Counted in source lines
     /// rather than rendered rows, so the reducer can clamp it exactly without knowing the pane's
-    /// width or wrapping (`docs/12-decisions.md`). Reset whenever the lyrics themselves change.
+    /// width or wrapping. Reset whenever the lyrics themselves change.
     pub lyrics_scroll: usize,
     pub now_playing_subview: NowPlayingSub,
     /// The Now Playing tab's own cursor — indexes into `queue.play_order` when
@@ -228,7 +227,7 @@ pub struct AppState {
     /// It used to be derived, by *centring* the cursor. Every cursor move therefore re-centred the
     /// list, so clicking a row scrolled it out from under the pointer and the second click of a
     /// double-click landed on a different track — "in a long play queue the view jumps"
-    /// (`docs/12-decisions.md`). With the offset stored, a click that lands on an already-visible
+    ///. With the offset stored, a click that lands on an already-visible
     /// row changes nothing about what is on screen.
     pub now_playing_scroll: usize,
     /// A partial chord sequence (e.g. after typing `g`, waiting for `g`/`a`/`l`), cleared on
@@ -241,7 +240,7 @@ pub struct AppState {
     /// timestamp, never read back to make a branching decision by the reducer itself.
     pub clock: Timestamp,
     /// Counts every `Tick` since launch — the 100th (10s of 100ms ticks) drives the
-    /// periodic playback-progress report (`docs/04-state-and-input.md` §9 rule 5). Ephemeral
+    /// periodic playback-progress report. Ephemeral
     /// bookkeeping, not a time *value* itself, so it doesn't conflict with reducer rule 2 ("no
     /// time... in the reducer") the way reading a live clock would.
     pub tick_count: u64,
@@ -251,13 +250,13 @@ pub struct AppState {
     ///
     /// `d` is a *toggle*, so it has to know which way it is going, and this is the only thing in
     /// the app that knows. The whole download feature was unreachable before this existed: the
-    /// reducer's `ToggleDownload` arm returned no effects at all (`docs/12-decisions.md`).
+    /// reducer's `ToggleDownload` arm returned no effects at all.
     pub downloads: std::collections::BTreeSet<ItemId>,
     /// The address currently connected on — the primary, or whichever fallback answered.
     ///
     /// Worth showing: with more than one endpoint configured, "which way in am I using?" decides
     /// whether a slow library is the LAN or the round trip through a proxy, and nothing else on
-    /// screen would say (`docs/12-decisions.md`).
+    /// screen would say.
     pub active_endpoint: String,
     pub cache_stats: CacheStats,
     /// `None` until `main` resolves it at startup — a real `Paths` needs actual base
@@ -275,7 +274,7 @@ pub struct AppState {
     /// Whether the terminal itself currently has input focus — `None` until the first
     /// `SystemEvent::TerminalFocusChanged` arrives, meaning "unknown", not "unfocused". A desktop
     /// notification on track change is suppressed only when this is `Some(true)`; an unknown state
-    /// notifies normally (`docs/12-decisions.md`: some terminals never send focus events at all,
+    /// notifies normally (some terminals never send focus events at all,
     /// and refusing to notify just because none has arrived yet would silently break notifications
     /// there forever).
     pub terminal_focused: Option<bool>,
@@ -483,7 +482,7 @@ impl AppState {
     }
 
     /// Stamps `created_at` with the wall clock — the one deliberate exception to "no time in the
-    /// reducer" (`docs/04-state-and-input.md` §4 rule 2): the given signature carries no
+    /// reducer": the given signature carries no
     /// timestamp to thread through, and a toast's display time is never branched on by reducer
     /// logic (expiry compares against `Tick`'s own timestamp, not a second `now()` call), so it
     /// does not threaten determinism the way a logic-affecting time read would.

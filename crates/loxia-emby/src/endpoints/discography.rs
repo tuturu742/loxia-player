@@ -87,7 +87,7 @@ fn sort_albums(albums: &mut [Album]) {
 /// appears-on) and, **only if that comes back empty**, falls back to `AlbumArtistIds`. A live user
 /// found `Enter` on an artist queued nothing while browsing their albums worked fine: their library
 /// tags only `AlbumArtists`, not per-track `Artists`, so `ArtistIds` on Audio items matched nothing
-/// (`docs/12-decisions.md`). The fallback catches that common tagging style without changing the
+///. The fallback catches that common tagging style without changing the
 /// (richer, appears-on-inclusive) primary query for well-tagged libraries.
 pub async fn artist_tracks(client: &EmbyClient, artist: &Artist) -> Result<Vec<Track>, EmbyError> {
     let base = ItemQuery::default()

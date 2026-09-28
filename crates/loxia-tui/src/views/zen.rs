@@ -1,4 +1,4 @@
-//! Zen focus view (`docs/07-ui-spec.md` §9): a minimalist full-screen now-playing
+//! Zen focus view: a minimalist full-screen now-playing
 //! display — artwork, track detail, lyrics, progress, and the format line, with no navigation
 //! chrome. `zones()` already gives Zen the whole body (`sidebar: None`); `render_canvas`
 //! (`render.rs`) dispatches here whenever `state.zen_mode` is set, regardless of the active tab.
@@ -39,7 +39,7 @@ const NARROW_ART_ROWS: u16 = 10;
 /// its top border plus three content rows. Zen fills only the lower two of those rows — the title
 /// line the bar shows first is redundant here, where the title *is* the view — but it must still
 /// claim the same height, or the bottom panel would visibly grow and shrink as Zen is toggled
-/// (`docs/12-decisions.md`). Leaving the blank row at the *top* also keeps the seek bar and the
+///. Leaving the blank row at the *top* also keeps the seek bar and the
 /// technical readout on the same two screen rows either side of the toggle, so neither jumps.
 const FOOTER_HEIGHT: u16 = 4;
 /// How many of [`FOOTER_HEIGHT`]'s rows Zen actually draws into, counted up from the bottom.
@@ -79,7 +79,7 @@ pub fn render(
     let show_lyrics = lyrics::should_show(state);
     // The *split* is decided by whether this track has a lyric stream at all, never by whether the
     // pane is currently toggled on. Keying the geometry off the toggle is what made the artwork and
-    // the title block slide around every time lyrics were shown or hidden (`docs/12-decisions.md`);
+    // the title block slide around every time lyrics were shown or hidden;
     // reserving the column either way keeps everything still, and `show_lyrics` decides only
     // whether anything is drawn into it.
     let track_has_lyrics = entry.track.lyric_stream.is_some();
@@ -89,7 +89,7 @@ pub fn render(
     // column with the lyrics stacked underneath, where every row the cover takes is a row of lyrics
     // lost. Given its own column — or no lyrics at all — the artwork gets the full size, capped by
     // the pane it is in. Requesting the small size for the side-by-side layout too was simply
-    // wrong, and made the cover shrink the moment Zen became two panes (`docs/12-decisions.md`).
+    // wrong, and made the cover shrink the moment Zen became two panes.
     let stacked_under_lyrics = track_has_lyrics && !side_by_side;
     let requested_art_rows = if !show_art {
         0
@@ -167,7 +167,7 @@ fn fitted_art_rows(area: Rect, requested: u16) -> u16 {
 /// block moved: with lyrics the content filled the canvas and sat at the top, without them it
 /// collapsed to three lines and centred. Art and detail now travel together as one centred unit
 /// and the lyrics get their own area, so nothing about their placement depends on the lyrics at
-/// all (`docs/12-decisions.md`).
+/// all.
 fn render_now_playing_pane(
     f: &mut Frame,
     area: Rect,
@@ -206,7 +206,7 @@ fn render_now_playing_pane(
     // Padded on *both* sides, not just prefixed: the line is centred, so two leading cells would
     // slide the title itself sideways — the very jitter this pattern exists to avoid. Balanced
     // padding leaves the name exactly where it was and hangs the heart off its left
-    // (`docs/12-decisions.md`). Zen shows one track and nothing else, so without a marker there is
+    //. Zen shows one track and nothing else, so without a marker there is
     // no sign at all that `f` did anything.
     let title = if track.is_favorite {
         format!("♡ {}  ", track.name)
@@ -239,7 +239,7 @@ fn render_now_playing_pane(
 
 /// Zen's own status footer. Chrome matches the global player bar exactly — a top border plus one
 /// column of side padding — so switching into Zen doesn't visibly resize or restyle the bottom of
-/// the screen (`docs/12-decisions.md`).
+/// the screen.
 fn render_footer(f: &mut Frame, area: Rect, state: &AppState, theme: &Theme, hits: &mut HitMap) {
     if area.height == 0 || area.width == 0 {
         return;
@@ -290,7 +290,7 @@ mod tests {
     use super::*;
 
     /// Toggling lyrics must not move the cover: Zen centres its block vertically, and deriving that
-    /// centring from the toggle slid everything up and down (`docs/12-decisions.md`).
+    /// centring from the toggle slid everything up and down.
     #[test]
     fn toggling_lyrics_does_not_move_the_art() {
         use loxia_core::model::{LyricStreamRef, MediaSourceId};
@@ -337,8 +337,7 @@ mod tests {
     }
 
     /// `f` in Zen changed nothing on screen, which is how a working action and a broken one look
-    /// identical. The marker must also leave the centred title exactly where it was
-    /// (`docs/12-decisions.md`).
+    /// identical. The marker must also leave the centred title exactly where it was.
     #[test]
     fn a_favourited_track_is_marked_without_moving_the_title() {
         let mut state = fixtures::fixture_playing_queue();
@@ -366,7 +365,7 @@ mod tests {
 
     /// A user asked for Zen to be two panes: now-playing on the left, lyrics on the right, with
     /// **no** separator between them — the one view in the app that must not draw a box between its
-    /// panes (`docs/12-decisions.md`).
+    /// panes.
     #[test]
     fn lyrics_take_their_own_column_with_no_divider() {
         use loxia_core::model::{LyricStreamRef, MediaSourceId};

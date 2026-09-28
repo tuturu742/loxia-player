@@ -26,7 +26,7 @@ target
 .DS_Store
 
 # A developer's real server credentials must never be committed. loxia itself never writes
-# a config.toml here (see docs/02-data-model.md §9 for the real, per-OS locations), but this
+# a config.toml here (for the real, per-OS locations), but this
 # guards against one being dropped at the repo root by hand during local testing.
 /config.toml
 /loxia-player.log

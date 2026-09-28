@@ -16,4 +16,4 @@ Inside the app, `?` shows the key cheat sheet, rendered live from your own bindi
 
 ---
 
-Architecture and design documentation for contributors is one level up, in [`../README.md`](../README.md).
+Contributing? See [`CONTRIBUTING.md`](../../CONTRIBUTING.md).

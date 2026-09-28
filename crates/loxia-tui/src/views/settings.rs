@@ -1,4 +1,4 @@
-//! Settings tab (`docs/07-ui-spec.md` §9): a section list on the left, the focused
+//! Settings tab: a section list on the left, the focused
 //! section's own typed controls on the right. The collection fields (servers, sort profiles, EQ
 //! presets, keybindings) each have a dedicated editor of their own; the section list itself only
 //! ever shows the plain scalar controls `reducer::settings::rows_for_section` builds.
@@ -58,7 +58,7 @@ fn render_section_list(
         return;
     }
 
-    // `docs/04-state-and-input.md` §7's "second of the three required conflict surfaces" — a
+    // The "second of the three required conflict surfaces" — a
     // badge right on the Keybindings row in this list, not only inside that section's own content.
     let has_conflicts = !state.keymap.validate().is_empty();
 
@@ -424,8 +424,7 @@ fn render_server_list(
 /// as opposed to a field the row-navigation cursor merely rests on (`cursor: None`, which every
 /// non-editing row already passed, rendering as one flat span exactly as before this fix). Found
 /// missing in the field alongside cursor *movement* itself: with no visible insertion point,
-/// "which field am I editing" and "where will the next keystroke land" were both invisible
-/// (`docs/12-decisions.md`).
+/// "which field am I editing" and "where will the next keystroke land" were both invisible.
 ///
 /// Falls back to a single flat (cursor-less) span when the combined text would need truncating to
 /// fit `width` — splitting a *truncated* string into cursor-relative spans exactly is more
@@ -689,7 +688,7 @@ fn direction_arrow(direction: loxia_core::config::Direction) -> char {
 /// focused one's own rules expanded (the wireframe's single `▶` marker), a live preview of the
 /// first five queue tracks under it, and a footer hint. No `HitTarget`s are registered here —
 /// keyboard only, the same deliberate scoping choice the keymap editor already made for its
-/// own per-row actions (`docs/12-decisions.md`).
+/// own per-row actions.
 fn render_sort_editor(
     f: &mut Frame,
     area: Rect,
@@ -703,7 +702,7 @@ fn render_sort_editor(
     // A brand-new profile being named (`SortEditorNew`) isn't in `profiles` yet, so it has no
     // existing row to hang its name input on. Render it as its own row — otherwise, with an empty
     // list (the "deleted everything" case), the input box was invisible and typing seemed to do
-    // nothing (`docs/12-decisions.md`).
+    // nothing.
     if editor.creating
         && let Some(buf) = &editor.name_buf
     {
@@ -901,7 +900,7 @@ fn render_eq_editor(
         let spans = if let Some(buf) = editing {
             // While actively renaming/naming, the gains-column alignment below is dropped in
             // favour of showing a real, movable cursor — a brief, purely cosmetic trade-off for
-            // the duration of typing (`docs/12-decisions.md`).
+            // the duration of typing.
             cursor_aware_spans(
                 marker,
                 &buf.text,
@@ -982,7 +981,7 @@ fn warning_belongs_to_section(field: &str, section: SettingsSection) -> bool {
     }
 }
 
-/// `THIRD_PARTY_LICENSES.md`, embedded at compile time (`docs/11-packaging.md` §7 item 6: "the
+/// `THIRD_PARTY_LICENSES.md`, embedded at compile time ("the
 /// file is embedded with `include_str!` so it can never drift from the shipped copy") — never
 /// read from disk at runtime, so a corrupted or missing install-time copy can't blank the pane.
 const THIRD_PARTY_LICENSES: &str = include_str!(concat!(
@@ -1022,12 +1021,12 @@ fn libmpv_line(status: &LibmpvStatus) -> String {
     }
 }
 
-/// `docs/07-ui-spec.md` §9 / the wireframe: version, licence, libmpv status, and the
+/// / the wireframe: version, licence, libmpv status, and the
 /// config/cache/download paths and sizes. The wireframe also shows a `Build` line (rustc version,
 /// target triple, build date) and a `Terminal` line (graphics protocol, cell dimensions) — neither
 /// is wanted, and both would need plumbing the current shape
 /// doesn't call for (a `build.rs` for the former, threading the negotiated terminal size into
-/// `AppState` for the latter); omitted rather than guessed, see `docs/12-decisions.md`.
+/// `AppState` for the latter); omitted rather than guessed,.
 fn render_about(f: &mut Frame, area: Rect, state: &AppState, theme: &Theme) {
     if area.height == 0 || area.width == 0 {
         return;
@@ -1047,7 +1046,7 @@ fn render_about(f: &mut Frame, area: Rect, state: &AppState, theme: &Theme) {
 
     // Which way in is currently being used. With a fallback address configured this is the only
     // place that says whether the LAN path or the round trip through a proxy is in play — which is
-    // usually the answer to "why is the library slow today" (`docs/12-decisions.md`).
+    // usually the answer to "why is the library slow today".
     if !state.active_endpoint.is_empty() {
         let fallbacks = state
             .config
@@ -2120,8 +2119,7 @@ mod tests {
 
     /// `THIRD_PARTY_LICENSES` is a `const &'static str` from `include_str!`, evaluated at compile
     /// time — there is no `std::fs::read`/`read_to_string` call anywhere in `render_licences_pane`
-    /// or `render_about`, so a missing or corrupted on-disk copy at runtime cannot blank the pane
-    /// (`docs/11-packaging.md` §7 item 6).
+    /// or `render_about`, so a missing or corrupted on-disk copy at runtime cannot blank the pane.
     #[test]
     fn third_party_licenses_is_embedded_not_read_from_disk() {
         assert!(!THIRD_PARTY_LICENSES.is_empty());

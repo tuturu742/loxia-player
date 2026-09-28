@@ -24,7 +24,7 @@ running binary. Both are `loxia-cache` code reached through an `Effect` nothing 
   of serving your downloads. Closing it means setting the flag when `reducer::connectivity` enters
   `Offline`, and building the index from `paths.downloads_root()`.
 - **The offline scrobble buffer.** `loxia_cache::scrobble` implements the append/collapse/replay
-  buffer described in `docs/06-cache-and-offline.md` §7, but nothing emits
+  buffer, but nothing emits
   `CacheEffect::AppendScrobble` and the cache worker handles neither it nor `DrainScrobbles`. A
   playback report made while the server is unreachable is dropped with a log line, so offline
   listening never reaches your play counts.
@@ -75,8 +75,8 @@ Specifics still to do:
   `.desktop` file and icons; an AUR `PKGBUILD` with `depends=('mpv')` and `optdepends` for `libnotify`.
 - **Licence-compliance checks in CI**, blocking any release that bundles mpv binaries without
   `COPYING.LGPL` present, with the library statically linked, or without the exact mpv version and
-  source URL recorded in the release manifest. The checklist is in
-  [docs/11-packaging.md](docs/11-packaging.md#7-licence-compliance-checklist-blocking-for-any-release-containing-mpv-binaries).
+  source URL recorded in the release manifest. `release.yml`'s Windows job already enforces the
+  first three.
 - **Generated branding assets** — PNG icon sizes, `.ico`, `.icns` and the ASCII banner, from
   `assets/logo.svg` per [assets/BRANDING.md](assets/BRANDING.md).
 
@@ -84,8 +84,7 @@ Specifics still to do:
 
 - **Wire up offline browsing and the scrobble buffer** (see above). Both are small pieces of
   connecting work against code that already exists and is tested.
-- **A pass over Windows and macOS on real hardware**, against the manual test plan in
-  [docs/14-manual-test-plan.md](docs/14-manual-test-plan.md).
+- **A pass over Windows and macOS on real hardware.**
 
 ## After 0.1.0
 
@@ -103,8 +102,7 @@ Not committed to, roughly in order of how likely they are:
 
 ## Deliberately not planned
 
-These were considered and rejected. Rationale for each is in
-[docs/12-decisions.md](docs/12-decisions.md).
+These were considered and rejected.
 
 | | Why not |
 | :-- | :-- |

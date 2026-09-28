@@ -201,7 +201,7 @@ pub struct Connected {
 /// A server with more than one music library gets `None` — no `ParentId` at all, so the lists span
 /// all of them. Pinning to `libraries[0]` is what made a second library invisible everywhere but
 /// Folders: a user with 2145 artists in one library and 2531 in another saw only the first
-/// (`docs/12-decisions.md`). Emby de-duplicates the union itself, so an artist in both libraries
+///. Emby de-duplicates the union itself, so an artist in both libraries
 /// still appears once.
 ///
 /// With exactly one music library the scope stays explicit rather than becoming "the whole
@@ -244,7 +244,7 @@ pub async fn connect(state: &mut AppState) -> Option<Connected> {
             // whole session: if this call ever returns a partial view of the server, every
             // browsing list is silently mis-scoped until the next restart, with nothing on screen
             // to say so. A user hit exactly that and it cleared on restart, at which point there
-            // was no record of what had been decided (`docs/12-decisions.md`).
+            // was no record of what had been decided.
             let names: Vec<&str> = libs.iter().map(|lib| lib.name.as_str()).collect();
             let scope = library_scope(libs.iter().map(|lib| lib.id.clone()).collect());
             match &scope {
@@ -292,8 +292,7 @@ struct Reached {
 ///
 /// A server can be reachable on more than one path — a LAN `http://` address at home and an
 /// external `https://` one behind a proxy when away — and which of them works depends on where the
-/// machine happens to be, not on anything the user should have to reconfigure
-/// (`docs/12-decisions.md`).
+/// machine happens to be, not on anything the user should have to reconfigure.
 ///
 /// **Any** failure moves on to the next address, not just an unreachable one: an endpoint fronted
 /// by Cloudflare Access answers `403` when its service token is stale while the LAN address beside
@@ -373,8 +372,7 @@ async fn reach_server(state: &mut AppState, server_cfg: &ServerConfig) -> Option
 /// This is the Emby installation's own GUID, **not** the local profile id. Those are different
 /// questions — a profile is one *address*, and one server can have several (a LAN `http://` one and
 /// an external `https://` one behind a proxy). Keying storage on the profile gave each address its
-/// own cache and its own download tree, so the same music was fetched and kept twice
-/// (`docs/12-decisions.md`).
+/// own cache and its own download tree, so the same music was fetched and kept twice.
 ///
 /// Learned once, on the first successful connection, and written back to the profile — after which
 /// it is known offline too, which matters because offline is exactly when the cache has to be
@@ -433,7 +431,7 @@ fn fail(state: &mut AppState, message: &str) {
 }
 
 /// Opens the rolling cache and builds its worker config — a nicety, never a hard requirement for
-/// playback (`docs/06-cache-and-offline.md` §9's own "disk full: stop caching, keep playing" rule
+/// playback (its own "disk full: stop caching, keep playing" rule
 /// extends naturally to "cache root unusable at all: same"): a failure to open it is logged, not
 /// fatal, and leaves the caller to run with `None` (a stub cache worker; `EnsureCached` then
 /// silently gets no reply, which the reducer already treats as "playback proceeds from the
@@ -446,7 +444,7 @@ fn fail(state: &mut AppState, message: &str) {
 /// other's — accepted as a narrow, low-severity race (stale LRU bookkeeping, never a lost or
 /// corrupted audio file, since the two instances' actual track writes are already
 /// path-disjoint by server id) rather than threading a shared `Arc<Mutex<RollingCache>>` across
-/// the whole reconnect path just to close it (`docs/12-decisions.md`).
+/// the whole reconnect path just to close it.
 pub fn open_cache(
     paths: &Paths,
     server: loxia_core::model::ServerId,
@@ -458,7 +456,7 @@ pub fn open_cache(
 )> {
     match loxia_cache::lru::RollingCache::open(paths.cache_root()) {
         Ok(mut cache) => {
-            // Startup reconciliation (`docs/06-cache-and-offline.md` §4) was written, tested and
+            // Startup reconciliation was written, tested and
             // never called: nothing in the binary invoked it, so stale `.part` files and files with
             // no manifest row accumulated forever. It also flushes the index, which is how an
             // empty-but-clean cache stops reporting a stale size.
@@ -543,9 +541,9 @@ pub fn seed_active_tab_column(state: &mut AppState) -> Option<Effect> {
 /// History (unconditional) and the session snapshot (gated on `ui.restore_session`),
 /// applied **before** `connect` — the UI is usable immediately, and a slow or failed connection
 /// still leaves the user with their queue rather than an empty screen
-/// (`docs/06-cache-and-offline.md` §8). Neither half needs a live connection at all: `reducer::
+///. Neither half needs a live connection at all: `reducer::
 /// session::restore` only ever reads/writes `AppState` and `state.config`, never the network
-/// (`docs/12-decisions.md`). Any effects the restore itself produces (`Effect::Audio(Load)` for
+///. Any effects the restore itself produces (`Effect::Audio(Load)` for
 /// `ui.restore_autoplay`) are returned for the caller to dispatch once `Workers` exists — this
 /// function itself needs none.
 pub fn restore_session(state: &mut AppState, paths: &Paths) -> Vec<Effect> {
@@ -732,7 +730,7 @@ mod tests {
 
     /// The point of a fallback address: the LAN one works at home and the external one works away,
     /// and which applies is a fact about where the machine is, not something a user should have to
-    /// reconfigure (`docs/12-decisions.md`).
+    /// reconfigure.
     #[tokio::test]
     async fn an_unreachable_primary_falls_through_to_the_next_address() {
         let good = wiremock::MockServer::start().await;
@@ -796,7 +794,7 @@ mod tests {
 
     /// Everything stored per server is namespaced by the **server's** own id, not the profile's —
     /// so a LAN profile and an external one pointing at the same Emby share one cache and one
-    /// download tree instead of keeping two copies (`docs/12-decisions.md`).
+    /// download tree instead of keeping two copies.
     #[tokio::test]
     async fn storage_follows_the_server_identity_and_is_remembered() {
         let server = wiremock::MockServer::start().await;
@@ -879,7 +877,7 @@ mod tests {
 
     /// A second music library used to be invisible everywhere but Folders: every browsing list was
     /// pinned to `music_libraries()[0]`, so a user with 2145 artists in one library and 2531 in
-    /// another only ever saw the first (`docs/12-decisions.md`). Several libraries now mean "no
+    /// another only ever saw the first. Several libraries now mean "no
     /// `ParentId`", which Emby answers with the de-duplicated union.
     #[test]
     fn several_music_libraries_scope_to_the_whole_server() {

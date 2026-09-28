@@ -1,4 +1,4 @@
-//! Settings tab state (`docs/07-ui-spec.md` §9): which section/row has focus, and any
+//! Settings tab state: which section/row has focus, and any
 //! in-progress text edit. The actual row *contents* (which `Control` each row is, and its current
 //! value) are never stored here — `reducer::settings::rows_for_section` rebuilds that fresh from
 //! `Config` on every render/action, so there is nothing here that could go stale relative to it.
@@ -20,7 +20,7 @@ pub enum SettingsSection {
 }
 
 impl SettingsSection {
-    /// Left-pane order (`docs/07-ui-spec.md` §9's own section list).
+    /// Left-pane order (its own section list).
     pub const ALL: [SettingsSection; 9] = [
         SettingsSection::Servers,
         SettingsSection::Audio,
@@ -63,7 +63,7 @@ impl SettingsSection {
 /// server-profile draft's own focused field (`ServerDraft.text_buf`), and the sort-profile/
 /// EQ-preset editors' own name buffers. Found missing in the field: without a real cursor
 /// position, every one of these could only ever be edited by backspacing from the end — there was
-/// no way to fix a typo in the middle short of erasing everything after it (`docs/12-decisions.md`).
+/// no way to fix a typo in the middle short of erasing everything after it.
 ///
 /// `cursor` counts **characters**, not bytes, so it can never land mid-codepoint; `insert`/
 /// `backspace`/`delete_forward` convert to a byte offset only at the point of the actual `String`
@@ -246,7 +246,7 @@ pub struct SettingsState {
     pub about_licences_scroll: usize,
     /// Whether focus is on the left-hand section (group) list rather than the focused section's own
     /// rows. `Esc` steps outward — rows → section list → the main tab sidebar
-    /// (`NavState.sidebar_focused`); `Enter`/`→` step back inward (`docs/12-decisions.md`). `false`
+    /// (`NavState.sidebar_focused`); `Enter`/`→` step back inward. `false`
     /// (rows focused) is the resting state on tab entry.
     pub section_list_focused: bool,
 }
@@ -303,7 +303,7 @@ pub struct ServerEditorState {
 }
 
 /// Field indices within the add/edit form, in Tab-cycle order. Header rows are not included here
-/// — they sit between `Password` and `NewHeaderName` in the *rendered* list, at a position that
+/// they sit between `Password` and `NewHeaderName` in the *rendered* list, at a position that
 /// depends on `headers.len()`; see `reducer::settings::server_draft_field_count`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ServerDraftField {
@@ -314,16 +314,14 @@ pub enum ServerDraftField {
     ///
     /// Deliberately a *selector* rather than a nested sub-form: the whole existing form — including
     /// `Test connection` — then applies to whichever address is selected, and every field below
-    /// keeps working exactly as it did, editing "the endpoint currently in view"
-    /// (`docs/12-decisions.md`).
+    /// keeps working exactly as it did, editing "the endpoint currently in view".
     Endpoint,
     /// `[←→]`/`Enter` cycles `http`/`https` — the one field in this form that isn't free text, so
     /// it never goes through `text_buf` at all (`reducer::settings::server_editor_cycle_protocol`).
     Protocol,
     Host,
     /// Free text, not `Control::Number` — a stray non-digit here is caught the same way a wrong
-    /// host or scheme already is, by `Test connection` failing, not by inline validation
-    /// (`docs/12-decisions.md`).
+    /// host or scheme already is, by `Test connection` failing, not by inline validation.
     Port,
     Username,
     Password,
@@ -359,8 +357,7 @@ pub struct ServerDraft {
     /// refers to a profile, so letting it change out from under a save would be a real footgun).
     pub id: Option<String>,
     /// Stamped once, immediately, when the draft is created (`ServerEditorAddNew`/`ServerEditorEdit`)
-    /// — "generated once per profile," not deferred to a later `config::validate()` pass
-    /// (`docs/12-decisions.md`).
+    /// "generated once per profile," not deferred to a later `config::validate()` pass.
     pub device_id: String,
     pub name: String,
     /// `"http"` or `"https"` — always one of exactly those two, since the only way to change it
@@ -403,7 +400,7 @@ pub struct ServerDraft {
     /// once again untested) fields.
     pub test_result: Option<Result<String, String>>,
     /// A test or save is currently in flight — re-triggering either while this is `true` is a
-    /// no-op (`docs/12-decisions.md`: no cancellation mechanism exists for an in-flight HTTP
+    /// no-op (no cancellation mechanism exists for an in-flight HTTP
     /// request, so the simplest correct behaviour is simply refusing to start a second one).
     pub testing: bool,
     /// `true` only for the in-flight request `ServerEditorSave` itself started —

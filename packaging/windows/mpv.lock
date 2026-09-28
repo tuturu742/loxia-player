@@ -10,7 +10,7 @@
 #   2. Integrity — CI verifies SHA-256 before packaging. A mismatch fails the release
 #      rather than shipping an unverified binary blob.
 #
-# See docs/11-packaging.md §4 and §7.
+# The LGPL obligations this satisfies are enforced by release.yml's compliance gate.
 #
 # ---------------------------------------------------------------------------------------
 # To bump libmpv:

@@ -1,4 +1,4 @@
-//! Nine-tab sidebar navigation widget (`docs/07-ui-spec.md` §4).
+//! Nine-tab sidebar navigation widget.
 
 use loxia_core::keymap::ActionId;
 use loxia_core::state::AppState;
@@ -14,7 +14,7 @@ use crate::style::{self, selection};
 use crate::text;
 
 /// Sidebar tabs, in `Alt+1`..`9`/`Alt+0` order (matches `reducer::nav::TAB_ORDER`,
-/// `docs/04-state-and-input.md` §6).
+///).
 const TAB_ORDER: [Tab; 10] = [
     Tab::NowPlaying,
     Tab::Favourites,
@@ -43,10 +43,10 @@ pub(crate) fn tab_label(tab: Tab) -> &'static str {
     }
 }
 
-/// Neither `docs/07-ui-spec.md` §4 nor `Theme::glyphs()` names a per-tab icon set — only
+/// Neither nor `Theme::glyphs()` names a per-tab icon set — only
 /// the two rows shown in the mock-up (`♪` Now Playing, `♡` Favourites) are given. The rest are this
 /// the reasonable choices; the `ascii_only` column keeps every glyph a single ASCII byte for
-/// vintage-terminal themes, the same intent as `Theme::glyphs()`. See `docs/12-decisions.md`.
+/// vintage-terminal themes, the same intent as `Theme::glyphs()`.
 fn tab_glyph(tab: Tab, ascii_only: bool) -> char {
     match (tab, ascii_only) {
         (Tab::NowPlaying, false) => '♪',
@@ -57,7 +57,7 @@ fn tab_glyph(tab: Tab, ascii_only: bool) -> char {
         (Tab::Search, true) => '?',
         // `≡` (U+2261), not `☰` (U+2630): the trigram is East Asian **Wide**, a genuine two
         // cells, so the Playlists label started a column right of every other tab's
-        // (`docs/12-decisions.md`). Only the ascii_only themes escaped it, since they never draw
+        //. Only the ascii_only themes escaped it, since they never draw
         // it at all. `sidebar_glyphs_are_one_cell_wide` guards the whole set.
         (Tab::Playlists, false) => '≡',
         (Tab::Playlists, true) => '=',
@@ -96,7 +96,7 @@ fn action_id_for(tab: Tab) -> ActionId {
 
 /// `hint_for` renders the whole binding (`"alt+3"`, `"f3"`, `"unbound"`) — only the trailing digit
 /// is shown here, so a remapped `JumpTabN` still displays correctly without hardcoding the number
-/// (`docs/07-ui-spec.md` §4: "do not hardcode").
+/// ("do not hardcode").
 fn digit_hint(hint: &str) -> String {
     hint.chars()
         .last()
@@ -262,7 +262,7 @@ mod tests {
     /// The sidebar is a fixed 16 columns and every row is `"<marker> <glyph> <label> <digit>"`, so
     /// a glyph the terminal draws as two cells shifts that row's label right of all the others.
     /// `☰` (U+2630) is East Asian Wide and did exactly that to Playlists — visible in every theme
-    /// except the two `ascii_only` ones, which never draw it (`docs/12-decisions.md`).
+    /// except the two `ascii_only` ones, which never draw it.
     #[test]
     fn sidebar_glyphs_are_one_cell_wide() {
         for &tab in TAB_ORDER.iter() {

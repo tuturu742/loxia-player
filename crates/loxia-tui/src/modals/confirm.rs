@@ -1,4 +1,4 @@
-//! Generic confirmation modal (`docs/02-data-model.md` §6's `Modal::Confirm`). Its first real
+//! Generic confirmation modal (`Modal::Confirm`). Its first real
 //! caller was the keymap editor's "reset all bindings", which needed a yes/no gate — the generic
 //! placeholder box modals used to fall back to
 //! (`render::render_modal_placeholder`) only ever showed the bare title `"Confirm"`, with no room
@@ -41,7 +41,7 @@ pub fn render(f: &mut Frame, area: Rect, state: &AppState, theme: &Theme) {
     let inner = block.inner(modal_area);
     // Wipe whatever the view underneath drew before painting the modal — a `Block` only paints its
     // border, so without this the canvas text showed *through* the modal body (seen in the field
-    // with the sort menu over Now Playing). `docs/12-decisions.md`.
+    // with the sort menu over Now Playing)..
     f.render_widget(ratatui::widgets::Clear, modal_area);
     f.render_widget(block, modal_area);
     if inner.width == 0 || inner.height == 0 {

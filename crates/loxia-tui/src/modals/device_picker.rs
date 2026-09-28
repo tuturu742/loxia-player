@@ -2,7 +2,7 @@
 //! device mid-playback. Devices are grouped by driver (`loxia_core::model::group_by_driver` —
 //! moved there from `loxia-audio`, since it and `device_label` are pure functions
 //! of `AudioDevice`'s own fields with no OS-specific behaviour, and `loxia-tui` cannot depend on
-//! `loxia-audio` to reach them otherwise; see `docs/12-decisions.md`).
+//! `loxia-audio` to reach them otherwise).
 
 use loxia_core::model::{AudioDevice, group_by_driver};
 use loxia_core::state::AppState;
@@ -18,7 +18,7 @@ use crate::hit::{HitMap, HitTarget};
 use crate::style;
 
 const TITLE: &str = "SELECT AUDIO OUTPUT DEVICE";
-/// The only backend this project supports (`docs/05-audio-engine.md`'s locked decision) — not
+/// The only backend this project supports (locked decision) — not
 /// read from config, since there is nothing to choose between.
 const ENGINE_NAME: &str = "libmpv";
 const MODAL_WIDTH: u16 = 74;
@@ -89,7 +89,7 @@ pub fn render(f: &mut Frame, area: Rect, state: &AppState, theme: &Theme, hits: 
     let inner = block.inner(modal_area);
     // Wipe whatever the view underneath drew before painting the modal — a `Block` only paints its
     // border, so without this the canvas text showed *through* the modal body (seen in the field
-    // with the sort menu over Now Playing). `docs/12-decisions.md`.
+    // with the sort menu over Now Playing)..
     f.render_widget(ratatui::widgets::Clear, modal_area);
     f.render_widget(block, modal_area);
     if inner.width == 0 || inner.height == 0 {

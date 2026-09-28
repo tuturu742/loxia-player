@@ -1,4 +1,4 @@
-//! Reducer: the Settings tab (`docs/07-ui-spec.md` §9) — the row schema
+//! Reducer: the Settings tab — the row schema
 //! (`rows_for_section`, rebuilt fresh from `&Config` every time, never cached across frames) and
 //! the actual editing logic (`apply`). The four `SettingsRowAction` variants below open the
 //! specialised editors: server profiles, the keymap editor, the sort-profile editor and the EQ
@@ -99,8 +99,8 @@ fn row(label: &'static str, description: &'static str, control: Control) -> Sett
 /// cross-checks its own hand-maintained field list against this function's own coverage.
 ///
 /// `schema_version` is deliberately absent from every section — pure schema-migration bookkeeping
-/// (`docs/12-decisions.md` §5), never a user-facing setting. `logging.{level,max_files}` are
-/// folded into `Interface` — the section list (`docs/07-ui-spec.md` §9) names no
+///, never a user-facing setting. `logging.{level,max_files}` are
+/// folded into `Interface` — the section list names no
 /// dedicated "Logging" section, and a two-field, general "how the app behaves" section is the
 /// closest existing fit.
 /// `devices` is `state.player.known_devices` (populated by `DataAction::DevicesLoaded`, enumerated
@@ -136,7 +136,7 @@ fn servers_rows(cfg: &Config) -> Vec<SettingsRow> {
                 set: |c, v| c.active_server = v.to_string(),
             },
         ),
-        // this field is called out specifically ("secret fields
+        // This field is called out specifically ("secret fields
         // (`access_token`) render as ••••••••..."), so it gets a real row here rather than
         // waiting for the full add/edit/remove server editor — scoped to the *active*
         // server only, the one this app is actually about to connect with. A no-op `set` when
@@ -693,7 +693,7 @@ fn try_apply(cfg: &Config, control: &Control, value: EditValue) -> Result<Config
 
 /// The `SystemEvent::ConfigChanged` handler — commits
 /// `new_cfg` as the live config: live-applies theme/mouse (the two that need more than a fresh
-/// read at point-of-use — `docs/12-decisions.md`), arms the debounced write, and clears any stale
+/// read at point-of-use), arms the debounced write, and clears any stale
 /// inline error. Every settings edit funnels through this same function, whether it came from
 /// `SettingsAction` (this module's own dispatch below) or, in principle, anywhere else that ever
 /// wants to change the live config wholesale.
@@ -735,7 +735,7 @@ pub(crate) fn on_config_changed(state: &mut AppState, new_cfg: Config) -> Vec<Ef
     // The audio settings below have a *runtime* mirror on `state.player` that the rest of the app
     // actually reads — `hydrate_from_config` establishes it at startup, and changing the config
     // without updating it here is why the Settings rows for quality, ReplayGain and the equalizer
-    // saved correctly but changed nothing until the next launch (`docs/12-decisions.md`). Each is
+    // saved correctly but changed nothing until the next launch. Each is
     // the same edit `q`/`r`/`e` already make from the keyboard.
     if quality_changed {
         state.player.quality_profile = state.config.transcode.mode;
@@ -1114,7 +1114,7 @@ fn activate_row(state: &mut AppState) -> Vec<Effect> {
         }
         // The fourth and last — opens the EQ-preset management sub-view. Every
         // `SettingsRowAction` variant now has real behaviour; none of the four is a documented
-        // no-op any more (`docs/12-decisions.md`).
+        // no-op any more.
         Some(Control::Action {
             action: SettingsRowAction::ManageEqPresets,
             ..
@@ -1278,12 +1278,12 @@ pub(crate) fn maybe_write_config(state: &mut AppState, now: Timestamp) -> Vec<Ef
 }
 
 // ---------------------------------------------------------------------------------------------
-// Server profiles (`docs/02-data-model.md` §8, `docs/03-emby-api.md` §2).
+// Server profiles.
 // ---------------------------------------------------------------------------------------------
 
 /// Custom-header names loxia itself always sets — duplicated from `loxia_emby::client::
 /// RESERVED_HEADERS` rather than imported, since `loxia-core` cannot depend on `loxia-emby`
-/// (`docs/01-architecture.md` §3.2); the inline "cannot be overridden" check the spec
+///; the inline "cannot be overridden" check the spec
 /// asks for needs the list before a profile is ever saved, let alone turned into a real
 /// `EmbyClient`. Kept in sync by hand — both lists are small, fixed, and change essentially never.
 const RESERVED_HEADER_NAMES: [&str; 4] = [
@@ -1578,7 +1578,7 @@ pub(crate) fn build_server_url(protocol: &str, host: &str, port: &str) -> String
 /// plus whatever a user might have hand-typed into `config.toml`'s own `url` field. A bracketed
 /// IPv6 literal host (`[::1]:8096`) is a known, accepted gap — `rsplit_once(':')` would split
 /// inside the brackets rather than before them — nobody using this feature is expected to run an
-/// Emby server on a raw IPv6 address in practice (`docs/12-decisions.md`).
+/// Emby server on a raw IPv6 address in practice.
 pub(crate) fn split_server_url(url: &str) -> (String, String, String) {
     let (protocol, rest) = url.split_once("://").unwrap_or(("https", url));
     let rest = rest.split('/').next().unwrap_or(rest); // strip any accidental path or trailing slash
@@ -1637,7 +1637,7 @@ fn server_editor_add_new(state: &mut AppState) -> Vec<Effect> {
     Vec::new()
 }
 
-/// `user_id`/`access_token` are deliberately left blank in the draft (`docs/12-decisions.md`:
+/// `user_id`/`access_token` are deliberately left blank in the draft (
 /// "derived, not typed") — editing any *other* field of an existing profile and saving again
 /// re-authenticates from scratch, requiring the password to be re-entered. This is the direct,
 /// intended consequence of never presenting a token field at all, not an oversight.
@@ -1907,7 +1907,7 @@ fn server_editor_test_connection(state: &mut AppState, is_save: bool) -> Vec<Eff
 }
 
 /// `{base}_2`, `{base}_3`, ... — the first name-derived slug that doesn't already collide with an
-/// existing profile id. There is no user-facing "id" field in the add/edit form (`docs/02-data-model.md`
+/// existing profile id. There is no user-facing "id" field in the add/edit form (
 /// §8's own `id` doc: "config-assigned local server id" — assigned by loxia here, not typed).
 fn slugify_server_name(name: &str) -> String {
     let mut slug: String = name
@@ -1985,7 +1985,7 @@ pub(crate) fn server_editor_test_succeeded(
     // Reading the primary's url straight off the live fields is precisely the bug a user hit:
     // saving while a fallback was selected wrote the fallback's address into `url` as well as into
     // `fallbacks[0]`, so both came back showing the last address added, and deleting the fallback
-    // left the primary holding its values (`docs/12-decisions.md`).
+    // left the primary holding its values.
     draft.stash_endpoint();
     let endpoint_url = |e: &crate::state::settings::ServerEndpointDraft| {
         build_server_url(&e.protocol, &e.host, &e.port)
@@ -2083,7 +2083,7 @@ fn server_editor_close(state: &mut AppState) -> Vec<Effect> {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Sort profiles (`docs/02-data-model.md` §8).
+// Sort profiles.
 // ---------------------------------------------------------------------------------------------
 
 /// Declared order — also the order `SortEditorCycleField` steps through. `pub(crate)`: the
@@ -2237,7 +2237,7 @@ fn sort_editor_commit_name(state: &mut AppState) -> Vec<Effect> {
 }
 
 /// `x` — asks first. A live user deleted their sort profiles by accident, so removal now routes
-/// through a `Confirm` modal naming the profile (`docs/12-decisions.md`).
+/// through a `Confirm` modal naming the profile.
 fn sort_editor_delete_profile(state: &mut AppState) -> Vec<Effect> {
     let Some(editor) = &state.settings.sort_profile_editor else {
         return Vec::new();
@@ -2504,7 +2504,7 @@ fn sort_editor_close(state: &mut AppState) -> Vec<Effect> {
 }
 
 // ---------------------------------------------------------------------------------------------
-// EQ presets (`docs/05-audio-engine.md` §5).
+// EQ presets.
 // ---------------------------------------------------------------------------------------------
 
 /// Every preset the editor lists, in the same order `equalizer_rows`'s own active-preset dropdown
@@ -2766,9 +2766,9 @@ mod tests {
     }
 
     /// `every_config_field_has_a_control` — hand-maintained against `Config`'s own field
-    /// list (`docs/12-decisions.md`): `schema_version` is excluded (migration-only, never a
+    /// list: `schema_version` is excluded (migration-only, never a
     /// user-facing setting) and `logging.{level,max_files}` are folded into `Interface` (this
-    /// the section list, `docs/07-ui-spec.md` §9, names no dedicated "Logging" section).
+    /// the section list, names no dedicated "Logging" section).
     fn audio_device(id: &str, driver: &str) -> AudioDevice {
         AudioDevice {
             id: id.to_string(),
@@ -2778,7 +2778,7 @@ mod tests {
     }
 
     /// The output driver/device rows are dropdowns over what was actually detected — they used to be
-    /// free-text fields a user had to type a device id into blind (`docs/12-decisions.md`).
+    /// free-text fields a user had to type a device id into blind.
     #[test]
     fn output_rows_are_dropdowns_over_detected_devices() {
         let cfg = Config::default();
@@ -2815,11 +2815,11 @@ mod tests {
         let expected = [
             (SettingsSection::Servers, 3), // active_server, servers[].access_token, servers
             (SettingsSection::Audio, 5), // output_driver, device_id, default_replaygain, replaygain_preamp_db, buffer_size_ms
-            // enabled, rolling_max_gb, image_cache_mb, prefetch_on_play, prefetch_next,
+            // Enabled, rolling_max_gb, image_cache_mb, prefetch_on_play, prefetch_next,
             // download_dir, cache_dir
             (SettingsSection::Cache, 7),
             (SettingsSection::Transcode, 3), // mode, target_codec, download_uncompressed
-            // ui's own 10 fields + logging's 2 + the "clear saved session" action row (not a
+            // Ui's own 10 fields + logging's 2 + the "clear saved session" action row (not a
             // `Config` field at all — deleting on-disk state, like the other three `Action` rows)
             (SettingsSection::Interface, 14),
             (SettingsSection::Sorting, 2), // default_queue_profile, profiles
@@ -2929,7 +2929,7 @@ mod tests {
     /// The Settings row for transcode quality wrote `config.transcode.mode` and stopped there,
     /// leaving `player.quality_profile` — the field the stream URL is actually built from — at its
     /// old value until the next launch. So `q` changed the quality and the identical Settings row
-    /// appeared to do nothing at all (`docs/12-decisions.md`).
+    /// appeared to do nothing at all.
     #[test]
     fn changing_transcode_quality_in_settings_applies_it_live() {
         let mut state = fixtures::fixture_playing_queue();
@@ -2953,7 +2953,7 @@ mod tests {
     }
 
     /// A cached or downloaded file is whatever is already on disk, so there is nothing to re-fetch
-    /// — but unlike `q`'s outright refusal, a *setting* the user typed in must still stick and
+    /// but unlike `q`'s outright refusal, a *setting* the user typed in must still stick and
     /// take effect from the next track on.
     #[test]
     fn changing_quality_on_a_local_track_saves_without_reloading() {
@@ -3448,7 +3448,7 @@ mod tests {
     }
 
     /// Moves the draft's cursor to `target` by searching the field list, rather than counting rows
-    /// — adding a row to the form must not silently re-point every test at its neighbour.
+    /// adding a row to the form must not silently re-point every test at its neighbour.
     fn focus_field(state: &mut AppState, target: ServerDraftField) {
         let draft = state
             .settings
@@ -3631,8 +3631,7 @@ mod tests {
 
     /// Fallback addresses had no UI at all — they could only be written into `config.toml` by
     /// hand. The form now edits *whichever address is selected*, so everything below the selector
-    /// (protocol, host, port, headers, and `Test connection`) applies to it
-    /// (`docs/12-decisions.md`).
+    /// (protocol, host, port, headers, and `Test connection`) applies to it.
     #[test]
     fn the_editor_adds_a_second_address_and_saves_it_as_a_fallback() {
         let mut state = fixtures::fixture_empty();
@@ -3770,7 +3769,7 @@ mod tests {
     /// Saving while a *fallback* was the selected address wrote its values into the profile's own
     /// `url`/`custom_headers` as well as into `fallbacks[0]` — so both addresses came back as the
     /// last one added, and removing the fallback left the primary holding its values. Reported from
-    /// live use (`docs/12-decisions.md`).
+    /// live use.
     #[test]
     fn saving_while_a_fallback_is_selected_does_not_overwrite_the_primary() {
         let mut state = fixtures::fixture_empty();
@@ -3808,7 +3807,7 @@ mod tests {
 
     /// The exact sequence a user reported: fill in the primary, add a second address, fill that in,
     /// then look at them. Both showed the values of the one added last, and removing the fallback
-    /// left the primary holding *its* values (`docs/12-decisions.md`).
+    /// left the primary holding *its* values.
     #[test]
     fn each_address_keeps_its_own_values() {
         let mut state = fixtures::fixture_empty();

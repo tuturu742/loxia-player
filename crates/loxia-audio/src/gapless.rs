@@ -26,7 +26,7 @@ mod real_mpv {
     }
 
     /// A minimal, valid mono 8-bit PCM WAV file of `secs` seconds of silence — substituted for
-    /// "a generated FLAC" (`docs/12-decisions.md`, same substitution `mpv::handle`'s own tests
+    /// "a generated FLAC" (same substitution `mpv::handle`'s own tests
     /// make): mpv's built-in WAV demuxer needs no external codec, and the gapless mechanism under
     /// test (`gapless-audio`/`prefetch-playlist`/playlist `append`) doesn't care about the codec.
     fn silent_wav_bytes(secs: u32) -> Vec<u8> {
@@ -102,7 +102,7 @@ mod real_mpv {
         })
         .unwrap();
         // Sent immediately, not after waiting for `A` to nearly finish — real usage preloads as
-        // soon as the reducer knows what's next (`docs/12-decisions.md`), and mpv's own
+        // soon as the reducer knows what's next, and mpv's own
         // `prefetch-playlist` is what actually times the buffering.
         e.send(AudioCommand::Preload {
             url: RedactedUrl::new(path_b.to_str().unwrap()),
@@ -134,7 +134,7 @@ mod real_mpv {
                 )
             });
 
-        // `Position` is throttled to 4 Hz (`docs/05-audio-engine.md` §2) — the wall-clock delay
+        // `Position` is throttled to 4 Hz — the wall-clock delay
         // until this event *arrives* is dominated by that throttle, not by any real playback gap.
         // Subtracting the position `B` had already reached by the time it was reported backs out
         // the throttle delay, leaving the actual gap between `A` ending and `B` starting.

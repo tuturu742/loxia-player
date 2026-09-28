@@ -13,7 +13,7 @@ use crate::Timestamp;
 /// `Track` (`playlist_entry_id` tipped it over clippy's size-difference threshold
 /// against `Album`/`Playlist`) is intentionally not boxed: every column, the queue, search
 /// results, and favourites all match `MediaItem::Track(t)` directly and read its fields by
-/// reference (`docs/12-decisions.md`); boxing would ripple `Box::new`/deref through dozens of
+/// reference; boxing would ripple `Box::new`/deref through dozens of
 /// call sites for a lint about stack-copy cost this app never pays — nothing here clones
 /// `Vec<MediaItem>` in a hot loop.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -83,7 +83,7 @@ pub enum SectionKind {
 /// `PrimaryImageItemId`/`PrimaryImageTag` pointing at whichever child actually holds the cover. On
 /// a real library two thirds of albums are like that, which is why the inspector showed a
 /// placeholder for most albums while tracks — which nearly always carry their own tag — worked
-/// (`docs/12-decisions.md`). Keeping the id and the tag together makes it impossible to build a
+///. Keeping the id and the tag together makes it impossible to build a
 /// URL for the item being *displayed* when the image lives somewhere else.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ImageRef {
@@ -116,7 +116,7 @@ impl Artist {
     ///
     /// The Artists column used to read `0 albums` beside every artist in the library: the album
     /// count is genuinely never reported for an artist item, and the track count was being
-    /// discarded by the DTO conversion despite the server sending it (`docs/12-decisions.md`).
+    /// discarded by the DTO conversion despite the server sending it.
     /// Zero therefore means "not known", never "none" — an artist with no tracks cannot appear in
     /// a music library's artist list in the first place — and each count is shown only once it is
     /// real.
@@ -132,7 +132,7 @@ impl Artist {
 
 /// Whether an album is a primary release by the artist in the active discography query, or a
 /// compilation/soundtrack the artist merely appears on. Assigned by
-/// `loxia-emby::endpoints::discography` (see `docs/03-emby-api.md` §4) — never guessed in the UI.
+/// `loxia-emby::endpoints::discography` — never guessed in the UI.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AlbumRelation {
     Primary,
@@ -155,7 +155,7 @@ pub struct Album {
     pub relation: AlbumRelation,
 }
 
-/// The lyric format discovered on a track's subtitle-type media stream (`docs/03-emby-api.md` §7).
+/// The lyric format discovered on a track's subtitle-type media stream.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LyricFormat {
     Lrc,
@@ -164,7 +164,7 @@ pub enum LyricFormat {
 }
 
 /// A reference to a track's lyric subtitle stream — the discovery result, not the lyrics
-/// themselves (those are fetched lazily and cached separately, see `docs/03-emby-api.md` §7).
+/// themselves (those are fetched lazily and cached separately).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct LyricStreamRef {
     pub media_source_id: MediaSourceId,
@@ -205,7 +205,7 @@ pub struct Track {
 
 /// Deliberately minimal: every consumer (`items::genres`/`genre_artists`, the Genres tab) only
 /// ever needs the id for the fetch and the name for the row label and the genre-name filter Emby
-/// itself requires (`docs/03-emby-api.md` §3 — Emby filters genres by name, not id).
+/// itself requires ( — Emby filters genres by name, not id).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Genre {
     pub id: ItemId,
@@ -231,7 +231,7 @@ pub struct Playlist {
     /// Emby favourites any item type, playlists included — verified against a live server, which
     /// both records `UserData.IsFavorite` on a playlist and returns it from an `IsFavorite` query.
     /// The field was simply missing here, so `f` on a playlist row had nothing to read and did
-    /// nothing (`docs/12-decisions.md`).
+    /// nothing.
     pub is_favorite: bool,
 }
 
@@ -255,7 +255,7 @@ mod tests {
     }
 
     /// Nothing known at all: say nothing, rather than the `0 albums` that used to sit beside every
-    /// artist in the library (`docs/12-decisions.md`).
+    /// artist in the library.
     #[test]
     fn unknown_artist_counts_have_no_summary() {
         assert_eq!(artist_with_counts(0, 0).counts_summary(), None);
@@ -364,8 +364,7 @@ mod tests {
 /// Placeholders are `{name}`; an unrecognised one is left **verbatim** so a typo shows up on screen
 /// rather than silently blanking part of the line. A placeholder whose data is missing (no year, no
 /// genre) expands to an empty string, and any resulting double spacing / empty bracket pair is
-/// tidied so `"{title} [{year}]"` doesn't leave a stray `[]` for an untagged track
-/// (`docs/12-decisions.md`).
+/// tidied so `"{title} [{year}]"` doesn't leave a stray `[]` for an untagged track.
 pub fn format_now_playing(template: &str, track: &Track) -> String {
     let mut out = String::with_capacity(template.len() + 32);
     let mut rest = template;

@@ -1,5 +1,5 @@
 //! Theme -> ratatui::Style resolution — the only place a `ThemeColor` becomes a
-//! `ratatui::style::Color` (`docs/07-ui-spec.md` §12); every widget calls through here rather
+//! `ratatui::style::Color`; every widget calls through here rather
 //! than resolving a `Role` itself.
 
 use loxia_core::theme::{Role, Theme, ThemeColor};
@@ -39,7 +39,7 @@ pub fn fg(theme: &Theme, role: Role) -> Style {
 /// `Clear` resets a modal's area to the terminal's *default* colours, and a `Block` paints only its
 /// border. So without this, only the cells that happen to carry a styled span come out themed and
 /// every gap between them shows the terminal background instead — reported on the help sheet, which
-/// is mostly gaps (`docs/12-decisions.md`). Every modal block must carry it.
+/// is mostly gaps. Every modal block must carry it.
 pub fn modal_surface(theme: &Theme) -> Style {
     style(theme, Role::Fg)
 }
@@ -47,7 +47,7 @@ pub fn modal_surface(theme: &Theme) -> Style {
 /// The selected-row highlight. Focused uses the theme's dedicated `selection_bg`/`selection_fg`
 /// pair at full strength; unfocused uses `border` as a muted background with the normal `fg` —
 /// still visibly marked as selected, but clearly subordinate to whichever column is actually
-/// focused. `docs/07-ui-spec.md` §12 names the focused pair but not an unfocused treatment; this
+/// focused. the design names the focused pair but not an unfocused treatment; this
 /// is the reasonable choice.
 pub fn selection(theme: &Theme, focused: bool) -> Style {
     if focused {

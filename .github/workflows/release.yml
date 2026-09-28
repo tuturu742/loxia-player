@@ -68,9 +68,8 @@ jobs:
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace --lib --bins --tests --examples
 
-      # docs/11-packaging.md §7 item 8 makes this blocking for a release, but the gate had never
-      # enforced it. Deliberately here as well as in CI: a vulnerability disclosed between the
-      # last push and the tag should stop the release, not ship in it.
+      # Blocking for a release, and deliberately here as well as in CI: a vulnerability disclosed
+      # between the last push and the tag should stop the release, not ship in it.
       - name: cargo deny check
         uses: EmbarkStudios/cargo-deny-action@v2
         with:
@@ -260,7 +259,8 @@ jobs:
           version="${{ needs.verify.outputs.version }}"
           dir="dist/loxia-player-${version}-x86_64-windows"
           fail=0
-          # docs/11-packaging.md §7: these are blocking for any artifact carrying mpv binaries.
+          # Blocking for any artifact carrying mpv binaries: the LGPL obliges us to ship the
+          # licence text and keep the library separately replaceable.
           for required in "${{ steps.libmpv.outputs.dll_name }}" COPYING.LGPL LICENSE THIRD_PARTY_LICENSES.md; do
             if [ ! -s "$dir/$required" ]; then
               echo "::error::$required missing or empty from the Windows artifact"; fail=1

@@ -1,4 +1,4 @@
-//! `HitMap`/`HitTarget` — the mouse hit-testing registry (`docs/04-state-and-input.md` §8).
+//! `HitMap`/`HitTarget` — the mouse hit-testing registry.
 //!
 //! Widgets register their regions during `draw`; the runtime resolves mouse events
 //! against the *previous* frame's map — `draw()`'s own signature takes the `HitMap` it fills.

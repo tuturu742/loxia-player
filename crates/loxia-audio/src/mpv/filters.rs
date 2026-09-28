@@ -1,5 +1,5 @@
 //! Audio filter graph construction: installs and updates the equalizer's `anequalizer` chain
-//! against a real mpv handle (`docs/05-audio-engine.md` §5) — the mpv-facing half of `eq.rs`'s
+//! against a real mpv handle — the mpv-facing half of `eq.rs`'s
 //! pure string-building.
 
 use super::handle::MpvOps;
@@ -10,10 +10,10 @@ use crate::error::AudioError;
 
 /// Reinstalls the whole `anequalizer` chain via the `af` property, at the gains `curve` gives.
 ///
-/// `docs/05-audio-engine.md` §5 asks to "install the chain once, then mutate gains" via
+/// the design asks to "install the chain once, then mutate gains" via
 /// `af-command`, since rebuilding it per keypress was expected to restart playback. Verified
 /// against a real mpv instance available in this session's own environment
-/// (`docs/12-decisions.md`): `af-command`'s own `change` command against a `lavfi`-wrapped
+///: `af-command`'s own `change` command against a `lavfi`-wrapped
 /// `anequalizer` returned `MPV_ERROR_COMMAND` in every spelling tried, while resetting this
 /// property directly, mid-playback, measurably did **not** restart the track or reset
 /// `time-pos`. So there is only this one path — install and every subsequent gain/preset/bypass

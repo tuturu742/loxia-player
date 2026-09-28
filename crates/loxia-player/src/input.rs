@@ -1,6 +1,6 @@
 //! crossterm events -> Action via the keymap and HitMap.
 //!
-//! The bridge between `crossterm`'s types and `loxia-core`'s local ones (`docs/04-state-and-input.md`
+//! The bridge between `crossterm`'s types and `loxia-core`'s local ones (
 //! §§5, 7).
 
 use std::time::{Duration, Instant};
@@ -73,7 +73,7 @@ pub fn to_action(
                 return None;
             }
             // Always-on, in every context, before any keymap lookup — a user must always be able
-            // to leave (`docs/04-state-and-input.md` §7).
+            // to leave.
             if key.modifiers.contains(CtKeyModifiers::CONTROL)
                 && matches!(key.code, CtKeyCode::Char('c'))
             {
@@ -86,7 +86,7 @@ pub fn to_action(
             // verbatim, ahead of `context_for`/`resolve` entirely — "the next key event is
             // captured verbatim rather than resolved" (the spec). Checked the same way
             // `Ctrl+C` is checked ahead of every context below; `Ctrl+C` itself already returned
-            // above, so it can never reach here as a captured chord (`docs/12-decisions.md`).
+            // above, so it can never reach here as a captured chord.
             if matches!(
                 state.modal,
                 Some(Modal::KeymapEditor {
@@ -123,8 +123,7 @@ pub fn to_action(
                 // Falls back to the normal table for anything a text field has no use for. Without
                 // it, `Alt+1`..`Alt+9` typed their bare digit into the Search query (the arms below
                 // match on `code` alone, so a modified `Char` still read as text) and `F1`..`F10`
-                // vanished entirely — the tab jumps and Help were unreachable from Search
-                // (`docs/12-decisions.md`).
+                // vanished entirely — the tab jumps and Help were unreachable from Search.
                 InputContext::TextInput => text_input_action(state, chord)
                     .or_else(|| normal_resolve(state, viewport, chord)),
                 // `Enter` on `Modal::KeymapEditor` means "start capture" or "confirm/rebind
@@ -142,8 +141,7 @@ pub fn to_action(
                 // no-op), but nothing else ever produced `ModalAction::Submit` from a
                 // real keypress except the text-field special case below
                 // (`modal_text_input_action`, which never reaches this branch at all). Checked
-                // ahead of `resolve` the same way `Ctrl+C` is checked ahead of every context above
-                // — `docs/12-decisions.md`.
+                // ahead of `resolve` the same way `Ctrl+C` is checked ahead of every context above.
                 InputContext::Modal(_) if chord.code == LoxiaKeyCode::Enter => {
                     Some(Action::Modal(loxia_core::action::ModalAction::Submit))
                 }
@@ -270,14 +268,14 @@ fn normal_resolve(state: &AppState, viewport: Viewport, chord: KeyChord) -> Opti
 /// `↑`/`↓`/`k`/`j` move the row cursor, `←`/`→`/`Space` adjust the focused row's own
 /// value, `Ctrl+E` reveals a focused secret field, `Tab`/`Shift+Tab` cycle sections (the closest
 /// analogue to a settings dialog's own sub-tabs — the spec names no dedicated
-/// section-switch key, `docs/12-decisions.md`), and `Enter`'s meaning depends on the focused
+/// section-switch key), and `Enter`'s meaning depends on the focused
 /// row's own control (`StartTextEdit` for a `Text` row, `ActivateRow` for an `Action` row,
 /// otherwise nothing — there is nothing to "enter" on a `Toggle`/`Select`/`Slider`/`Number` row).
 fn settings_row_action(state: &AppState, chord: KeyChord) -> Option<Action> {
     // Focus parked on the main tab sidebar (reached by `Esc` out of the section list): `↑`/`↓`
     // switch tabs (handed to `normal_resolve` -> `move_focused`, which sees Settings on
     // `NavFocus::Sidebar`), `→`/`Enter` steps back into the section list. No sub-editor can be open
-    // here, so this is checked ahead of everything (`docs/12-decisions.md`).
+    // here, so this is checked ahead of everything.
     if state.nav.sidebar_focused {
         return match chord.code {
             LoxiaKeyCode::Right | LoxiaKeyCode::Enter
@@ -364,12 +362,12 @@ fn settings_row_action(state: &AppState, chord: KeyChord) -> Option<Action> {
         // `Tab`/`Shift+Tab` are deliberately **not** claimed here. They cycle the sidebar tabs
         // everywhere else, and entering a tab focuses its content — so claiming them for section
         // cycling meant that tabbing onto Settings trapped the user there with no way to tab back
-        // out (`docs/12-decisions.md`). Sections are reached the way the left pane already
+        // out. Sections are reached the way the left pane already
         // provides: `Esc` to the section list, `j`/`k` to pick, `Enter` to step into its rows.
         LoxiaKeyCode::Enter => Some(settings_enter_action(state)),
         // `Esc` steps out of the rows to the section (group) list — the user's chosen "go back"
         // key, since `←`/`h` is already spoken for by value adjustment on this row
-        // (`docs/12-decisions.md`). Only reached when no sub-editor/licences pane claimed it first.
+        //. Only reached when no sub-editor/licences pane claimed it first.
         LoxiaKeyCode::Esc => Some(Action::Settings(SettingsAction::FocusSectionList)),
         _ => None,
     }
@@ -441,8 +439,7 @@ fn server_editor_row_action(
             // `normal_resolve` rather than being silently swallowed for no reason).
             //
             // `Endpoint` was missing from this check while its own row *advertised* `[←→]`, so the
-            // keys did nothing on the one row that most obviously invited them
-            // (`docs/12-decisions.md`).
+            // keys did nothing on the one row that most obviously invited them.
             LoxiaKeyCode::Left if m == LoxiaKeyModifiers::default() => cycles_with_arrows(editor)
                 .then_some(Action::Settings(SettingsAction::ServerEditorCycleProtocol(
                     -1,
@@ -888,7 +885,7 @@ fn mouse_drag(mouse: &MouseState, col: u16, row: u16) -> Option<Action> {
 /// the current pointer position every time (unlike a drag, a scroll never "continues" a capture
 /// across events). Only the scrollable lists have a defined meaning here: the Miller columns, and
 /// the Now Playing queue/history pane, which is not a column and so was unreachable by the wheel
-/// until it got a target of its own (`docs/12-decisions.md`). Every other target is silently
+/// until it got a target of its own. Every other target is silently
 /// ignored rather than guessed at.
 fn scroll_action(hits: &HitMap, col: u16, row: u16, delta: i32) -> Option<Action> {
     match hits.hit(col, row)? {
@@ -909,7 +906,7 @@ fn transport_action(state: &AppState, button: TransportButton) -> Action {
         TransportButton::Stop => Action::Player(PlayerAction::Stop),
         TransportButton::Next => Action::Player(PlayerAction::Next),
         // Mirrors `action_for`'s own keyboard-equivalent mapping for `ToggleShuffle`/`CycleRepeat`
-        // exactly (`state.clock`, never a live clock read — `docs/12-decisions.md`).
+        // exactly (`state.clock`, never a live clock read).
         TransportButton::Shuffle => Action::Queue(QueueAction::ToggleShuffle {
             seed: state.clock.as_millisecond() as u64,
         }),
@@ -968,7 +965,7 @@ fn context_for(state: &AppState) -> InputContext {
     // flat `SettingsState.editing` (an ordinary `Control::Text` row) or one of the three
     // sub-editors' own nested buffers — see `settings_text_edit_active`, also used by
     // `text_input_action` below so the two can never again disagree about when this context
-    // applies (`docs/12-decisions.md`: they silently did, for a full release).
+    // applies (they silently did, for a full release).
     if state.nav.active_tab == Tab::Settings && settings_text_edit_active(state) {
         return InputContext::TextInput;
     }
@@ -984,7 +981,7 @@ fn context_for(state: &AppState) -> InputContext {
 /// exactly the bug found in the field: `text_input_action` used to check only the first of these
 /// four, so typing into any add/edit *form* (rather than a plain row-level text field) did nothing, and `Esc` (misrouted to the equally-inert `NavAction::Cancel`) couldn't
 /// even back out of it — only `Ctrl+C`, checked unconditionally above `context_for` entirely,
-/// still worked, which is exactly what read as "the app hangs" (`docs/12-decisions.md`).
+/// still worked, which is exactly what read as "the app hangs".
 fn settings_text_edit_active(state: &AppState) -> bool {
     state.settings.editing.is_some()
         || state
@@ -1030,7 +1027,7 @@ fn text_input_action(state: &AppState, chord: KeyChord) -> Option<Action> {
         // On the Search tab, `↓`/`↑` step between the query line and the results even though the
         // query line is technically a text field — `move_search_cursor` treats query-line and
         // results as one flat column, so a lone artist result is reachable with the arrows a user
-        // naturally reaches for, not only `Tab` (`docs/12-decisions.md`). The inline column filter
+        // naturally reaches for, not only `Tab`. The inline column filter
         // deliberately does *not* claim the arrows (its column keeps its own cursor for when
         // filtering ends), so this is scoped to the Search tab only.
         if state.nav.active_tab == Tab::Search && chord.mods == LoxiaKeyModifiers::default() {
@@ -1044,7 +1041,7 @@ fn text_input_action(state: &AppState, chord: KeyChord) -> Option<Action> {
     }
 }
 
-/// A modal's own text field (`docs/04-state-and-input.md` §5: "Only `Esc`, `Enter`, `Tab`,
+/// A modal's own text field ("Only `Esc`, `Enter`, `Tab`,
 /// `Shift+Tab`, and the arrows are bindable") — handled directly rather than through
 /// `keymap::resolve`'s shared `Normal` binding table, which would otherwise route `Tab` to
 /// `NextTab` (sidebar switching) instead of `FieldNext`. `Esc` and the arrows fall through to
@@ -1068,7 +1065,7 @@ fn modal_text_input_action(chord: KeyChord) -> Option<Action> {
     }
 }
 
-/// The inline column filter (`docs/07-ui-spec.md` §5): `Enter` commits the filter text
+/// The inline column filter: `Enter` commits the filter text
 /// and leaves text-input mode without clearing it; `Esc` clears it entirely (`Cancel`'s ladder).
 fn filter_text_input_action(chord: KeyChord) -> Option<Action> {
     // `Ctrl`/`Alt` make it a command, not a character: `Alt+1` is "jump to tab 1", and inserting a
@@ -1083,13 +1080,12 @@ fn filter_text_input_action(chord: KeyChord) -> Option<Action> {
         LoxiaKeyCode::Char(c) => Some(Action::Nav(NavAction::FilterInput(c))),
         LoxiaKeyCode::Esc => Some(Action::Nav(NavAction::Cancel)),
         // A real bug found in the field: without this, `Tab` on the Search tab (whose query line
-        // is focused on every tab entry, `docs/07-ui-spec.md` §9) fell all the way through to
+        // is focused on every tab entry) fell all the way through to
         // nothing — `to_action`'s own `InputContext::TextInput` arm has no `normal_resolve`
         // fallback the way the Settings tab's own dispatch does, so an unhandled key here is
         // simply swallowed, not passed on. A single-line query has no use for a literal tab
         // character, so `Tab`/`Shift+Tab` switch tabs here exactly as they do everywhere else,
-        // the same carve-out `modal_text_input_action` already makes for its own text field
-        // (`docs/12-decisions.md`).
+        // the same carve-out `modal_text_input_action` already makes for its own text field.
         LoxiaKeyCode::Tab if chord.mods.shift => Some(Action::Nav(NavAction::PrevTab)),
         LoxiaKeyCode::Tab => Some(Action::Nav(NavAction::NextTab)),
         _ => None,
@@ -1105,8 +1101,7 @@ fn to_chord(code: CtKeyCode, mods: CtKeyModifiers) -> Option<KeyChord> {
         // Terminals send Shift+Tab as its own escape sequence, which crossterm reports as
         // `BackTab` with **no** SHIFT modifier — never `Tab` with one. Without this arm it fell to
         // the `_ => return None` below and was dropped before reaching any binding, so `Shift+Tab`
-        // did nothing anywhere in the app while every `Tab if mods.shift` arm sat unreachable
-        // (`docs/12-decisions.md`).
+        // did nothing anywhere in the app while every `Tab if mods.shift` arm sat unreachable.
         CtKeyCode::BackTab => {
             return Some(KeyChord {
                 code: LoxiaKeyCode::Tab,
@@ -1309,7 +1304,7 @@ fn action_for_normal(id: ActionId, state: &AppState, viewport: Viewport) -> Opti
         ActionId::InsertNext => Some(Action::Queue(QueueAction::InsertNext)),
         ActionId::InstantMix => Some(Action::Queue(QueueAction::InstantMix)),
         // `state.clock` (the last `Tick`'s timestamp), never a raw clock read — the reducer
-        // itself must stay deterministic (`docs/12-decisions.md`).
+        // itself must stay deterministic.
         ActionId::ToggleShuffle => Some(Action::Queue(QueueAction::ToggleShuffle {
             seed: state.clock.as_millisecond() as u64,
         })),
@@ -1378,7 +1373,7 @@ fn delete_playlist_action(state: &AppState) -> Option<Action> {
 
 /// `x` is context-dependent: on a `PlaylistTracks` column it removes the focused (or
 /// every selected) track from that playlist instead of removing a queue entry — the two contexts
-/// share one key because they're never both meaningful at once (`docs/04-state-and-input.md`).
+/// share one key because they're never both meaningful at once.
 fn remove_entry_action(state: &AppState) -> Option<Action> {
     if let Some(action) = remove_from_playlist_action(state) {
         return Some(action);
@@ -1474,7 +1469,7 @@ fn enter_action(state: &AppState) -> Option<Action> {
     }
     // `Enter` **replaces** the queue and plays now; `Shift+Enter`/`A` (`QueueFullContext`) append
     // instead. This is the `ActionId::QueueArtistOnly` binding (`enter` *and* `a`) — the legacy name
-    // predates the replace/append split; both keys now mean "play this" (`docs/12-decisions.md`).
+    // predates the replace/append split; both keys now mean "play this".
     Some(Action::Queue(QueueAction::PlaySelection {
         full_context: false,
     }))
@@ -1541,7 +1536,7 @@ mod tests {
 
     /// Terminals send Shift+Tab as its own sequence, which crossterm reports as `BackTab` with no
     /// SHIFT modifier. `to_chord` had no arm for it, so the chord was dropped before reaching any
-    /// binding and Shift+Tab did nothing anywhere (`docs/12-decisions.md`).
+    /// binding and Shift+Tab did nothing anywhere.
     #[test]
     fn shift_tab_arrives_as_backtab_and_cycles_tabs_backwards() {
         let state = state_with_keymap();
@@ -1863,7 +1858,7 @@ mod tests {
     /// doubled as "previous track" outside this modal — but a letter whose *global* meaning a user
     /// would expect to still apply is. `o` was picked for off first and had to be changed: it is
     /// `OpenSortMenu` everywhere else, so it read as "ordering" beside a list-shaped editor
-    /// (`docs/12-decisions.md`). This pins the set so a future change is a deliberate one.
+    ///. This pins the set so a future change is a deliberate one.
     #[test]
     fn the_equalizer_modals_hardcoded_letters_are_p_b_and_t() {
         let state = equalizer_state();
@@ -2411,7 +2406,7 @@ mod tests {
     /// From the Search query line, a *modified* chord is a command, not text. `Alt+1`..`Alt+9`
     /// typed their bare digit into the query (the text arms match on `code` alone, so a modified
     /// `Char` still read as text) and `F1`..`F10` were swallowed whole — the `TextInput` arm had no
-    /// fallback to the normal table (`docs/12-decisions.md`).
+    /// fallback to the normal table.
     #[test]
     fn commands_reach_the_normal_table_from_the_search_query() {
         let mut state = state_with_keymap();
@@ -2499,7 +2494,7 @@ mod tests {
 
     /// `↓`/`↑` on the query line step into and out of the results even though the query line is a
     /// text field — the reducer treats query and results as one flat list, so the arrows a user
-    /// reaches for actually reach the results (`docs/12-decisions.md`).
+    /// reaches for actually reach the results.
     #[test]
     fn search_query_focused_routes_down_and_up_to_move() {
         let mut state = state_with_keymap();
@@ -2540,7 +2535,7 @@ mod tests {
 
     /// Settings' three-level focus: `Esc` in the rows steps out to the section list, `↑`/`↓` there
     /// pick a group, `Esc` again leaves for the tab sidebar, and from the sidebar `↑`/`↓` fall
-    /// through to tab-switching (`docs/12-decisions.md`).
+    /// through to tab-switching.
     #[test]
     fn settings_esc_steps_out_to_the_section_list_then_arrows_pick_groups() {
         let mut state = state_with_keymap();
@@ -2612,7 +2607,7 @@ mod tests {
     }
 
     /// A real bug found in the field: with the query line focused on every tab entry
-    /// (`docs/07-ui-spec.md` §9), `Tab` used to be silently swallowed — `to_action`'s own
+    ///, `Tab` used to be silently swallowed — `to_action`'s own
     /// `InputContext::TextInput` arm has no fallback to `normal_resolve` the way the Settings tab's
     /// own dispatch does, so an unhandled key here never reaches tab-switching at all. The user's
     /// own report: "it doesn't switch from search, it is stuck to it."
@@ -3039,7 +3034,7 @@ mod tests {
     }
 
     /// The Now Playing pane is not a Miller column, so `ScrollColumn` could never reach it and the
-    /// wheel simply did nothing there while working everywhere else (`docs/12-decisions.md`).
+    /// wheel simply did nothing there while working everywhere else.
     /// Both the entry rows and the pane backdrop behind them must scroll it.
     #[test]
     fn scroll_over_the_now_playing_pane_moves_its_cursor() {
@@ -3440,7 +3435,7 @@ mod tests {
 
     /// Settings used to claim `Tab`/`Shift+Tab` for section cycling. Since entering a tab focuses
     /// its content, tabbing onto Settings then trapped the user there with no way to tab back out
-    /// (`docs/12-decisions.md`). Tab means "next tab" everywhere, without exception.
+    ///. Tab means "next tab" everywhere, without exception.
     #[test]
     fn tab_cycles_tabs_even_on_the_settings_tab() {
         let state = settings_state();
@@ -3635,7 +3630,7 @@ mod tests {
     }
 
     /// Every raw key while `capturing` is claimed verbatim, ahead of `resolve` entirely
-    /// — `j` would otherwise resolve to `MoveDown` (`Action::Nav`), never `CaptureChord`.
+    /// `j` would otherwise resolve to `MoveDown` (`Action::Nav`), never `CaptureChord`.
     #[test]
     fn capturing_claims_every_key_verbatim() {
         let state = keymap_editor_state(true);
@@ -3962,7 +3957,7 @@ mod tests {
     }
 
     /// The `address:` row advertises `[←→]` in its own hint, and the arrows did nothing there:
-    /// only `Protocol` was in the check (`docs/12-decisions.md`).
+    /// only `Protocol` was in the check.
     #[test]
     fn arrows_cycle_the_address_selector_too() {
         use loxia_core::state::settings::{ServerDraft, ServerEditorState};

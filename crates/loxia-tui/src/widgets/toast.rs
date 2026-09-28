@@ -1,4 +1,4 @@
-//! Toast notification stack (`docs/07-ui-spec.md` §13): bottom-right, stacked upward,
+//! Toast notification stack: bottom-right, stacked upward,
 //! at most 3 visible with a `+n more` summary line, overlaid on top of the player bar without
 //! resizing the layout — `render::draw` calls this last (before the modal), over an area computed
 //! from the already-final `zones()` layout, so its own presence never changes where anything else
@@ -18,8 +18,7 @@ use crate::text;
 const MAX_VISIBLE: usize = 3;
 /// The narrowest a toast box ever gets. It grows past this to fit its own longest message (bounded
 /// by the available area) rather than truncating — a fixed 40 silently ate the last character of any
-/// 39-character message, e.g. "no bit-perfect capable output available" reading as "…availabl"
-/// (`docs/12-decisions.md`).
+/// 39-character message, e.g. "no bit-perfect capable output available" reading as "…availabl".
 const TOAST_MIN_WIDTH: u16 = 40;
 /// One bordered line per toast: top border, the message itself, bottom border.
 const TOAST_HEIGHT: u16 = 3;
@@ -255,7 +254,7 @@ mod tests {
     }
 
     /// A real bug: the box was a fixed 40 cells (38 inner), so this exact 39-character message
-    /// rendered as "...availabl" — the last letter silently eaten (`docs/12-decisions.md`).
+    /// rendered as "...availabl" — the last letter silently eaten.
     #[test]
     fn a_message_longer_than_the_minimum_width_is_not_cut_off() {
         let message = "no bit-perfect capable output available";

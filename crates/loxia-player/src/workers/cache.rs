@@ -1,11 +1,11 @@
 //! Cache worker: resolves `Effect::Cache(EnsureCached)` against the rolling cache, runs the
-//! single-concurrent background fetch that populates it (`docs/06-cache-and-offline.md`
+//! single-concurrent background fetch that populates it (
 //! §4), and persists `PersistSession`/`AppendHistory` (§8) via `loxia_cache::session`.
 //!
 //! `AppendScrobble`/`DrainScrobbles` (the offline scrobble buffer) are **not** handled here:
 //! `loxia_cache::scrobble` implements and tests the buffer, but nothing in the binary is wired to
 //! it yet, so both fall through to the catch-all and are logged at `debug`. See
-//! `docs/06-cache-and-offline.md` §7 and `ROADMAP.md`.
+//! and `ROADMAP.md`.
 
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -27,8 +27,7 @@ use tokio::sync::{Mutex, mpsc};
 use tokio::task::JoinHandle;
 
 /// Bounds the play-time cache lookup so a slow disk can never delay handing mpv *something* to
-/// play — a timeout replies `None` and playback proceeds from the network
-/// (`docs/06-cache-and-offline.md` §4).
+/// play — a timeout replies `None` and playback proceeds from the network.
 const RESOLVE_TIMEOUT: Duration = Duration::from_millis(50);
 
 /// The one background fetch this worker ever runs at a time, and the flag that cancels it.
@@ -66,7 +65,7 @@ pub fn spawn(
         let prefetch: PrefetchSlot = Arc::new(Mutex::new(None));
         // Permanent downloads. `Downloads` was fully built and tested against a fake
         // `Fetcher`; nothing ever constructed a real one, so `PinDownload`/`RemoveDownload` fell
-        // through to "unhandled cache effect" and `d` did nothing (`docs/12-decisions.md`).
+        // through to "unhandled cache effect" and `d` did nothing.
         let downloads = open_downloads(&client, &server, target_codec, &paths, &events).await;
         if let Some(downloads) = &downloads {
             announce_downloads(downloads, &events).await;
@@ -128,12 +127,12 @@ pub fn spawn(
                     }
                 }
                 // "removing any profile offers to delete its cached files and downloads"
-                // — every on-disk entry is already scoped under `tracks/<server_id>/` and
-                // `downloads/<server_id>/` (`docs/06-cache-and-offline.md` §1), so this is a
+                // every on-disk entry is already scoped under `tracks/<server_id>/` and
+                // `downloads/<server_id>/`, so this is a
                 // subtree removal, not a walk through the rolling cache's or `Downloads`' own
                 // in-memory bookkeeping (this worker's own `cache`/`in_flight` state only ever
                 // concerns the *active* server, never the one being deleted — removal is refused
-                // for the active profile, `docs/12-decisions.md`). Best-effort: a missing
+                // for the active profile). Best-effort: a missing
                 // directory (nothing was ever cached for that server) is not an error.
                 CacheEffect::DeleteServerData(server_id) => {
                     for subtree in ["tracks", "downloads"] {
@@ -186,7 +185,7 @@ pub fn spawn(
         }
         // The channel closing *is* shutdown. `complete_fetch`'s own write is debounced, so without
         // this the last fetches of a session — often the only ones — never reach `cache_index.json`
-        // and the cache comes up empty next launch (`docs/12-decisions.md`).
+        // and the cache comes up empty next launch.
         if let Err(error) = cache.lock().await.flush() {
             tracing::warn!(%error, "could not persist the cache index on shutdown");
         }
@@ -292,8 +291,7 @@ async fn handle_ensure_cached(
     };
 
     // A user skipping quickly through an album should not queue up twenty downloads — cancel
-    // whichever fetch is running if it's for a *different* key than what's now current
-    // (`docs/06-cache-and-offline.md` §4).
+    // whichever fetch is running if it's for a *different* key than what's now current.
     cancel_if_superseded(in_flight, &key).await;
 
     // A permanent download is the strongest local copy there is, so it is consulted first — and it
@@ -301,8 +299,7 @@ async fn handle_ensure_cached(
     // transcode profile exists to save *bandwidth*, which a file already on this disk does not
     // spend, so handing over the original is strictly better than fetching a smaller copy of
     // something already kept. Without this a downloaded track streamed and re-transcoded on every
-    // play, and `prefetch_on_play` cheerfully downloaded a second copy of it into the rolling cache
-    // (`docs/12-decisions.md`).
+    // play, and `prefetch_on_play` cheerfully downloaded a second copy of it into the rolling cache.
     if let Some(path) = downloaded_path(downloads, &track.id).await {
         let _ = events.send(Event::Data(DataAction::CacheResolved {
             track: track.id.clone(),
@@ -324,8 +321,7 @@ async fn handle_ensure_cached(
 
     // Always computed, even on a cache hit that won't use it — cheap (pure string building, no
     // I/O) and it's what lets the reducer correct `load_current`'s inert `emby-track:{id}`
-    // placeholder into something mpv can actually open when there's no local copy yet
-    // (`docs/12-decisions.md`).
+    // placeholder into something mpv can actually open when there's no local copy yet.
     let stream_url = StreamUrl::build(client, &key.item, key.profile, target_codec);
 
     let _ = events.send(Event::Data(DataAction::CacheResolved {
@@ -362,7 +358,7 @@ async fn handle_ensure_cached(
     }));
     tokio::spawn(async move {
         // A failure here is never user-visible: caching is a nice-to-have, not a playback
-        // requirement (`docs/06-cache-and-offline.md` §4).
+        // requirement.
         match run_fetch(&client, &cache, &key, &fetch_track, target_codec, &cancel).await {
             Ok(true) => {
                 // Only a clean, uncancelled completion is worth announcing — it is what makes the
@@ -665,7 +661,7 @@ mod tests {
                 assert_eq!(profile, QualityProfile::Direct);
                 assert_eq!(path, None);
                 // The real fix under test: a cache miss must still carry a URL mpv can actually
-                // open, not leave `load_current`'s inert placeholder in place (`docs/12-decisions.md`).
+                // open, not leave `load_current`'s inert placeholder in place.
                 assert!(stream_url.as_str().contains("/Audio/item-1/stream"));
             }
             other => panic!("unexpected event: {other:?}"),
@@ -873,7 +869,7 @@ mod tests {
     /// A permanently downloaded track must be *used*, not re-fetched. It wasn't: `EnsureCached`
     /// only ever consulted the rolling cache, so a track the user had deliberately kept streamed
     /// and re-transcoded on every play, and `prefetch_on_play` downloaded a second copy of it into
-    /// the rolling cache besides (`docs/12-decisions.md`).
+    /// the rolling cache besides.
     #[tokio::test]
     async fn a_downloaded_track_is_played_from_disk_and_never_refetched() {
         let server = wiremock::MockServer::start().await;
@@ -1083,7 +1079,7 @@ mod tests {
 
         // One profile fully resolved (fetch completed) before the next is requested — a second
         // `EnsureCached` for a *different key* would otherwise cancel the first's still-in-flight
-        // fetch (`docs/06-cache-and-offline.md` §4's own "don't queue up twenty downloads" rule),
+        // fetch (its own "don't queue up twenty downloads" rule),
         // which is correct behaviour but not what this test is checking.
         for profile in [QualityProfile::Direct, QualityProfile::TranscodeHigh] {
             effects_tx

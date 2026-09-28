@@ -1,4 +1,4 @@
-//! Sub-cell-precision progress bar (`docs/07-ui-spec.md` §7). Renders only the bar itself — the
+//! Sub-cell-precision progress bar. Renders only the bar itself — the
 //! surrounding `mm:ss` timestamps are `widgets/player_bar.rs`'s job, which is also why
 //! `HitTarget::SeekBar` is registered here rather than over the whole line.
 

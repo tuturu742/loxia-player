@@ -1,4 +1,4 @@
-//! 10-band ISO equalizer curve to filter string/commands (`docs/05-audio-engine.md` §5).
+//! 10-band ISO equalizer curve to filter string/commands.
 
 use loxia_core::config::EqPreset;
 
@@ -8,7 +8,7 @@ use crate::backend::{EQ_BANDS_HZ, EqCurve};
 /// (`t=1`).
 const FILTER_TYPE_PEAKING: u8 = 1;
 
-/// `±12 dB`, snapped to the nearest `0.5 dB` (`docs/05-audio-engine.md` §5).
+/// `±12 dB`, snapped to the nearest `0.5 dB`.
 pub fn clamp_gain(db: f32) -> f32 {
     let snapped = (db / 0.5).round() * 0.5;
     snapped.clamp(-12.0, 12.0)
@@ -29,13 +29,12 @@ fn band_entry(center_hz: u32, gain_db: f32) -> String {
     )
 }
 
-/// The full 10-band `anequalizer` filter graph, `|`-joined (`docs/05-audio-engine.md` §5:
+/// The full 10-band `anequalizer` filter graph, `|`-joined (
 /// "install the chain once, then mutate gains"). mpv has no *native* `anequalizer` filter of its
 /// own — it's an FFmpeg/`libavfilter` one — so it must be routed through mpv's `lavfi` bridge:
 /// verified against a real mpv instance available in this session's own environment, a bare
 /// `anequalizer=...` string set directly to the `af` property fails
-/// (`MPV_ERROR_PROPERTY_FORMAT`), while wrapping it `lavfi=[...]` succeeds
-/// (`docs/12-decisions.md`).
+/// (`MPV_ERROR_PROPERTY_FORMAT`), while wrapping it `lavfi=[...]` succeeds.
 pub fn filter_string(curve: &EqCurve) -> String {
     let entries: Vec<String> = EQ_BANDS_HZ
         .iter()
@@ -52,7 +51,7 @@ pub fn filter_string(curve: &EqCurve) -> String {
 /// **Not used by the real mpv command path**: `mpv::handle::apply_command`'s own `SetEq`
 /// handling reinstalls the whole chain via [`filter_string`] instead of calling this. Verified
 /// against a real, running mpv/FFmpeg build available in this session's own environment
-/// (`docs/12-decisions.md`): every `af-command <label> change <args>` attempt against a live
+///: every `af-command <label> change <args>` attempt against a live
 /// `lavfi`-wrapped `anequalizer` returned `MPV_ERROR_COMMAND` regardless of label/target
 /// spelling, while resetting the *whole* `af` property mid-playback measurably did **not** reset
 /// or restart the track (`time-pos` continued monotonically through it) — the opposite of what
@@ -69,7 +68,7 @@ pub fn band_command(band: usize, gain_db: f32) -> (String, String) {
     ("change".to_string(), args)
 }
 
-/// The eight factory presets (`docs/05-audio-engine.md` §5), embedded at compile time so no I/O
+/// The eight factory presets, embedded at compile time so no I/O
 /// or install-time asset lookup is needed. Parsed once per call rather than cached in a
 /// `LazyLock`: this runs at most once per EQ-menu open or config load, and keeping it a plain
 /// function keeps the parse failure a normal `panic!` at a predictable call site rather than a
@@ -91,7 +90,7 @@ pub fn factory_presets() -> Vec<EqPreset> {
 
 /// Factory presets, in `FACTORY_EQ_PRESET_NAMES` order, followed by `custom` — the "custom presets
 /// are appended after the factory list" rule
-/// (`docs/05-audio-engine.md` §5, `docs/02-data-model.md` §8's `EqConfig.custom_presets`).
+/// (`EqConfig.custom_presets`).
 pub fn all_presets(custom: &[EqPreset]) -> Vec<EqPreset> {
     let mut presets = factory_presets();
     presets.extend(custom.iter().cloned());

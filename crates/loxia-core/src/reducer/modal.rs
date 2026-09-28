@@ -1,5 +1,5 @@
-//! Reducer: modal lifecycle and field editing (`docs/02-data-model.md` §6,
-//! `docs/04-state-and-input.md` §4).
+//! Reducer: modal lifecycle and field editing (
+//!).
 
 use std::time::Duration;
 
@@ -227,8 +227,7 @@ fn build_equalizer_modal(state: &AppState) -> Modal {
     // Searches `known_presets` (factory *and* custom, in that order — the same list `p`
     // cycles through), not just `FACTORY_EQ_PRESET_NAMES` — the original version of this line only
     // ever found a match for a factory preset, so opening the modal with a *custom* preset active
-    // always started `preset_idx` at `None` even though the active preset was perfectly findable;
-    // `docs/12-decisions.md`.
+    // always started `preset_idx` at `None` even though the active preset was perfectly findable;.
     let preset_idx = state
         .player
         .known_presets
@@ -382,7 +381,7 @@ fn playlist_display_name(state: &AppState, id: &PlaylistId) -> String {
 
 /// The first row of the sort menu: not a real profile but the way back to the order the tracks were
 /// queued in — an album's disc/track order, a playlist's own order. Recognised by having no rules,
-/// which is also the only sensible reading of an empty rule list (`docs/12-decisions.md`).
+/// which is also the only sensible reading of an empty rule list.
 pub const DEFAULT_ORDER_ROW: &str = "Default order (as queued)";
 
 fn build_sort_profile_modal(state: &AppState) -> Modal {
@@ -399,7 +398,7 @@ fn build_sort_profile_modal(state: &AppState) -> Modal {
     // Defaults to the queue whenever one is loaded — not just while it's actively *playing*. Keying
     // off `PlayStatus::Playing` alone meant that pausing flipped the default to `Column`, so sorting
     // "stopped working" on a paused queue (a live user hit exactly this); a paused queue is still a
-    // queue the user means to reorder (`docs/12-decisions.md`). `Tab` still toggles to `Column` for
+    // queue the user means to reorder. `Tab` still toggles to `Column` for
     // sorting the browse list instead. The widget's own "which profile is active" marker reads
     // `state.queue.sort_profile` directly, independent of this default.
     let target = if state.queue.entries.is_empty() {
@@ -479,7 +478,7 @@ fn save_playlist_tracks(state: &AppState, source: SaveSource) -> Vec<Track> {
     }
 }
 
-/// the sort checkbox — applies `queue.sort_profile` (or the config's default queue
+/// The sort checkbox — applies `queue.sort_profile` (or the config's default queue
 /// profile, the same fallback `build_sort_profile_modal` already uses) via the shared
 /// `queue::sort::compare` comparator, the identical ordering `QueueAction::ApplySortProfile` uses
 /// for the live queue. A no-op (returns `tracks` untouched) if unchecked, or if the named profile
@@ -528,8 +527,7 @@ fn submit(state: &mut AppState) -> Vec<Effect> {
         // when `preset_idx` names a real preset — when it doesn't (the user tweaked bars without
         // landing on any known preset), there is no field in `EqConfig` to durably save arbitrary,
         // unnamed gains into, so `active_preset` is left as whatever it already was; the edit still
-        // takes effect for the rest of this run via `player.eq.gains`, just not across a restart
-        // (`docs/12-decisions.md`).
+        // takes effect for the rest of this run via `player.eq.gains`, just not across a restart.
         Modal::Equalizer {
             draft_gains,
             preset_idx,
@@ -796,7 +794,7 @@ fn keymap_editor_submit(
     }
 
     // `already_conflicting` is only `Some` on the *second* `Submit` for this same capture — the
-    // one after the first already found this exact conflict and displayed it (`docs/12-decisions.md`).
+    // one after the first already found this exact conflict and displayed it.
     // That second press is the "[Enter] rebind anyway", so the check is skipped and
     // the binding commits unconditionally; a fresh capture always runs it once.
     if already_conflicting.is_none()
@@ -901,7 +899,7 @@ fn cancel_capture(state: &mut AppState) -> Vec<Effect> {
 /// capture-mode check, ahead of its normal per-context dispatch) — the first chord arms
 /// `capture_deadline` and leaves `capturing` true for an optional second one; a second chord
 /// arriving before that deadline extends `captured` into a 2-chord sequence and ends capture
-/// immediately (`docs/04-state-and-input.md` §7's "captured by pressing a prefix and then the
+/// immediately ("captured by pressing a prefix and then the
 /// second key"). `expire_capture_window` (called from `tick`) is what ends capture if the second
 /// chord never comes.
 fn capture_chord(state: &mut AppState, chord: KeyChord) -> Vec<Effect> {
@@ -984,7 +982,7 @@ fn unbind_keymap_row(state: &mut AppState) -> Vec<Effect> {
 /// `open_confirm`'s own doc comment) — accepting it reopens the editor fresh (`reset_all_
 /// keybindings`); cancelling it (`Esc`) simply closes the confirmation, the same "return to
 /// nothing, not to what was open before" behaviour every other nested-under-a-modal action in
-/// this codebase has, since `Modal` has no stack to return to (`docs/12-decisions.md`).
+/// this codebase has, since `Modal` has no stack to return to.
 fn confirm_reset_all_keybindings(state: &mut AppState) -> Vec<Effect> {
     open_confirm(
         state,
@@ -1392,8 +1390,7 @@ mod tests {
     }
 
     /// Submitting used to force `enabled = true` unconditionally, so the modal could only ever turn
-    /// the equalizer on — the one screen that edits it had no off switch at all
-    /// (`docs/12-decisions.md`).
+    /// the equalizer on — the one screen that edits it had no off switch at all.
     #[test]
     fn toggling_the_equalizer_off_and_submitting_keeps_it_off() {
         let mut state = fixtures::fixture_empty();
@@ -2679,7 +2676,7 @@ mod tests {
             other => panic!("expected the modal to stay open with an error, got {other:?}"),
         }
         // `Submit` itself (the last dispatch) must not have emitted a `PlaylistCreate`/`PlaylistAdd`
-        // — only `open_save_playlist`'s own `FetchColumn` (from the first dispatch) is present.
+        // only `open_save_playlist`'s own `FetchColumn` (from the first dispatch) is present.
         assert!(
             !scenario
                 .effects()
@@ -3184,7 +3181,7 @@ mod tests {
 
     /// `remapped_key_works_immediately` / `all_ui_hints_update_after_remap` — every UI surface
     /// that shows a key (inspector, help modal, footers) reads `state.keymap.hint_for` fresh at
-    /// render time with no cache of its own (`docs/07-ui-spec.md` §1, already exercised per-surface
+    /// render time with no cache of its own (already exercised per-surface
     /// by e.g. `modals::help::tests::help_rows_generated_from_keymap`); this proves the one shared
     /// fact all of them depend on — that the live `KeyMap` itself updates the instant a capture
     /// commits, with no restart and no separate "apply" step.

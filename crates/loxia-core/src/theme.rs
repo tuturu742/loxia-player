@@ -1,4 +1,4 @@
-//! Theme, semantic roles, palette parsing (`docs/07-ui-spec.md` §12). Parsing only — no ratatui
+//! Theme, semantic roles, palette parsing. Parsing only — no ratatui
 //! types here; `loxia-tui::style` bridges a resolved [`ThemeColor`] to `ratatui::style::Color`.
 
 use std::collections::BTreeMap;
@@ -17,8 +17,7 @@ pub const BUILTIN_THEME_NAMES: &[&str] = &[
     "oled_black",
 ];
 
-/// Semantic colour roles — every widget resolves through one of these, never a raw colour
-/// (`docs/07-ui-spec.md` §12).
+/// Semantic colour roles — every widget resolves through one of these, never a raw colour.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Role {
     Bg,
@@ -39,7 +38,7 @@ pub enum Role {
 }
 
 impl Role {
-    /// Every variant, in the order `docs/07-ui-spec.md` §12 lists them — used to walk a parsed
+    /// Every variant, in the order the design lists them — used to walk a parsed
     /// theme role by role.
     const ALL: [Role; 15] = [
         Role::Bg,
@@ -59,7 +58,7 @@ impl Role {
         Role::ProgressEmpty,
     ];
 
-    /// The TOML key this role is written under — snake_case, matching `docs/07-ui-spec.md` §12
+    /// The TOML key this role is written under — snake_case, matching
     /// exactly.
     fn key(self) -> &'static str {
         match self {
@@ -206,7 +205,7 @@ impl Theme {
     }
 
     /// Roles absent from the parsed file, and therefore resolving to `Reset` via [`Theme::color`]
-    /// — for a caller that can log (see [`Theme::parse`]'s doc) to warn about a partial theme.
+    /// for a caller that can log (see [`Theme::parse`]'s doc) to warn about a partial theme.
     pub fn missing_roles(&self) -> Vec<Role> {
         Role::ALL
             .into_iter()

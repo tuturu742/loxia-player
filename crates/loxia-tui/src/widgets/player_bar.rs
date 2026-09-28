@@ -1,4 +1,4 @@
-//! The persistent three-line player bar (`docs/07-ui-spec.md` §7): now-playing line, progress
+//! The persistent three-line player bar: now-playing line, progress
 //! bar, and audio inspector line. Always visible, so every line degrades gracefully at any width.
 //! Reads `player.position`/`player.duration` from state — never extrapolates from a wall clock.
 
@@ -24,7 +24,7 @@ pub fn render(f: &mut Frame, area: Rect, state: &AppState, theme: &Theme, hits: 
     }
 
     // A top border plus one column of side padding, so the bar reads as its own panel and its
-    // controls aren't jammed against the terminal edge (`docs/12-decisions.md`). Only the top edge
+    // controls aren't jammed against the terminal edge. Only the top edge
     // is drawn: a full box would cost two more rows the three content lines need.
     let block = Block::default()
         .borders(Borders::TOP)
@@ -80,7 +80,7 @@ fn status_glyph(status: PlayStatus) -> char {
     }
 }
 
-/// `docs/07-ui-spec.md` §7 shows a bare "[availability glyph]" placeholder with no literal
+/// The design shows a bare "[availability glyph]" placeholder with no literal
 /// mapping — chosen to echo the same vocabulary the column status glyphs already
 /// established (`↓` downloaded, `△` unavailable), plus a distinct mark for a cached-but-not-
 /// pinned file; the normal remote case gets no glyph at all.
@@ -173,7 +173,7 @@ pub(crate) fn render_line2(
     };
 
     // Transport controls live here — in the always-visible player bar rather than inside the Now
-    // Playing view, so they are reachable from every tab (`docs/12-decisions.md`). Dropped entirely
+    // Playing view, so they are reachable from every tab. Dropped entirely
     // if the row is too narrow to hold them *and* a usable seek bar.
     let transport_w = transport_width(state);
     let controls_w = if area.width >= transport_w + MIN_SEEK_ROW_WIDTH {
@@ -215,7 +215,7 @@ pub(crate) fn render_line2(
     let bar_area = Rect::new(area.x + left_w + gap, area.y, bar_w, 1);
     // No state field carries a buffered fraction yet (no download/streaming-progress tracking
     // exists on `PlayerState`) — always `None` here; `widgets::progress`'s own tests exercise the
-    // buffered-region rendering directly. See `docs/12-decisions.md`.
+    // buffered-region rendering directly.
     render_progress(f, bar_area, pos, dur, None, theme, hits);
 
     let right_area = Rect::new(area.x + left_w + gap + bar_w + gap, area.y, right_w, 1);
@@ -241,7 +241,7 @@ const TRANSPORT_GAP: u16 = 2;
 /// **Every glyph carries U+FE0F.** `U+23EE`..`U+23F9` are ambiguous-width by default: `unicode-width`
 /// calls them 1 cell while terminals draw them as 2-cell emoji. The hit map is built from our
 /// width, so it drifted a column further left with each button — clicking Stop landed on Next, and
-/// clicking Play landed in the gap between two regions and did nothing (`docs/12-decisions.md`).
+/// clicking Play landed in the gap between two regions and did nothing.
 /// The variation selector pins emoji presentation, which makes `unicode-width` and the terminal
 /// agree on 2. `transport_glyphs_are_unambiguously_two_cells` guards this.
 fn transport_segments(state: &AppState) -> [(&'static str, Role, TransportButton); 6] {
@@ -326,7 +326,7 @@ pub(crate) fn render_line3(f: &mut Frame, area: Rect, state: &AppState, theme: &
     // Right-aligned in a fixed four-character field. mpv re-reports the bitrate as a track plays,
     // and on a VBR stream the digit count changes with it (`999` -> `1012` -> `987`), which shifted
     // every field after it sideways once or twice a second — the readouts appeared to dance
-    // (`docs/12-decisions.md`). Four digits covers everything up to 9999 kbps, i.e. every lossless
+    //. Four digits covers everything up to 9999 kbps, i.e. every lossless
     // stereo rate; a wider value simply pushes out as before rather than being truncated.
     let bitrate = format
         .bitrate_bps
@@ -392,7 +392,7 @@ mod tests {
     use super::*;
 
     /// Transport controls moved out of the Now Playing view and into the always-visible player bar,
-    /// so they work from every tab (`docs/12-decisions.md`).
+    /// so they work from every tab.
     #[test]
     fn transport_registers_hit_targets_in_the_player_bar() {
         use crate::hit::{HitTarget, TransportButton};
@@ -515,7 +515,7 @@ mod tests {
 
     /// mpv re-reports the bitrate as a VBR track plays. When the digit count changed, everything
     /// after it slid sideways — the readouts beside it visibly danced. The field is padded to a
-    /// fixed width so its neighbours hold still (`docs/12-decisions.md`).
+    /// fixed width so its neighbours hold still.
     #[test]
     fn bitrate_field_width_is_stable_across_values() {
         let column_of = |kbps: u32| {
@@ -582,7 +582,7 @@ mod tests {
     /// same `text::width` the layout is built from, so it agrees with itself whether or not it
     /// agrees with the *terminal*. `U+23EE`..`U+23F9` bare are the trap: `unicode-width` calls them
     /// 1 cell and terminals draw them as 2, so the hit map drifted a column per button and clicking
-    /// Stop hit Next (`docs/12-decisions.md`). A glyph that measures 2 is one whose presentation is
+    /// Stop hit Next. A glyph that measures 2 is one whose presentation is
     /// pinned, and therefore one both sides agree on.
     #[test]
     fn transport_glyphs_are_unambiguously_two_cells() {
@@ -682,7 +682,7 @@ mod tests {
     #[test]
     fn resumed_hint_shown_after_session_restore() {
         // The hint keys off `restored_unloaded` now, not `Stopped`-plus-nonzero-position
-        // — a real session restore leaves `status == Paused` (`⏸`), never `Stopped`.
+        // a real session restore leaves `status == Paused` (`⏸`), never `Stopped`.
         let mut state = playing_state();
         state.player.status = PlayStatus::Paused;
         state.player.restored_unloaded = true;

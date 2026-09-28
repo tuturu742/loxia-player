@@ -153,9 +153,9 @@ mod tests {
             .insert(Tab::Playlists, vec![playlists_col, tracks_col]);
         state.nav.focus = NavFocus::Column(1);
         let rendered = render_at(100, 24, &state);
-        // the wording is checked in two pieces, not as one contiguous substring — this
+        // The wording is checked in two pieces, not as one contiguous substring — this
         // narrow Miller column wraps it across two lines (`render_empty`'s own wrapping,
-        // deliberate: `docs/12-decisions.md`).
+        // deliberate:).
         assert!(rendered.contains("nothing here"));
         assert!(rendered.contains("is empty"));
     }

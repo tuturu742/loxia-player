@@ -11,7 +11,7 @@ use crate::model::{ItemId, MediaItem, SectionHeader};
 
 /// The ten sidebar tabs, in `Alt+1`..`Alt+0` order; `F2`..`F10` alias tabs 2 through 10, `F1` being
 /// reserved for help. `AlbumArtists` was the tenth to arrive, which is why the `Alt+N` run needs a
-/// `0` at the end (`docs/04-state-and-input.md` §6).
+/// `0` at the end.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default, Serialize, Deserialize)]
 pub enum Tab {
     #[default]
@@ -42,7 +42,7 @@ pub enum NavFocus {
 /// `Albums { of_artist: None }` and `Folders { of_parent: None }` are the library-root listing —
 /// the `Albums`/`Folders` sidebar tabs seed a column this way (the original design spec §2.1's "Albums:
 /// Miller Column view starting at the Album level" has no artist to scope to yet). `Some(id)` is
-/// the drilled-in case. `docs/02-data-model.md`'s original non-optional `{ of_artist: ItemId }`
+/// the drilled-in case. the original non-optional `{ of_artist: ItemId }`
 /// spec had no way to express this — corrected while implementing the tab-seeding logic.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ColumnKind {
@@ -61,7 +61,7 @@ pub enum ColumnKind {
         of_artist: ItemId,
     },
     Genres,
-    /// Emby's `/Artists?Genres={name}` filters by genre **name**, not id (`docs/03-emby-api.md`
+    /// Emby's `/Artists?Genres={name}` filters by genre **name**, not id (
     /// §3) — unlike every other `of_X` field in this enum, `of_genre` deliberately carries the
     /// name, not an `ItemId`, so the fetch has what it needs without a second lookup.
     GenreArtists {
@@ -135,7 +135,7 @@ impl Column {
     }
 
     /// Applies `filter` (case-insensitive `nucleo-matcher` fuzzy matching against
-    /// `display_name()`, `docs/07-ui-spec.md` §5) — pairing each surviving item with its original
+    /// `display_name()`) — pairing each surviving item with its original
     /// index in `items` so callers can still address it there. Items are filtered, not reordered:
     /// a Miller column's own order (year, track number, ...) is meaningful, so match score decides
     /// inclusion only, never position.
@@ -235,14 +235,13 @@ pub struct NavState {
     /// sidebar (so `↑`/`↓` switch tabs) rather than on the tab's own content (results / queue).
     /// Miller tabs express the same thing through `focus == NavFocus::Sidebar` instead; these two
     /// have no column stack to hang that off, so they carry it here. `false` (content-focused) is
-    /// the resting state on tab entry — `↓`/`←` reach the sidebar, `→` returns to content
-    /// (`docs/12-decisions.md`).
+    /// the resting state on tab entry — `↓`/`←` reach the sidebar, `→` returns to content.
     #[serde(default)]
     pub sidebar_focused: bool,
     /// Whether the sidebar's "Quit" row (rendered beneath the tabs) is the focused item — reached by
     /// pressing `↓` past the last tab. `↑` returns to the last tab, `Enter`/`→` quit. Never persisted
     /// or set by anything but sidebar navigation, and cleared by any explicit tab jump/click
-    /// (`set_tab`) so it can't linger (`docs/12-decisions.md`).
+    /// (`set_tab`) so it can't linger.
     #[serde(default)]
     pub sidebar_quit_focused: bool,
 }

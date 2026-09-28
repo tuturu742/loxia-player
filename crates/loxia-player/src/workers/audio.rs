@@ -1,4 +1,4 @@
-//! Owns the AudioBackend; serves playback effects (`docs/01-architecture.md` §4).
+//! Owns the AudioBackend; serves playback effects.
 
 use loxia_audio::backend::{
     AudioBackend, AudioCommand as EngineCommand, AudioEvent as EngineEvent,
@@ -33,8 +33,7 @@ pub fn spawn(
         // `playing = status == Playing`, so a rebuffer made it `false` and the next PlayPause
         // resolved to `Play` — a no-op against something already playing. Pressing pause during a
         // rebuffer therefore did nothing at all, silently: playback carried on and, because
-        // nothing paused, no `IsPaused: true` was ever reported to Emby either
-        // (`docs/12-decisions.md`).
+        // nothing paused, no `IsPaused: true` was ever reported to Emby either.
         //
         // Starts `true` — nothing is loaded yet, so the first press means "play".
         let mut paused = true;
@@ -51,7 +50,7 @@ pub fn spawn(
                         // the file (`Cannot open file 'emby-track:...'`) and, for a `Preload`
                         // appended to mpv's playlist, auto-advance straight into a broken entry when
                         // the current track ends — the reported "not every song is played." Dropped
-                        // here so only real URLs ever reach the engine (`docs/12-decisions.md`).
+                        // here so only real URLs ever reach the engine.
                         Some(Effect::Audio(effect)) if is_placeholder_load(&effect) => {
                             tracing::debug!("dropped inert placeholder load before mpv");
                         }
@@ -162,9 +161,9 @@ fn to_engine_command(effect: AudioEffect) -> EngineCommand {
     }
 }
 
-/// `docs/01-architecture.md` §4 / the event table. `Buffering`'s percentage is
+/// / the event table. `Buffering`'s percentage is
 /// discarded — `loxia_core::action::AudioEvent` has no field to carry it, matching the literal
-/// mapping ("`Buffering` → `StatusChanged(Buffering)`"); see `docs/12-decisions.md`.
+/// mapping ("`Buffering` → `StatusChanged(Buffering)`");.
 fn to_action(event: EngineEvent) -> Option<Event> {
     match event {
         EngineEvent::StatusChanged(status) => Some(Event::Audio(AudioEvent::StatusChanged(status))),
@@ -338,8 +337,7 @@ mod tests {
     /// mpv reports `core-idle` — `PlayStatus::Buffering` — every time a network stream rebuffers
     /// mid-track. The toggle used to track "is the status `Playing`", so a rebuffer flipped it to
     /// "not playing" and the next press resolved to `Play`: pressing pause during a rebuffer did
-    /// nothing at all, and since nothing paused, no `IsPaused: true` ever reached Emby either
-    /// (`docs/12-decisions.md`).
+    /// nothing at all, and since nothing paused, no `IsPaused: true` ever reached Emby either.
     #[tokio::test]
     async fn pause_still_pauses_while_the_stream_is_rebuffering() {
         let (engine, control) = MockEngine::new();

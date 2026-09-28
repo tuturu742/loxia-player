@@ -1,7 +1,7 @@
 //! Per-OS path resolution, pure function of an injected provider.
 //!
-//! Layout mirrors `docs/06-cache-and-offline.md` §1. `#[cfg(target_os = ...)]` is confined to this
-//! module and to `loxia-audio::device` (`docs/01-architecture.md` §7) — the one piece of genuinely
+//! Layout mirrors `#[cfg(target_os = ...)]` is confined to this
+//! module and to `loxia-audio::device` — the one piece of genuinely
 //! platform-specific behaviour here is that the Windows cache root nests one level deeper
 //! (`%LOCALAPPDATA%\loxia-player\cache`, not `%LOCALAPPDATA%\loxia`), since `%LOCALAPPDATA%` is shared
 //! with other local app data on that platform in a way `~/.cache` and `~/Library/Caches` are not.
@@ -13,7 +13,7 @@ use crate::config::CacheConfig;
 /// The directory name loxia claims under every platform base directory, and the stem of its log
 /// file. Deliberately the **binary's** name rather than the project's: `loxia` is a common enough
 /// word to collide with unrelated tools on `PATH`, so the shipped command is `loxia-player` and its
-/// on-disk footprint matches it (`docs/12-decisions.md`).
+/// on-disk footprint matches it.
 ///
 /// A single constant because a half-renamed identity is worse than either name: config read from
 /// one directory and cache written to another would look like data loss.
@@ -113,7 +113,7 @@ impl Paths {
 
         let data_root = resolve_override(&cfg.download_dir, || dirs.data_dir())?;
 
-        // state_dir() is None on macOS and Windows — fall back to the data root, which is what
+        // State_dir() is None on macOS and Windows — fall back to the data root, which is what
         // makes session.json/history.json/scrobbles.json/loxia-player.log live alongside downloads/
         // there instead of erroring.
         let state_root = match dirs.state_dir() {

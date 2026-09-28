@@ -1,5 +1,5 @@
 //! `draw(frame, &AppState, &Theme, &mut HitMap)` — the single render entry point every later
-//! widget hangs off (`docs/07-ui-spec.md` §§1-2).
+//! widget hangs off.
 
 use loxia_core::state::AppState;
 use loxia_core::state::modal::Modal;
@@ -18,7 +18,7 @@ const MIN_WIDTH: u16 = 80;
 const MIN_HEIGHT: u16 = 24;
 
 /// Renders the whole frame in order: header, sidebar, canvas, player bar, toasts, then the modal
-/// — modals last so they overlay everything else. Takes `&AppState` and never mutates it; the
+/// modals last so they overlay everything else. Takes `&AppState` and never mutates it; the
 /// only out-parameter is `hits`, cleared and repopulated every call.
 pub fn draw(
     f: &mut Frame,
@@ -33,7 +33,7 @@ pub fn draw(
     // Paint the theme's own background across the whole frame first. Widgets only ever colour the
     // cells they actually write, and many use `style::fg` (no background component at all), so
     // without this base coat every gap between them kept the terminal's default background — which
-    // is why a dark theme looked patchy rather than applied (`docs/12-decisions.md`). A theme whose
+    // is why a dark theme looked patchy rather than applied. A theme whose
     // `bg` is `Reset` (the default) paints nothing, deliberately inheriting the terminal's own.
     f.render_widget(
         ratatui::widgets::Block::default().style(crate::style::style(theme, Role::Fg)),
@@ -54,7 +54,7 @@ pub fn draw(
     let effects = render_canvas(f, z.canvas, hits, theme, state, art);
     // Zen mode draws its own two-line footer inside the canvas (`views::zen`), so the global player
     // bar would sit directly beneath it as a second, duplicate status bar — a real doubling seen in
-    // the field (`docs/12-decisions.md`).
+    // the field.
     if !state.zen_mode {
         player_bar::render(f, z.player, state, theme, hits);
     }
@@ -128,7 +128,7 @@ fn render_canvas(
 /// the generic placeholder box this function used to fall back to is gone — it matches on `Modal`
 /// directly instead
 /// of `if matches!`-chaining down to it: a future modal kind added without a render arm here now
-/// fails to compile instead of silently drawing an empty box (`docs/12-decisions.md`).
+/// fails to compile instead of silently drawing an empty box.
 fn render_modal_placeholder(
     f: &mut Frame,
     area: Rect,
@@ -256,7 +256,7 @@ mod tests {
     }
 
     /// Zen draws its own footer inside the canvas; the global player bar underneath it produced a
-    /// visibly doubled status bar (`docs/12-decisions.md`).
+    /// visibly doubled status bar.
     #[test]
     fn zen_does_not_double_the_status_bar() {
         use loxia_core::test_support::fixtures;
@@ -280,7 +280,7 @@ mod tests {
 
     /// Zen's footer replaces the global player bar, so it must claim exactly the bar's own zone
     /// height and put its rows in the same places — otherwise the bottom panel visibly resizes and
-    /// its contents shift as Zen is toggled (`docs/12-decisions.md`).
+    /// its contents shift as Zen is toggled.
     #[test]
     fn the_status_bar_does_not_move_when_zen_is_toggled() {
         use loxia_core::test_support::fixtures;
@@ -319,8 +319,7 @@ mod tests {
     }
 
     /// A `Block` paints only its border, so without an explicit `Clear` the view underneath showed
-    /// *through* the modal body — reported with the sort menu over Now Playing
-    /// (`docs/12-decisions.md`).
+    /// *through* the modal body — reported with the sort menu over Now Playing.
     #[test]
     fn a_modal_body_is_not_bled_through_by_the_view_beneath() {
         use loxia_core::state::modal::{Modal, SortApplyTarget};

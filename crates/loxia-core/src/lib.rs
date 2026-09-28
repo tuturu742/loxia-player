@@ -1,5 +1,5 @@
 //! Pure domain model and state machine for loxia. No I/O, no async runtime, no rendering —
-//! see docs/01-architecture.md §3.1 for the crate boundary rules this enforces.
+//! .1 for the crate boundary rules this enforces.
 
 pub mod action;
 pub mod config;
@@ -23,14 +23,14 @@ pub mod theme;
 pub type Timestamp = jiff::Timestamp;
 
 /// Local wall-clock `(hour, minute)` for `ts`, using the system timezone. `loxia-tui` (which may
-/// depend on nothing but `loxia-core`, `docs/13-dependencies.md`) needs this to render the header
+/// depend on nothing but `loxia-core`) needs this to render the header
 /// clock without taking a direct `jiff` dependency of its own — this is the one place
 /// `loxia-core` touches `jiff::tz` for it.
 ///
 /// **Pinned to UTC under `test-support`.** The header clock and the listening-history rows are
 /// rendered into `insta` snapshots, and the system zone makes those a function of the machine
 /// that generated them: snapshots written at UTC+2 then fail for every contributor in another
-/// zone, and in CI, which runs UTC. `docs/10-testing-and-ci.md` §5 asks for a fixed clock on any
+/// zone, and in CI, which runs UTC. the design asks for a fixed clock on any
 /// snapshot path; a fixed *instant* is not enough on its own, the zone has to be fixed too.
 /// `test-support` is a dev-only feature no release build ever enables, so a real clock still
 /// reads local time.

@@ -31,12 +31,11 @@ pub enum AudioError {
 /// confusing "library not found" crash at startup into a one-line fix.
 ///
 /// Switched from three compile-time OS-conditional branches to a runtime match on
-/// `std::env::consts::OS` — `docs/README.md` rule 5 confines that particular conditional-
+/// `std::env::consts::OS` — `CONTRIBUTING.md` rule 5 confines that particular conditional-
 /// compilation attribute to `loxia-audio::device` and `loxia-core::paths` (so this crate's own
 /// `cfg_blocks_confined_to_device_modules` grep test can enforce it project-wide); this function
 /// needs a per-OS *string*, not per-OS *code*, and `std::env::consts::OS` gives the identical
-/// result — it's a `const` reflecting the actual compiled target — without the attribute
-/// (`docs/12-decisions.md`).
+/// result — it's a `const` reflecting the actual compiled target — without the attribute.
 pub fn library_not_found_hint() -> String {
     match std::env::consts::OS {
         "macos" => "install it with Homebrew: `brew install mpv`.".to_string(),

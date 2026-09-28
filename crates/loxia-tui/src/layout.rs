@@ -1,4 +1,4 @@
-//! Root zone computation and responsive degradation (`docs/07-ui-spec.md` §§1-2).
+//! Root zone computation and responsive degradation.
 
 use loxia_core::state::AppState;
 use ratatui::layout::{Constraint, Layout, Rect};
@@ -26,8 +26,7 @@ pub fn zones(area: Rect, state: &AppState) -> Zones {
     if state.zen_mode {
         // Zen draws its own footer at the bottom of its canvas, and `render::draw` skips the global
         // player bar entirely — so the canvas must span the player zone too. Leaving it carved out
-        // left three dead rows below Zen's footer, which read as the status bar "moving up"
-        // (`docs/12-decisions.md`).
+        // left three dead rows below Zen's footer, which read as the status bar "moving up".
         let canvas = Rect::new(body.x, body.y, body.width, body.height + player.height);
         return Zones {
             header,
@@ -53,10 +52,10 @@ pub struct CanvasPlan {
     pub inspector: Option<Rect>,
 }
 
-/// "Full" width isn't given a literal cell count anywhere in `docs/07-ui-spec.md` §2 (only "24
+/// "Full" width isn't given a literal cell count anywhere in (only "24
 /// cells" for the narrow case is) — 40 is the reasonable choice, wide enough for a
 /// full metadata dump (codec, sample rate, bit depth, ReplayGain, etc.) as opposed to the
-/// abbreviated 24-cell panel. See `docs/12-decisions.md`.
+/// abbreviated 24-cell panel.
 const INSPECTOR_FULL_WIDTH: u16 = 40;
 const INSPECTOR_NARROW_WIDTH: u16 = 24;
 
@@ -66,7 +65,7 @@ enum InspectorMode {
     Full,
 }
 
-/// The degradation ladder (`docs/07-ui-spec.md` §2), keyed on the canvas width passed to
+/// The degradation ladder, keyed on the canvas width passed to
 /// [`plan_canvas`]:
 ///
 /// | Width   | Data columns | Inspector |

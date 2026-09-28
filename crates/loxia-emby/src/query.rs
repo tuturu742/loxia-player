@@ -178,7 +178,7 @@ impl ItemQuery {
 
     /// [`Self::parent`] for a scope that may be "the whole server": `None` leaves `ParentId` off
     /// the query entirely, which is how a browsing list covers **every** music library rather than
-    /// one (`endpoints::items::artists` and friends — see `docs/12-decisions.md`).
+    /// one (`endpoints::items::artists` and friends`).
     pub fn parent_opt(self, id: Option<&ItemId>) -> Self {
         match id {
             Some(id) => self.parent(id),
@@ -362,7 +362,7 @@ mod tests {
 
     /// `ItemQuery` deliberately has no `MediaTypes` builder: the one place that wanted it —
     /// `playlists::list` — got 106,115 unrelated items back from a real server when it sent
-    /// `IncludeItemTypes=Playlist&MediaTypes=Audio` (`docs/12-decisions.md`). Nothing should emit
+    /// `IncludeItemTypes=Playlist&MediaTypes=Audio`. Nothing should emit
     /// this parameter.
     #[test]
     fn media_types_is_never_emitted() {

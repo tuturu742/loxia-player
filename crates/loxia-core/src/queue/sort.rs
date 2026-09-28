@@ -59,8 +59,7 @@ fn finish_chunk(s: &str, is_digit: bool) -> Chunk {
 
 /// The string this field extracts from a track — empty string when the underlying data is
 /// missing (per the field table). `Name` falls back to `name` unconditionally:
-/// `Track` (unlike `Artist`/`Album`) carries no `sort_name` field to prefer in the first place
-/// (`docs/12-decisions.md`).
+/// `Track` (unlike `Artist`/`Album`) carries no `sort_name` field to prefer in the first place.
 fn text_key(track: &Track, field: SortField) -> &str {
     match field {
         SortField::Name => &track.name,
@@ -150,8 +149,7 @@ pub fn compare(a: &Track, b: &Track, profile: &SortProfile) -> Ordering {
 /// `ProductionYear` among that album's own tracks. Chronological-discography sorting keys the
 /// `Year` field off this rather than each track's own year: a live user found "artist + year +
 /// album + track" scattering albums across the timeline, because individual tracks carried missing
-/// or inconsistent year tags and `None` sorts last, yanking those tracks away from their album-mates
-/// (`docs/12-decisions.md`).
+/// or inconsistent year tags and `None` sorts last, yanking those tracks away from their album-mates.
 pub fn album_years<'a>(
     tracks: impl Iterator<Item = &'a Track>,
 ) -> std::collections::HashMap<crate::model::ItemId, u16> {
@@ -211,8 +209,7 @@ pub fn sort_tracks(tracks: &mut [Track], profile: &SortProfile) {
 /// where it is, acting as an immovable boundary between runs. `SortField`'s field table only ever
 /// defines extraction from a `Track` — there is no defined mapping onto `Artist`/`Album`/etc, so a
 /// column of non-`Track` items (e.g. a bare discography Albums/Appears-On split, before drilling
-/// into a specific album's Tracks) is correctly left untouched rather than guessed at
-/// (`docs/12-decisions.md`).
+/// into a specific album's Tracks) is correctly left untouched rather than guessed at.
 pub fn sort_items(items: &mut [MediaItem], profile: &SortProfile) {
     let mut start = 0;
     while start < items.len() {
@@ -513,8 +510,7 @@ mod tests {
     }
 
     /// A raw discography column (Albums, not Tracks) has no `Track` rows at all — `sort_items`
-    /// must leave it untouched rather than guess at an `Album`-specific field mapping
-    /// (`docs/12-decisions.md`).
+    /// must leave it untouched rather than guess at an `Album`-specific field mapping.
     #[test]
     fn sort_items_leaves_non_track_columns_untouched() {
         let artist = fixtures::artist("Sync24");

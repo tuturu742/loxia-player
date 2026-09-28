@@ -20,8 +20,7 @@ const COLLAPSED_HEIGHT: u16 = 1;
 
 /// `sections` names which sections this caller shows, in order. Search has no playlists to show —
 /// its query never asks for any — and a permanently empty `PLAYLISTS (0)` heading there would be
-/// pure noise, so callers name their own rather than the widget assuming every variant
-/// (`docs/12-decisions.md`).
+/// pure noise, so callers name their own rather than the widget assuming every variant.
 ///
 /// `focused_section: None` means nothing in this widget has focus (e.g. Search's query line does
 /// instead) — every row then renders as if no section were focused, but the cursor row still
@@ -178,8 +177,7 @@ fn render_section(
     // Each section is only a few rows tall (proportional to result counts), but a search can return
     // far more results than that. Scroll the section to keep its own cursor on screen — otherwise
     // the flat `↑`/`↓` navigation (which moves through *every* result) walks the cursor onto rows
-    // clipped below the visible few, which reads as "there's something there but I can't see it"
-    // (`docs/12-decisions.md`).
+    // clipped below the visible few, which reads as "there's something there but I can't see it".
     let start = scroll_start(count, cursor, inner.height as usize);
     match section {
         SearchSection::Artists => {

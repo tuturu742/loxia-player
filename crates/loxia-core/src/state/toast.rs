@@ -1,4 +1,4 @@
-//! Toast and ToastLevel (`docs/07-ui-spec.md` §13).
+//! Toast and ToastLevel.
 
 use jiff::SignedDuration;
 use serde::{Deserialize, Serialize};
@@ -72,7 +72,7 @@ mod tests {
     // Emby-server admin writes, not this codebase's own copy) — grep confirms these are the only
     // three real construction sites.
     //
-    // No `regex` dependency (not in the locked set, `docs/13-dependencies.md`) — plain string
+    // No `regex` dependency (not in the locked set) — plain string
     // scanning instead. This intentionally extracts only the *static* portions of a message (the
     // text around any `{placeholder}`), never what a runtime value later fills in — a dynamic
     // device/server/track name isn't something a writing-style rule can judge, and `EmbyError`'s

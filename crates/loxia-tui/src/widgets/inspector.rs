@@ -1,4 +1,4 @@
-//! The rightmost metadata pane (`docs/07-ui-spec.md` §6): per-kind detail, the multi-select
+//! The rightmost metadata pane: per-kind detail, the multi-select
 //! summary, and the keymap-derived contextual action list. The overview text is clipped with an
 //! overflow indicator rather than scrolled.
 
@@ -228,7 +228,7 @@ fn render_multiselect_body(f: &mut Frame, area: Rect, selected: &[MediaItem], th
 
 /// What a multi-selection is *of*. This was hardcoded to "Tracks", so selecting albums reported
 /// "3 Tracks Selected" — a live user read it as the selection having quietly turned into something
-/// else (`docs/12-decisions.md`). A mixed selection is neither, so it says "Items".
+/// else. A mixed selection is neither, so it says "Items".
 fn selection_noun(selected: &[MediaItem]) -> &'static str {
     let first = match selected.first() {
         Some(item) => item,
@@ -378,8 +378,8 @@ fn render_track_body(f: &mut Frame, area: Rect, track: &Track, state: &AppState,
         )),
         Line::from(Span::styled(replay_gain, fg)),
         Line::from(Span::styled(favourite.to_string(), fg)),
-        // `docs/07-ui-spec.md` §6 also asks for "availability" here — the inspector has no
-        // per-item cache/offline signal to read, so it is omitted (`docs/12-decisions.md`).
+        // Also asks for "availability" here — the inspector has no
+        // per-item cache/offline signal to read, so it is omitted.
     ];
     draw_rows(f, area, &lines);
 }
@@ -464,7 +464,7 @@ fn actions_for(
         actions.push(ActionId::QueueArtistOnly);
         // Listed alongside it, not left to be discovered: on an `Appears On` album these two are a
         // genuine either/or — the selected artist's tracks, or the whole compilation — and until
-        // now only the first was ever shown, so the second was invisible (`docs/12-decisions.md`).
+        // now only the first was ever shown, so the second was invisible.
         actions.push(ActionId::QueueFullContext);
         actions.push(ActionId::InsertNext);
         actions.push(ActionId::InstantMix);
@@ -670,7 +670,7 @@ mod tests {
     /// On an album the artist merely appears on, `Enter` queues only that artist's tracks and
     /// `Shift+Enter` the whole compilation. Both are real choices, and until now the inspector
     /// listed only the first, under a label that said nothing about the filtering
-    /// (`docs/12-decisions.md`). Both must be listed, and named for what they do here.
+    ///. Both must be listed, and named for what they do here.
     #[test]
     fn appears_on_album_spells_out_both_queueing_choices() {
         let mut state = state_with_keymap();
@@ -764,7 +764,7 @@ mod tests {
         let mut state = fixtures::fixture_visual_select();
         state.keymap = KeyMap::defaults();
         let (rendered, _) = render_at(40, 20, &state);
-        // fixture_visual_select selects 3 of 5 tracks, each 180s (3:00) long -> 9:00 total.
+        // Fixture_visual_select selects 3 of 5 tracks, each 180s (3:00) long -> 9:00 total.
         assert!(rendered.contains("9:00"));
     }
 

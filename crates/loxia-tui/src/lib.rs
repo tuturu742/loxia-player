@@ -1,5 +1,5 @@
 //! ratatui rendering: views, widgets, modals, and the mouse hit-testing map. Depends only on
-//! loxia-core — see docs/01-architecture.md §3.5.
+//! loxia-core.
 
 pub mod hit;
 pub mod layout;

@@ -77,7 +77,7 @@ pub async fn music_libraries(client: &EmbyClient) -> Result<Vec<Library>, EmbyEr
 ///
 /// `lib` of `None` drops `ParentId`, scoping the list to **every** music library on the server —
 /// what a server with more than one music library needs, since a browsing list pinned to the
-/// first one silently hides the rest (`docs/12-decisions.md`). Emby de-duplicates the union: an
+/// first one silently hides the rest. Emby de-duplicates the union: an
 /// artist present in two libraries is returned once.
 pub async fn artists(
     client: &EmbyClient,
@@ -147,7 +147,7 @@ pub async fn album_tracks(client: &EmbyClient, album: &ItemId) -> Result<Vec<Tra
 /// `GET /Users/{uid}/Items?IncludeItemTypes=MusicAlbum&ParentId={lib}&Recursive=true` — every
 /// album in the library, flat (not scoped to any one artist; that's `discography` instead). Backs
 /// the top-level Albums tab's `ColumnKind::Albums { of_artist: None }`, which had no endpoint at
-/// all before this — see `docs/12-decisions.md`. `lib` of `None` covers every music library, as in
+/// all before this. `lib` of `None` covers every music library, as in
 /// [`artists`].
 pub async fn albums(
     client: &EmbyClient,
@@ -290,7 +290,7 @@ pub async fn folder_tracks(
 ) -> Result<Vec<Track>, EmbyError> {
     // `Path` (on-disk file path), not `SortName` — folder queueing must follow the library's own
     // directory structure/filenames, so a recursive queue plays folder-by-folder in the order the
-    // files are laid out rather than interleaving by track title (`docs/12-decisions.md`).
+    // files are laid out rather than interleaving by track title.
     let query = ItemQuery::default()
         .parent(folder)
         .item_types(&[ItemType::Audio])
@@ -391,7 +391,7 @@ mod tests {
 
     /// A server with several music libraries scopes browsing lists to none of them in particular,
     /// which on the wire means no `ParentId` at all. Pinning to the first library is what hid a
-    /// user's whole second library from Artists/Albums/Genres (`docs/12-decisions.md`).
+    /// user's whole second library from Artists/Albums/Genres.
     #[tokio::test]
     async fn a_none_scope_sends_no_parent_id() {
         for (name, endpoint) in [
@@ -440,7 +440,7 @@ mod tests {
         );
     }
 
-    /// `docs/12-decisions.md`: the top-level Albums tab (`ColumnKind::Albums { of_artist: None }`)
+    /// The top-level Albums tab (`ColumnKind::Albums { of_artist: None }`)
     /// had no endpoint behind it at all until this — a live user found it spinning forever.
     #[tokio::test]
     async fn albums_fetches_a_flat_recursive_list() {

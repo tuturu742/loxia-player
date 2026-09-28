@@ -197,7 +197,7 @@ pub fn build_custom_headers(raw: &BTreeMap<String, String>) -> Result<HeaderMap,
 /// way against a real server: `auth::authenticate` used to send only the caller's own custom
 /// headers, with no identification header at all, since nothing before this exercised it against
 /// anything but a mock that never validated headers in the first place
-/// (`docs/12-decisions.md`). `token` is `""` pre-login (`auth::authenticate`'s own case) or a real
+///. `token` is `""` pre-login (`auth::authenticate`'s own case) or a real
 /// access token once one exists (`build_headers`, below, for a saved profile's every other
 /// request) — Emby accepts an empty `Token=""` in this same header just fine, which is why only
 /// the *separate* `x-emby-token` header (not this one) is conditionally omitted.

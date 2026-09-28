@@ -1,7 +1,7 @@
 //! Raw mode, alt screen, mouse capture, panic-safe restore.
 //!
 //! Uses `ratatui::crossterm` exclusively — a direct `crossterm` dependency is banned
-//! (`deny.toml`, `docs/13-dependencies.md` rule 1) because two copies of the crate in one binary
+//! (`deny.toml`) because two copies of the crate in one binary
 //! risk two incompatible `Event` types.
 
 use std::io::{self, Stdout};

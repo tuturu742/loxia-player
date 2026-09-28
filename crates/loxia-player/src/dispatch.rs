@@ -6,7 +6,7 @@ use tokio::sync::mpsc::UnboundedSender;
 use crate::workers::Workers;
 
 /// Fans `effect` out to every worker's channel — each worker's own receive loop decides which
-/// variants it cares about (`docs/01-architecture.md` §4, `crate::workers`'s module doc). A
+/// variants it cares about (`crate::workers`'s module doc). A
 /// closed channel means a dead worker; logged at `error` and otherwise ignored, since a dead
 /// worker must never take down the UI.
 ///

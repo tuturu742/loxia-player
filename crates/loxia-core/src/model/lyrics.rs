@@ -26,7 +26,7 @@ impl Lyrics {
     /// A server that answers the subtitle request with an empty body parses into exactly one empty
     /// line, which the old `v.is_empty()` counted as real content: the pane then reserved its space
     /// and drew nothing, so a track appeared to have lyrics that never showed up. Seen in the field
-    /// with `kind=unsynced count=1 first=` in the logs (`docs/12-decisions.md`).
+    /// with `kind=unsynced count=1 first=` in the logs.
     pub fn is_empty(&self) -> bool {
         match self {
             Lyrics::Unsynced(v) => v.iter().all(|l| l.trim().is_empty()),
@@ -254,7 +254,7 @@ fn srt_cue_start(line: &str) -> Option<Duration> {
 
 /// SRT subtitles used as a lyrics fallback. Cue numbers are dropped and each cue's **start time**
 /// becomes the timestamp of every payload line in that cue, yielding [`Lyrics::Synced`] — so `.srt`
-/// lyrics scroll with playback exactly like a real `.lrc` (`docs/12-decisions.md`).
+/// lyrics scroll with playback exactly like a real `.lrc`.
 ///
 /// A multi-line cue becomes several lines sharing one timestamp rather than one joined line: that
 /// preserves the file's own line breaks, and [`Lyrics::active_line`] resolves the tie to the last
@@ -338,7 +338,7 @@ pub fn parse_srt(input: &str) -> Lyrics {
 /// syntax carrying no time at all. Treated as `Synced`, `active_line` finds every line at or before
 /// the position from the very first frame and highlights the *last* one, so the pane jumps to the
 /// bottom of the lyrics and sits there for the whole song: worse than not syncing at all. Verified
-/// against the live server (`docs/12-decisions.md`).
+/// against the live server.
 ///
 /// Deliberately this narrow rather than "at least two distinct timestamps": a file whose one cue
 /// starts at 0:52 is genuinely timed, and several lines sharing one real timestamp is just a
@@ -353,7 +353,7 @@ mod tests {
 
     /// A server answering the subtitle request with an empty body parses into one blank line, which
     /// used to count as real content: the pane reserved space and drew nothing, so a track looked
-    /// like it had lyrics that never appeared (`docs/12-decisions.md`).
+    /// like it had lyrics that never appeared.
     #[test]
     fn all_blank_lines_count_as_empty() {
         assert!(Lyrics::Unsynced(vec![String::new()]).is_empty());
@@ -598,7 +598,7 @@ mod tests {
     /// **Found against the live server.** Emby synthesises an `.srt` from a plain-text lyric
     /// sidecar, and every cue in it is `00:00:00,000 --> 00:00:00,000` — cue syntax with no time in
     /// it. Honoured as timing, `active_line` picks the *last* line from the very first frame and
-    /// the pane sits at the bottom of the lyrics for the whole song (`docs/12-decisions.md`).
+    /// the pane sits at the bottom of the lyrics for the whole song.
     /// Shape reproduced exactly, BOM included; the words are invented.
     #[test]
     fn an_srt_with_all_zero_timings_is_not_treated_as_timed() {

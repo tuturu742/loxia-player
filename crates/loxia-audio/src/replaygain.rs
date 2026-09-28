@@ -1,4 +1,4 @@
-//! ReplayGain mode mapping and normalization fallback (`docs/05-audio-engine.md` §6).
+//! ReplayGain mode mapping and normalization fallback.
 
 use loxia_core::config::ReplayGainMode;
 

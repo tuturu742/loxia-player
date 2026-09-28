@@ -15,7 +15,7 @@ use crate::error::EmbyError;
 /// with real timings alongside a plain-text transcript is common — and taking whichever came first
 /// meant a track with perfectly good synced lyrics displayed the untimed copy instead (seen on
 /// Amorphis, "The Gathering": a `text` stream at index 2 with every cue at `00:00:00`, and an `lrc`
-/// stream at index 3 carrying the real times — `docs/12-decisions.md`).
+/// stream at index 3 carrying the real times).
 fn format_rank(format: LyricFormat) -> u8 {
     match format {
         // Purpose-built for timed lyrics.
@@ -38,7 +38,7 @@ fn stream_format(codec: Option<&str>) -> Option<LyricFormat> {
 
 /// Scans `source.media_streams` for the **most timeable** `Subtitle`-type stream whose codec is
 /// `lrc`, `srt`/`subrip`, or `text` — see [`format_rank`]. Ties keep the file's own order. No match
-/// — including no `Id` on the source itself, since a stream reference is meaningless without one —
+/// including no `Id` on the source itself, since a stream reference is meaningless without one —
 /// yields `None`, meaning the track has no lyrics and the UI hides the pane entirely.
 pub fn find_lyric_stream(source: &MediaSourceDto) -> Option<LyricStreamRef> {
     let media_source_id = source.id.clone()?;
@@ -79,7 +79,7 @@ fn parse_body(text: &str, format: LyricFormat) -> Lyrics {
 /// choice for an `lrc`-codec stream, but a live server answered it with an **empty body** — its
 /// documented conversions are `srt`/`vtt`/`ass`, and `lrc` evidently isn't among them. So this asks
 /// for the stream's own format first and falls back to `.srt` (universally supported, and timestamped,
-/// so the result is still synced) whenever the first attempt yields nothing (`docs/12-decisions.md`).
+/// so the result is still synced) whenever the first attempt yields nothing.
 pub async fn fetch(
     client: &EmbyClient,
     item: &ItemId,
@@ -104,7 +104,7 @@ pub async fn fetch(
 ///
 /// Those two are not the same thing: a `text` stream is fetched as `.srt`, and parsing that SRT
 /// with `parse_plain` turned every cue number and every `00:00:00,000 --> 00:00:00,000` line into a
-/// lyric line, which is exactly what a user saw on screen (`docs/12-decisions.md`). Deriving the
+/// lyric line, which is exactly what a user saw on screen. Deriving the
 /// parser here, inside the one function that performs the request, is what stops the two drifting
 /// apart again.
 fn format_for_extension(ext: &str) -> LyricFormat {
@@ -117,7 +117,7 @@ fn format_for_extension(ext: &str) -> LyricFormat {
 
 /// One attempt at a specific extension, parsed as that extension demands
 /// ([`format_for_extension`]). Every failure (transport, 404, any other status) degrades to empty
-/// lyrics rather than an error — lyrics are cosmetic (`docs/03-emby-api.md` §7) — which also lets
+/// lyrics rather than an error — lyrics are cosmetic — which also lets
 /// `fetch` above treat "empty" as "try the fallback".
 async fn fetch_as(
     client: &EmbyClient,
@@ -173,8 +173,7 @@ mod tests {
 
     /// The real failure seen in the field: the server answers `.lrc` with an empty body (its
     /// conversions are srt/vtt/ass), which parsed into one blank line that counted as content — the
-    /// pane reserved space and drew nothing. `.srt` is retried and is what actually has the lyrics
-    /// (`docs/12-decisions.md`).
+    /// pane reserved space and drew nothing. `.srt` is retried and is what actually has the lyrics.
     #[tokio::test]
     async fn an_empty_lrc_response_falls_back_to_srt() {
         let server = MockServer::start().await;
@@ -202,7 +201,7 @@ mod tests {
             "the .srt fallback must supply the lyrics"
         );
         // `parse_srt` keeps each cue's start time, so the fallback scrolls with playback exactly
-        // like a real `.lrc` rather than sitting static (`docs/12-decisions.md`).
+        // like a real `.lrc` rather than sitting static.
         match lyrics {
             Lyrics::Synced(lines) => assert_eq!(
                 lines,
@@ -276,7 +275,7 @@ mod tests {
 
     /// The exact shape of Amorphis' "The Gathering": an untimed `text` transcript first, and the
     /// `lrc` stream carrying the real times after it. Taking the first stream showed the untimed
-    /// copy for a track that has perfectly good synced lyrics (`docs/12-decisions.md`).
+    /// copy for a track that has perfectly good synced lyrics.
     #[test]
     fn a_timed_stream_wins_over_an_untimed_one_whatever_the_order() {
         let picked = find_lyric_stream(&source_with_streams(vec![
@@ -319,7 +318,7 @@ mod tests {
     /// The body must be read with the parser the **requested extension** demands, not the stream's
     /// declared format. A `text` stream is fetched as `.srt`, and reading that with `parse_plain`
     /// put every cue number and every `00:00:00,000 --> 00:00:00,000` line on screen as a lyric —
-    /// exactly what a user reported (`docs/12-decisions.md`).
+    /// exactly what a user reported.
     #[tokio::test]
     async fn a_text_stream_fetched_as_srt_is_parsed_as_srt() {
         let server = MockServer::start().await;

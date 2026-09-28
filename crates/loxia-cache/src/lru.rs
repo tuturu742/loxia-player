@@ -1,5 +1,4 @@
-//! The rolling cache: size accounting, eviction with hysteresis, and startup reconciliation
-//! (`docs/06-cache-and-offline.md` §4).
+//! The rolling cache: size accounting, eviction with hysteresis, and startup reconciliation.
 
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -16,7 +15,7 @@ use crate::manifest::{Manifest, ManifestEntry};
 const STALE_PART_AGE: Duration = Duration::from_secs(24 * 3600);
 
 /// What `RollingCache::reconcile` did, for the `info`-level log line
-/// (`docs/06-cache-and-offline.md` §4) and for tests.
+/// and for tests.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct ReconcileReport {
     pub dropped_rows: usize,
@@ -26,7 +25,7 @@ pub struct ReconcileReport {
 }
 
 /// Owns the manifest for the `tracks/` tier (`root` is the cache root — `cache_index.json` and
-/// `cache.lock` live directly under it, per `docs/06-cache-and-offline.md` §1 — `tracks/` is one
+/// `cache.lock` live directly under it — `tracks/` is one
 /// level down). Downloads live in an entirely separate manifest (`downloads.rs`), so nothing here
 /// can ever see, and therefore can never evict, a pinned file.
 pub struct RollingCache {
@@ -71,7 +70,7 @@ impl RollingCache {
         self.tracks_root.join(relative)
     }
 
-    /// The play-time decision (`docs/06-cache-and-offline.md` §4): `Some(path)` only for
+    /// The play-time decision: `Some(path)` only for
     /// a **complete** entry — touches `last_access` so LRU ordering reflects real use. `None` for
     /// a miss, an incomplete (still-downloading) entry, or a stale row whose file has since gone
     /// missing (this does not itself repair the manifest; that's `reconcile`'s own job).
@@ -92,7 +91,7 @@ impl RollingCache {
 
     /// Registers a background fetch as starting: an incomplete manifest row at `path_for(key)`,
     /// so `evict`/`reconcile` both already know about it (even though eviction can never remove
-    /// an incomplete entry regardless — `docs/12-decisions.md`). A no-op if one already
+    /// an incomplete entry regardless). A no-op if one already
     /// exists (a resumed fetch reuses its own row rather than resetting `created_at`).
     pub fn begin_fetch(&mut self, key: &CacheKey, relative: &Path) -> PathBuf {
         // A resumed fetch keeps whatever path its row already has, so a change of naming scheme
@@ -144,7 +143,7 @@ impl RollingCache {
     /// restart came up with an empty manifest: already-downloaded files could never be resolved,
     /// every track re-streamed and re-downloaded, `reconcile` (once it started running) deleted
     /// them all as orphans, and the About page's cache size read 0 forever. That is what "caching
-    /// is unreliable most of the times" was (`docs/12-decisions.md`).
+    /// is unreliable most of the times" was.
     ///
     /// `maybe_flush`, not `flush`: writing the whole index on every completed track would be
     /// wasteful, and the debounce is exactly what `Manifest` provides it for. A failure is logged,
@@ -167,7 +166,7 @@ impl RollingCache {
     }
 
     /// The fetch that `begin_fetch` started failed or was cancelled: drops the manifest row
-    /// (`docs/06-cache-and-offline.md` §4: a failure is logged at `debug`, never user-visible).
+    /// (a failure is logged at `debug`, never user-visible).
     /// The `.part` file itself is deliberately left on disk — a later resume reads its own
     /// current size directly to pick up an HTTP `Range` request where it left off, independent of
     /// whatever the manifest says; `reconcile`'s 24-hour rule is what eventually cleans up a
@@ -194,7 +193,7 @@ impl RollingCache {
     /// preloaded tracks' own keys), and, since downloads live in a wholly separate manifest, never
     /// anything from that tier either — until usage reaches 90% of `limit_bytes`, the hysteresis
     /// that stops the cache evicting one file per track forever right at the boundary
-    /// (`docs/06-cache-and-offline.md` §4). A no-op (and `Ok(0)`) if already at or under the
+    ///. A no-op (and `Ok(0)`) if already at or under the
     /// limit. Returns the number of bytes actually reclaimed. An entry whose own path escapes the
     /// tracks root is skipped entirely — refused, not deleted, and its manifest row survives too.
     pub fn evict(&mut self, limit_bytes: u64, protected: &[CacheKey]) -> Result<u64, CacheError> {
@@ -239,7 +238,7 @@ impl RollingCache {
         Ok(reclaimed)
     }
 
-    /// Startup reconciliation (`docs/06-cache-and-offline.md` §4): drops manifest rows whose file
+    /// Startup reconciliation: drops manifest rows whose file
     /// is missing, deletes files under `tracks/` with no manifest row, deletes `.part` files older
     /// than 24 hours, and leaves the manifest's own `total_bytes()` correct by construction (it's
     /// always summed from whatever rows remain, never cached separately). A corrupt index was
@@ -262,8 +261,7 @@ impl RollingCache {
         if self.tracks_root.exists() {
             // Walks the whole tree, not just `tracks/<server>/*`: cached files now sit under
             // `<server>/<artist>/<album>/`, and a two-level scan would never see them — leaving
-            // every orphan and stale `.part` beneath an album directory to accumulate forever
-            // (`docs/12-decisions.md`).
+            // every orphan and stale `.part` beneath an album directory to accumulate forever.
             let mut files = Vec::new();
             collect_files(&self.tracks_root, &mut files)?;
             for path in files {
@@ -398,7 +396,7 @@ mod tests {
     /// `cache_index.json` during an ordinary session. `complete_fetch` updated the manifest in
     /// memory and the only `flush` callers were eviction and reconciliation, neither of which runs
     /// on a normal play — so every restart came up with an empty index, could resolve nothing, and
-    /// re-downloaded the lot (`docs/12-decisions.md`).
+    /// re-downloaded the lot.
     #[test]
     fn a_completed_fetch_puts_the_index_on_disk() {
         let dir = tempdir().unwrap();
@@ -596,7 +594,7 @@ mod tests {
 
     /// Cached files live under `<server>/<artist>/<album>/` now. The old scan only looked at
     /// `tracks/<server>/*` and skipped anything that wasn't a file, so every orphan and stale
-    /// `.part` inside an album directory would have accumulated forever (`docs/12-decisions.md`).
+    /// `.part` inside an album directory would have accumulated forever.
     #[test]
     fn reconcile_reaches_orphans_nested_under_artist_and_album() {
         let dir = tempdir().unwrap();

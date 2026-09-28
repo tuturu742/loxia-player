@@ -1,5 +1,5 @@
 //! Favourites tab: the sectioned layout Search uses, via the shared
-//! `widgets::sectioned_list`, over `Filters=IsFavorite` data (`docs/07-ui-spec.md` §9).
+//! `widgets::sectioned_list`, over `Filters=IsFavorite` data.
 
 use loxia_core::keymap::ActionId;
 use loxia_core::state::AppState;

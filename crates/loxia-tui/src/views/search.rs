@@ -1,7 +1,7 @@
-//! Search tab: debounced query, three result sections (`docs/07-ui-spec.md` §9).
+//! Search tab: debounced query, three result sections.
 //!
 //! The section list itself is `widgets::sectioned_list`, shared with the Favourites tab
-//! — this module only owns the query line on top of it.
+//! this module only owns the query line on top of it.
 
 use loxia_core::state::AppState;
 use loxia_core::state::nav::LoadState;

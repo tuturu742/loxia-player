@@ -56,7 +56,7 @@ async fn run(mut effects: UnboundedReceiver<Effect>, events: UnboundedSender<Eve
 /// Real, possibly-blocking setup: `MediaControls::new` (never fails on the Linux backend — it
 /// only stores names) followed by `attach`, which is where a headless system with no session bus
 /// actually fails. Either failure is logged once at `info` and returns `None` — never `error`,
-/// never a toast (there is no path back to one, `docs/12-decisions.md`, the identical
+/// never a toast (there is no path back to one, the identical
 /// reasoning for `workers::notify`) — "a terminal music player must work over SSH" (the spec).
 fn init(events: UnboundedSender<Event>) -> Option<MediaControls> {
     let config = PlatformConfig {
@@ -94,7 +94,7 @@ fn event_forwarder(events: UnboundedSender<Event>) -> impl Fn(MediaControlEvent)
     }
 }
 
-/// the control table. `Seek`/`SeekBy` (undetermined/relative-amount seeking, distinct
+/// The control table. `Seek`/`SeekBy` (undetermined/relative-amount seeking, distinct
 /// from `SetPosition`'s absolute one), `OpenUri`, `Raise`, and `Quit` are not in that table and are
 /// deliberately ignored, not guessed at.
 fn map_control_event(event: MediaControlEvent) -> Option<PlayerAction> {
@@ -220,7 +220,7 @@ mod tests {
         assert!(events_rx.try_recv().is_err());
     }
 
-    /// This sandbox genuinely has no D-Bus session bus (`docs/12-decisions.md`), so this
+    /// This sandbox genuinely has no D-Bus session bus, so this
     /// is not a mock — `spawn`'s real `init` path is exercised end-to-end and is expected to fail.
     /// The worker must still run normally: process (drain) its channel, and exit cleanly once it
     /// closes, with no panic.

@@ -17,7 +17,7 @@ pub enum SearchSection {
     Tracks,
     /// Only ever populated by the Favourites tab — Emby favourites any item type, playlists
     /// included, and a favourited playlist previously had nowhere in this app to appear
-    /// (`docs/12-decisions.md`). The Search tab does not query playlists, so this section is always
+    ///. The Search tab does not query playlists, so this section is always
     /// empty there, and an empty section renders as nothing.
     Playlists,
 }
@@ -55,7 +55,7 @@ impl SearchSection {
 /// The three categorised result lists, plus each section's own independent error — `search()`
 /// (`loxia-emby`) runs all three queries concurrently and any one can fail without
 /// discarding the others, so "empty because nothing matched" and "empty because this section's
-/// request failed" must stay distinguishable (`docs/12-decisions.md`).
+/// request failed" must stay distinguishable.
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct SearchResults {
     pub artists: Vec<Artist>,
@@ -105,7 +105,7 @@ impl SearchResults {
 pub struct SearchState {
     pub query: String,
     /// Set to `now + 250ms` on every keystroke; `Tick` fires the debounced fetch once this
-    /// deadline passes (`docs/07-ui-spec.md` §9). `None` when nothing is pending.
+    /// deadline passes. `None` when nothing is pending.
     pub debounce_until: Option<Timestamp>,
     pub results: SearchResults,
     pub load: LoadState,

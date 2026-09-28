@@ -32,7 +32,7 @@ jobs:
       - name: No direct crossterm/time dependency
         # Both are required transitively (crossterm via ratatui-crossterm, time via
         # ratatui-widgets and our own tracing-appender), so cargo-deny can't ban them outright —
-        # see deny.toml and docs/13-dependencies.md rule 1. This is the enforcement mechanism for
+        # see deny.toml. This is the enforcement mechanism for
         # "never a direct dependency" instead.
         run: |
           set -euo pipefail
@@ -68,7 +68,7 @@ jobs:
             # Scoped to actual token-bearing field/query-param names, not "any long hex string" —
             # real Emby responses are legitimately full of 32-char hex Ids, Etags, ImageTags, and
             # PresentationUniqueKeys, which are indistinguishable from a token by shape alone. A
-            # blanket hex-length check fails on every real fixture; see docs/12-decisions.md.
+            # blanket hex-length check fails on every real fixture.
             while IFS= read -r -d '' f; do
               if grep -Eq '"AccessToken"\s*:\s*"[^"]+"' "$f"; then
                 echo "::error file=$f::fixture contains a non-empty AccessToken value"

@@ -1,4 +1,4 @@
-//! Keyboard cheat sheet overlay (`docs/04-state-and-input.md` §6). Every row is
+//! Keyboard cheat sheet overlay. Every row is
 //! generated from the live `KeyMap` — there is no hardcoded key table in this file. That is the
 //! whole point: a user who remaps a key sees their own binding here, and a developer who adds an
 //! action cannot forget to document it. The only hardcoded strings below are human-readable
@@ -232,7 +232,7 @@ pub fn render(
     let inner = block.inner(modal_area);
     // Wipe whatever the view underneath drew before painting the modal — a `Block` only paints its
     // border, so without this the canvas text showed *through* the modal body (seen in the field
-    // with the sort menu over Now Playing). `docs/12-decisions.md`.
+    // with the sort menu over Now Playing)..
     f.render_widget(ratatui::widgets::Clear, modal_area);
     f.render_widget(block, modal_area);
 
@@ -282,7 +282,7 @@ fn category_block_height(keymap: &KeyMap, cat: HelpCategory) -> usize {
 /// `Navigation` alone (23 actions) is several times taller than `System` (2), so chunking
 /// `CATEGORY_ORDER` into equal-*count* groups would badly overflow one column while leaving
 /// another mostly empty (found while testing this module against the real default keymap; see
-/// `docs/12-decisions.md`). Greedy: walk categories in declared order, always adding the next one
+///). Greedy: walk categories in declared order, always adding the next one
 /// to whichever column is currently shortest — simple, deterministic, and close enough to
 /// balanced for eight fixed-size blocks.
 fn balance_into_columns(keymap: &KeyMap, columns: usize) -> Vec<Vec<HelpCategory>> {
@@ -382,7 +382,7 @@ mod tests {
     /// `Clear` resets a modal's area to the terminal's *default* colours and a `Block` paints only
     /// its border — so the sheet came out with the theme's background only on the cells that
     /// happened to hold text, and the terminal's own background in every gap between them
-    /// (`docs/12-decisions.md`). Checked on a theme whose background is a real colour; the default
+    ///. Checked on a theme whose background is a real colour; the default
     /// terminal theme uses `Reset` for everything and could never have shown this.
     #[test]
     fn every_cell_of_the_sheet_carries_the_theme_background() {

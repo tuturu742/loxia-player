@@ -1,7 +1,7 @@
-//! Permanent pinned downloads, sidecars, resume (`docs/06-cache-and-offline.md` §5).
+//! Permanent pinned downloads, sidecars, resume.
 //!
 //! `Downloads` never touches the network or `loxia-emby` directly — `loxia-cache` depends only on
-//! `loxia-core` (`docs/01-architecture.md` §3.4). The byte-fetching and non-`Track`-scope
+//! `loxia-core`. The byte-fetching and non-`Track`-scope
 //! expansion are injected through [`Fetcher`], an object-safe async trait; the real implementation
 //! (calling `loxia_emby::endpoints::download::fetch_to_file`) lives in `crates/loxia`, and tests
 //! here use an in-memory fake — the same split the rolling cache's own background fetch uses.
@@ -27,14 +27,14 @@ use loxia_core::state::toast::ToastLevel;
 use crate::error::CacheError;
 use crate::layout::{assert_within, download_path, resolve_collision};
 
-/// What `d` was pressed on (`docs/06-cache-and-offline.md` §5). `Track` already carries the full,
+/// What `d` was pressed on. `Track` already carries the full,
 /// already-loaded metadata (no fetch needed, unlike the other three); `Album`/`Artist`/`Playlist`
 /// carry only an id and are expanded to a track list through [`Fetcher::expand`]. Distinct from
 /// `loxia_core::effect::CacheEffect`'s own `DownloadScope` (never yet constructed anywhere):
 /// that one is the wire-level `Effect` payload, necessarily id-only since
 /// the reducer/UI only ever has an id at keypress time; this one is what a caller that has already
 /// resolved (or is about to resolve) a full track list actually needs. Reconciling the two is
-/// still open (`docs/12-decisions.md`). Not boxing the (larger) `Track` variant, the same call
+/// still open. Not boxing the (larger) `Track` variant, the same call
 /// `MediaItem`
 /// (the doc comment) already made for the same reason: this is constructed once per
 /// `pin` call, never stored in a long-lived collection matched in a hot loop.
@@ -87,9 +87,9 @@ pub trait Fetcher: Send + Sync {
 pub type ProgressSink = Arc<dyn Fn(Event) + Send + Sync>;
 
 /// One row of `downloads_index.json`: `item_id → { path, profile, bytes, downloaded_at, sidecar }`
-/// (`docs/06-cache-and-offline.md` §5) plus `complete`, added beyond that literal four-field
+/// plus `complete`, added beyond that literal four-field
 /// sketch — without it there is no way to tell "finished" from "queued, interrupted mid-fetch"
-/// apart on reload, which `interrupted_pin_resumes_on_restart` depends on (`docs/12-decisions.md`,
+/// apart on reload, which `interrupted_pin_resumes_on_restart` depends on (
 /// mirroring `ManifestEntry`'s own `complete` field).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DownloadEntry {
@@ -108,7 +108,7 @@ struct DownloadsFile {
 }
 
 /// What one track's fetch attempt did, distinguishing a genuine failure (left queued for the next
-/// resume, per `docs/06-cache-and-offline.md` §5) from a batch abort that never got to run at all.
+/// resume) from a batch abort that never got to run at all.
 enum Outcome {
     Done(u64),
     Skipped,
@@ -116,7 +116,7 @@ enum Outcome {
 }
 
 /// Permanent downloads: pin/unpin, sidecars, `cover.jpg`, `downloads_index.json`. Never evicted,
-/// no size cap (`docs/06-cache-and-offline.md` §5) — structurally so, since this index is entirely
+/// no size cap — structurally so, since this index is entirely
 /// separate from `lru::RollingCache`'s own `cache_index.json`, which never sees these rows at all.
 pub struct Downloads {
     root: PathBuf,
@@ -130,7 +130,7 @@ pub struct Downloads {
 impl Downloads {
     /// Opens (creating if absent) `root/downloads_index.json`. `profile` is decided once by the
     /// caller from `transcode.download_uncompressed` (`Direct` if set, the active profile
-    /// otherwise — `docs/06-cache-and-offline.md` §5) rather than re-read on every `pin`, since
+    /// otherwise) rather than re-read on every `pin`, since
     /// the given signature (`pin(&mut self, scope)`) has no room for it per call.
     pub fn open(
         root: &Path,
@@ -180,7 +180,7 @@ impl Downloads {
     }
 
     /// Pins `scope`: expands to a track list if needed, then fetches with bounded concurrency of
-    /// 2 (`docs/06-cache-and-offline.md` §5).
+    /// 2.
     pub async fn pin(&mut self, scope: DownloadScope) -> Result<(), CacheError> {
         let tracks = match scope {
             DownloadScope::Track(t) => vec![t],
@@ -190,11 +190,11 @@ impl Downloads {
     }
 
     /// Re-enqueues anything left incomplete by a prior run interrupted mid-pin
-    /// (`docs/06-cache-and-offline.md` §5, "Interruption") — reconstructs each track from its own
+    /// ("Interruption") — reconstructs each track from its own
     /// already-written `.loxia.json` sidecar (written before any bytes are fetched, so it survives
     /// a crash that happens before completion). Not in the two-method sketch, but
     /// required for `interrupted_pin_resumes_on_restart`; no call site wires this into a real
-    /// startup sequence yet (`docs/12-decisions.md`, the same "flagged, not silently uncalled"
+    /// startup sequence yet (the same "flagged, not silently uncalled"
     /// gap left for `RollingCache::evict`).
     pub async fn resume_incomplete(&mut self) -> Result<(), CacheError> {
         let incomplete: Vec<Track> = self
@@ -355,7 +355,7 @@ impl Downloads {
     /// Removes `dir`, then its parent, then its parent's parent, ... stopping at the first
     /// directory that still holds something other than `cover.jpg`, or at `self.root` itself.
     /// `cover.jpg` alone does not block pruning — it is deleted along with the directory, since a
-    /// cover with no tracks left is meaningless (`docs/12-decisions.md`).
+    /// cover with no tracks left is meaningless.
     fn prune_upward(&self, mut dir: PathBuf) -> Result<(), CacheError> {
         loop {
             if !dir.starts_with(&self.root) || dir == self.root {
@@ -400,7 +400,7 @@ fn part_path(dest: &Path) -> PathBuf {
     dest.with_file_name(name)
 }
 
-/// `<name>.loxia.json` alongside `<name>.<ext>` (`docs/06-cache-and-offline.md` §5) — the audio
+/// `<name>.loxia.json` alongside `<name>.<ext>` — the audio
 /// file's own extension replaced, e.g. `01-03 - Motion.flac` → `01-03 - Motion.loxia.json`.
 fn sidecar_path(dest: &Path) -> PathBuf {
     dest.with_extension("loxia.json")
@@ -806,7 +806,7 @@ mod tests {
     #[tokio::test]
     async fn download_forces_direct_even_when_active_profile_is_low() {
         // `Downloads::open`'s own `profile` argument stands in for "the profile the caller
-        // resolved from `transcode.download_uncompressed`" (`docs/12-decisions.md`) — passing
+        // resolved from `transcode.download_uncompressed`" — passing
         // `Direct` here regardless of what a hypothetical `TranscodeLow` active session profile
         // would be is exactly that resolution having already happened.
         let dir = tempdir().unwrap();

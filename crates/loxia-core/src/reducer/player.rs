@@ -2,7 +2,7 @@
 //!
 //! Two directions, never conflated: `apply_player` (user intent — `Space`, `[`, volume keys, ...)
 //! only ever emits an `Effect::Audio` command, **never** touches `state.player` directly
-//! (`docs/04-state-and-input.md` §4.6: the mirror updates only when the engine confirms, which is
+//! (the mirror updates only when the engine confirms, which is
 //! exactly what makes the UI never lie about what's actually playing); `apply_audio` (the engine's
 //! own confirmation, arriving back as an `Action::Audio`) is the only place that writes to it.
 //!
@@ -10,7 +10,7 @@
 //! event to confirm against (the finding: even `SetDevice` doesn't synchronously fail),
 //! and `eq`/`replay_gain`/`quality_profile` here are user-facing *settings*, not an engine-reported
 //! playback *fact* — the same category `modal.rs`'s device-picker submit already writes to
-//! `state.config` optimistically, for the same reason (`docs/12-decisions.md`).
+//! `state.config` optimistically, for the same reason.
 
 use std::time::Duration;
 
@@ -35,8 +35,7 @@ const FADE_WINDOW_SECS: f64 = 10.0;
 
 /// A play is "completed" once it crosses 90% of its duration or the 4-minute mark, whichever
 /// comes first — duplicated from `loxia_emby::endpoints::playback::is_complete` because
-/// `loxia-core` cannot depend on `loxia-emby`; a test asserts the two agree
-/// (`docs/12-decisions.md`).
+/// `loxia-core` cannot depend on `loxia-emby`; a test asserts the two agree.
 fn is_complete(position: Duration, duration: Duration) -> bool {
     if duration.is_zero() {
         return false;
@@ -58,7 +57,7 @@ pub fn apply_player(state: &mut AppState, action: PlayerAction) -> Vec<Effect> {
         PlayerAction::PlayPause => vec![Effect::Audio(AudioEffect::PlayPause)],
         // "Progress" reports on seek too — read here, at the moment of the *request*
         // (the confirmed post-seek position arrives only later, via `PositionChanged`, and
-        // nothing here waits for it); see `docs/12-decisions.md`.
+        // nothing here waits for it);.
         PlayerAction::Seek(target) => {
             let mut effects = vec![Effect::Audio(AudioEffect::Seek(target))];
             effects.extend(maybe_report_progress(state));
@@ -68,8 +67,7 @@ pub fn apply_player(state: &mut AppState, action: PlayerAction) -> Vec<Effect> {
         // `+`/`-`. Reads the engine-confirmed mirror to compute an absolute target, exactly as
         // `ToggleMute` below reads `muted` — the mirror itself stays untouched until the engine's
         // own `VolumeChanged` lands. This arm was simply missing: the action existed and the keys
-        // emitted it, but it fell through to the catch-all, so volume keys did nothing at all
-        // (`docs/12-decisions.md`).
+        // emitted it, but it fell through to the catch-all, so volume keys did nothing at all.
         PlayerAction::VolumeDelta(delta) => {
             let target = (i16::from(state.player.volume) + i16::from(delta)).clamp(0, 100) as u8;
             vec![Effect::Audio(AudioEffect::SetVolume(target))]
@@ -141,7 +139,7 @@ fn replay_gain_toast_text(state: &AppState) -> String {
 ///
 /// `normalization_db` is always `None` here: nothing upstream of this populates Emby's
 /// `normalizationGain` (`loxia_emby::endpoints::playback::PlaybackInfo`) onto
-/// `Track`/queue state — a real, left-open gap, not an oversight (`docs/12-decisions.md`). Once
+/// `Track`/queue state — a real, left-open gap, not an oversight. Once
 /// that data exists
 /// somewhere reachable here, this is the one place that needs to change.
 pub(crate) fn apply_replay_gain(state: &mut AppState) {
@@ -251,7 +249,7 @@ fn cycle_quality(state: &mut AppState) -> Vec<Effect> {
 ///
 /// Shared by `q` and by the Settings row for the same field: a quality change has to mean the same
 /// thing whichever way it was made, and having only the keybinding do this is exactly why the
-/// Settings row appeared to do nothing at all (`docs/12-decisions.md`).
+/// Settings row appeared to do nothing at all.
 pub(crate) fn reload_at_current_profile(state: &mut AppState) -> Vec<Effect> {
     let Some(entry) = state.queue.current().cloned() else {
         return Vec::new();
@@ -279,7 +277,7 @@ pub(crate) fn reload_at_current_profile(state: &mut AppState) -> Vec<Effect> {
 /// `±12 dB`, snapped to the nearest `0.5 dB` — duplicated from
 /// `loxia_audio::eq::clamp_gain` because `loxia-core` cannot depend on `loxia-audio`; both crates
 /// carry the same boundary-case tests so a future edit to one that isn't mirrored in the other
-/// shows up as a test failure rather than silent drift (`docs/12-decisions.md`, the same shape as
+/// shows up as a test failure rather than silent drift (the same shape as
 /// `is_complete`'s existing duplication between this module and `loxia-emby`).
 pub(crate) fn clamp_eq_gain(db: f32) -> f32 {
     let snapped = (db / 0.5).round() * 0.5;
@@ -579,7 +577,7 @@ fn fire_sleep_timer(state: &mut AppState) -> Vec<Effect> {
 /// `S` / the player bar's own Stop button — halts playback and rewinds to the start of the current
 /// track, **keeping the queue** (that's what `QueueAction::Clear` is for). `PlayerAction::Stop` used
 /// to fall through this module's catch-all arm and do nothing at all, so neither the key nor the
-/// button worked (`docs/12-decisions.md`).
+/// button worked.
 ///
 /// mpv's own `stop` unloads the file, so the engine has nothing loaded afterwards — the same
 /// situation a restored-but-unloaded session is in. Reusing `restored_unloaded` means the next
@@ -617,7 +615,7 @@ fn current_item_id(state: &AppState) -> Option<ItemId> {
 /// mpv cannot know the length of a live-transcoded stream: Emby serves it without a reliable
 /// duration, so mpv reports whatever it has demuxed so far and the seek bar showed the transcoded
 /// portion rather than the track — a live user found the bar unusable under any non-`Direct`
-/// profile (`docs/12-decisions.md`). `RunTimeTicks` from the item metadata is exact and known
+/// profile. `RunTimeTicks` from the item metadata is exact and known
 /// before playback even starts, so it wins whenever it is present.
 ///
 /// Not merely cosmetic: `is_complete` divides position by this, so a short bogus duration made the
@@ -655,7 +653,7 @@ fn maybe_report_start(state: &AppState) -> Vec<Effect> {
 /// `art_url` is always `None`: nothing persists a fetched image to disk, and even if something
 /// did, `loxia-core` cannot depend on `loxia-emby` to build a real HTTP URL from a tag (the same
 /// gap `reducer::queue::notify_track_change`'s own `art_path` already documents,
-/// `docs/12-decisions.md`).
+///).
 pub(crate) fn mpris_meta(state: &AppState) -> Option<Effect> {
     let entry = state.queue.current()?;
     Some(Effect::Sys(SysEffect::UpdateMpris(
@@ -716,8 +714,7 @@ pub(crate) fn report_stopped(state: &AppState) -> Vec<Effect> {
 /// when the session reporting was broken (`Sessions/Playing` was never sent, so Emby recorded no
 /// play at all), which made this the only thing marking anything played. Fixing that left both
 /// firing for a single listen: two `UserDataSaved` events, and a server-side Last.fm plugin
-/// scrobbling the track twice — "I get two finished tracks on Last.fm while listening to one"
-/// (`docs/12-decisions.md`).
+/// scrobbling the track twice — "I get two finished tracks on Last.fm while listening to one".
 ///
 /// Measured against a live server: `Sessions/Playing` + `Progress` + `Stopped` on their own leave
 /// `PlayCount: 1`, `Played: true` and a `LastPlayedDate`, and adding the manual mark on top changes
@@ -762,7 +759,7 @@ fn record_history_now(state: &mut AppState) -> Vec<Effect> {
         return Vec::new();
     };
     // `played_at` from `state.clock` (the last `Tick`'s timestamp) — never a live clock read
-    // inside the reducer (`docs/04-state-and-input.md` §4 rule 2).
+    // inside the reducer.
     let history_entry = HistoryEntry {
         track: entry.track.clone(),
         played_at: state.clock,
@@ -796,7 +793,7 @@ pub fn toggle_history_subview(state: &mut AppState) -> Vec<Effect> {
 
 /// `L` — flips `config.ui.show_lyrics` and persists it. There is deliberately no
 /// separate session-only visibility flag: the pane's shown/hidden state *is* this config field,
-/// read directly by `widgets::lyrics` (`docs/12-decisions.md`).
+/// read directly by `widgets::lyrics`.
 pub fn toggle_lyrics(state: &mut AppState) -> Vec<Effect> {
     state.config.ui.show_lyrics = !state.config.ui.show_lyrics;
     state.touch();
@@ -820,7 +817,7 @@ mod tests {
     }
 
     /// `+`/`-` emitted `VolumeDelta`, but the reducer had no arm for it — it fell through to the
-    /// catch-all and the keys did nothing at all (`docs/12-decisions.md`). Like `ToggleMute`, it
+    /// catch-all and the keys did nothing at all. Like `ToggleMute`, it
     /// reads the engine-confirmed mirror to compute an absolute target and leaves the mirror to
     /// the engine's own `VolumeChanged`.
     #[test]
@@ -1007,7 +1004,7 @@ mod tests {
     }
 
     /// `PlayerAction::Stop` used to fall through this module's catch-all arm and do nothing at all,
-    /// so neither `S` nor the player bar's Stop button worked (`docs/12-decisions.md`).
+    /// so neither `S` nor the player bar's Stop button worked.
     #[test]
     fn stop_halts_playback_rewinds_and_keeps_the_queue() {
         let mut state = playing_state(180);
@@ -1057,7 +1054,7 @@ mod tests {
     #[test]
     fn threshold_matches_emby_is_complete() {
         // Same boundary cases as `loxia_emby::endpoints::playback::is_complete`'s own tests
-        // (`docs/12-decisions.md`: duplicated, not shared, since `loxia-core` cannot depend on
+        // (duplicated, not shared, since `loxia-core` cannot depend on
         // `loxia-emby`).
         let d200 = Duration::from_secs(200);
         assert!(!is_complete(Duration::from_secs(179), d200));
@@ -1106,8 +1103,7 @@ mod tests {
 
     /// mpv cannot know the length of a live-transcoded stream — Emby serves it without a reliable
     /// duration — so the seek bar showed the transcoded portion instead of the track. The server's
-    /// own `RunTimeTicks` is exact and known before playback starts, so it wins
-    /// (`docs/12-decisions.md`).
+    /// own `RunTimeTicks` is exact and known before playback starts, so it wins.
     #[test]
     fn the_servers_track_length_beats_the_engines_guess() {
         let mut state = playing_state(200);
@@ -1331,7 +1327,7 @@ mod tests {
     /// Measured against a live Emby: Progress + Stopped alone leave `PlayCount` at 0 with no
     /// `LastPlayedDate` (the item is merely marked watched), whereas the same sequence preceded by
     /// Start records a real play. No recorded play means no `PlaybackStopped` event, which is what
-    /// the server-side Last.fm plugin scrobbles from (`docs/12-decisions.md`).
+    /// the server-side Last.fm plugin scrobbles from.
     #[test]
     fn start_is_reported_even_when_buffering_comes_first() {
         let mut state = with_session(playing_state(180));
@@ -1381,7 +1377,7 @@ mod tests {
         ));
     }
 
-    /// Nothing persists a fetched image to disk (`docs/12-decisions.md`), so
+    /// Nothing persists a fetched image to disk, so
     /// `art_url` is always `None` today, regardless of the track's own `image_tag`.
     #[test]
     fn artwork_url_omitted_when_not_cached() {
@@ -1446,8 +1442,7 @@ mod tests {
     #[test]
     /// One listen, one "this was played" signal. Crossing the completion threshold used to also
     /// `POST /PlayedItems` — Emby's manual mark-as-played — on top of the session reports that
-    /// already record the play, and a server-side Last.fm plugin scrobbled the track twice
-    /// (`docs/12-decisions.md`).
+    /// already record the play, and a server-side Last.fm plugin scrobbled the track twice.
     fn crossing_the_threshold_reports_no_second_play() {
         let mut state = with_session(playing_state(180));
         for i in 0..20 {
@@ -1814,7 +1809,7 @@ mod tests {
 
         let effects = evaluate_sleep_timer(&mut state, at(0));
 
-        // window = min(10, 6) = 6; remaining = 3; ratio = 0.5.
+        // Window = min(10, 6) = 6; remaining = 3; ratio = 0.5.
         assert_eq!(effects, vec![Effect::Audio(AudioEffect::SetVolume(40))]);
     }
 
@@ -1855,7 +1850,7 @@ mod tests {
         // The reducer's own contribution is emitting `Effect::Sys(Exit)` when firing with
         // `quit_after` set, alongside the stop/volume-restore effects — the runtime's existing
         // shutdown sequencing (already built for `SystemEvent::Quit`) is what actually persists
-        // the session snapshot before exiting (`docs/12-decisions.md`), not something this
+        // the session snapshot before exiting, not something this
         // reducer function needs to build itself.
         let mut state = state_with_sleep_timer(SleepTrigger::Duration(Duration::from_secs(10)));
         state.player.sleep_timer.as_mut().unwrap().quit_after = true;

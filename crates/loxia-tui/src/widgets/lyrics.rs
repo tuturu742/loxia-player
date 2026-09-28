@@ -1,4 +1,4 @@
-//! Synced/unsynced lyrics pane (`docs/07-ui-spec.md` §8, `docs/03-emby-api.md` §7).
+//! Synced/unsynced lyrics pane.
 
 use std::time::Duration;
 
@@ -180,7 +180,7 @@ fn render_synced(
 
 /// A plain block with no highlighting, starting `scroll` source lines in. Untimed lyrics have no
 /// active line to follow, so on a long track the pane simply cut off with no way to read the rest
-/// — `J`/`K` move this offset (`docs/12-decisions.md`).
+/// `J`/`K` move this offset.
 ///
 /// `scroll` skips whole *source* lines before wrapping, which is what lets the reducer clamp it
 /// without knowing the pane's width. The scrolled-to line therefore always starts at the top of the
@@ -274,7 +274,7 @@ mod tests {
     }
 
     /// Untimed lyrics on a long track ran off the bottom of the pane with nothing to scroll them
-    /// (`docs/12-decisions.md`). The offset skips whole source lines, so the scrolled-to line lands
+    ///. The offset skips whole source lines, so the scrolled-to line lands
     /// at the top of the pane.
     #[test]
     fn scrolling_unsynced_lyrics_reveals_later_lines() {

@@ -3,7 +3,7 @@
 //!
 //! The only thing this view adds is the offline gate — unlike Favourites/Playlists, which render
 //! whatever's cached and only show a connection-needed message once genuinely empty, folders are
-//! not represented in the download sidecars at all (`docs/12-decisions.md`), so any cached column
+//! not represented in the download sidecars at all, so any cached column
 //! contents would show a tree that's misleadingly partial (some subfolders explored, most not).
 //! Offline always replaces the whole tab with the explanatory message, regardless of what's cached.
 

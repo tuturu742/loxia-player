@@ -1,4 +1,4 @@
-//! mpv init, property observation, event pump thread (`docs/05-audio-engine.md` §3).
+//! mpv init, property observation, event pump thread.
 //!
 //! The event *pump* thread only drains mpv's internal queue (so it never fills
 //! up and blocks) and routes `LogMessage` events into `tracing` — translating every other event
@@ -25,7 +25,7 @@ use crate::error::{AudioError, library_not_found_hint};
 /// How often the pump thread polls `wait_event` — short enough that `Shutdown` is noticed
 /// promptly, long enough not to busy-loop.
 const PUMP_POLL_SECS: f64 = 0.1;
-/// `Drop` must never hang the process — `docs/05-audio-engine.md` §3's own 5-second
+/// `Drop` must never hang the process — the 5-second
 /// process-exit acceptance bound is what this budget is sized against.
 const SHUTDOWN_JOIN_TIMEOUT: Duration = Duration::from_secs(2);
 
@@ -75,7 +75,7 @@ pub struct MpvEngine {
 }
 
 impl MpvEngine {
-    /// Initialises libmpv with exactly the option table `docs/05-audio-engine.md` §3 gives, and
+    /// Initialises libmpv with exactly the option table the design gives, and
     /// starts the log-draining pump thread. `http-header-fields` is deliberately absent from this
     /// list — it is file-local, set per `loadfile` (owns the exact encoding), never global.
     pub fn new(cfg: &AudioConfig) -> Result<MpvEngine, AudioError> {
@@ -122,7 +122,7 @@ impl MpvEngine {
             // streamed` covers non-seekable transcode streams; the rest resume a seekable (Direct)
             // stream from its byte offset. Best-effort — an older mpv/ffmpeg that rejects the option
             // must not take audio down with it (a bad init falls back to a silent mock engine), so a
-            // failure here is deliberately ignored rather than propagated (`docs/12-decisions.md`).
+            // failure here is deliberately ignored rather than propagated.
             let _ = init.set_option(
                 OPT_STREAM_LAVF_O,
                 "reconnect=1,reconnect_streamed=1,reconnect_delay_max=30",
@@ -165,9 +165,8 @@ impl MpvEngine {
     /// there is no libmpv API to ask "what path did the dynamic linker actually resolve this to."
     /// `/proc/self/maps` (the first mapped file whose name contains `libmpv`) only exists on
     /// Linux — a plain runtime read, deliberately not an OS-conditional compiled-in branch
-    /// (`docs/README.md` rule 5 confines those to `loxia-audio::device`/`loxia-core::paths`); the
-    /// read simply fails to open and this falls through to `"unknown"` everywhere else
-    /// (`docs/12-decisions.md`).
+    /// (`CONTRIBUTING.md` rule 5 confines those to `loxia-audio::device`/`loxia-core::paths`); the
+    /// read simply fails to open and this falls through to `"unknown"` everywhere else.
     pub fn library_path(&self) -> String {
         if let Ok(maps) = std::fs::read_to_string("/proc/self/maps") {
             for line in maps.lines() {
@@ -358,7 +357,7 @@ impl PropertyValue {
 /// gating on elapsed time).
 const POSITION_THROTTLE_SECS: f64 = 0.25;
 
-/// All the "compare against the last emitted value" state `docs/05-audio-engine.md` §3 requires,
+/// All the "compare against the last emitted value" state the design requires,
 /// plus everything `Format`/`Position`/`StatusChanged` need accumulated from more than one
 /// property to build. One instance lives for the lifetime of one `MpvEngine`'s pump thread.
 #[derive(Debug, Default)]
@@ -509,7 +508,7 @@ impl PropertyTranslator {
     /// / end of the whole playlist) or up from `-1` (a fresh `loadfile` after a stop) — mpv reports
     /// `playlist-pos = -1` whenever nothing is current, and treating those transitions as a track
     /// finishing made every `Stop`+reload (e.g. `Enter` replacing the queue) fire a spurious natural
-    /// `TrackEnded`, advancing the freshly loaded queue to its *second* entry (`docs/12-decisions.md`).
+    /// `TrackEnded`, advancing the freshly loaded queue to its *second* entry.
     /// A genuine end-of-track for a single-entry playlist is already covered by `on_end_file(EOF)`.
     fn on_playlist_pos(&mut self, pos: i64) -> Option<AudioEvent> {
         let last = self.last_playlist_pos.replace(pos);
@@ -531,7 +530,7 @@ impl PropertyTranslator {
         })
     }
 
-    /// `docs/05-audio-engine.md` §3's own table covers exactly `eof`/`stop`/`quit`/`error`;
+    /// The table covers exactly `eof`/`stop`/`quit`/`error`;
     /// anything else (e.g. `redirect`) emits nothing.
     fn on_end_file(&mut self, reason: libmpv2::EndFileReason) -> Option<AudioEvent> {
         match reason {
@@ -574,11 +573,11 @@ fn parse_device_id(raw: &str) -> (String, String) {
     }
 }
 
-/// Reads `audio-device-list` (`docs/05-audio-engine.md` §4) via raw FFI against the
+/// Reads `audio-device-list` via raw FFI against the
 /// concrete `Mpv` — `libmpv2`'s own `GetData` trait implements only `f64`/`i64`/`bool`/`String`,
 /// none of which can hold an `MPV_FORMAT_NODE_ARRAY` of `MPV_FORMAT_NODE_MAP`s, so this calls
 /// `mpv_get_property`/`mpv_free_node_contents` directly against `mpv.ctx`, the same escape hatch
-/// `mpv_request_log_messages` already uses (`docs/12-decisions.md`). Never panics: a
+/// `mpv_request_log_messages` already uses. Never panics: a
 /// failed read, or any entry not shaped the way this expects, is simply omitted rather than
 /// crashing the audio worker over a single malformed device.
 fn read_device_list(mpv: &Mpv) -> Vec<AudioDevice> {
@@ -718,7 +717,7 @@ fn request_log_messages(mpv: &Mpv, min_level: &str) {
 /// `libmpv2::Error::VersionMismatch` is the one failure this crate can actually observe that
 /// means "the mpv present is unusable" — a literally *missing* shared library can never reach
 /// this function at all (`libmpv2-sys` links against it directly; the OS loader refuses to start
-/// the process first). See `docs/12-decisions.md` for why `AudioError::LibraryNotFound` maps to
+/// the process first).` for why `AudioError::LibraryNotFound` maps to
 /// this specific case rather than the literal "file not found" the text describes.
 fn map_init_error(err: MpvError) -> AudioError {
     match err {
@@ -782,7 +781,7 @@ fn encode_headers(headers: &[(String, String)]) -> Option<String> {
     // contain. `loadfile`'s options string is itself comma-separated, so a plain comma-joined list
     // makes mpv read the second header as another option and reject the load with
     // `Expected '=' and a value.` Quoting the value is not enough either — the length prefix is the
-    // only form that needs no escaping of commas, quotes or spaces (`docs/12-decisions.md`).
+    // only form that needs no escaping of commas, quotes or spaces.
     Some(format!("%{}%{joined}", joined.len()))
 }
 
@@ -805,7 +804,7 @@ fn loadfile(mpv: &dyn MpvOps, url: &str, flags: &str, options: &str) -> Result<(
         .map_err(|e| command_error(CMD_LOADFILE, e))
 }
 
-/// The command/property mapping table itself (`docs/05-audio-engine.md` §3), factored out of
+/// The command/property mapping table itself, factored out of
 /// `AudioBackend::send` so it can run against a `RecordingMpv` test double.
 fn apply_command(mpv: &dyn MpvOps, cmd: AudioCommand) -> Result<(), AudioError> {
     match cmd {
@@ -820,7 +819,7 @@ fn apply_command(mpv: &dyn MpvOps, cmd: AudioCommand) -> Result<(), AudioError> 
             // mpv's `pause` property persists across `loadfile`, so a track loaded while paused
             // (e.g. replacing the queue from a paused state) would sit there paused. Loading a track
             // is always a "play it now" intent — the restore-paused path deliberately doesn't emit a
-            // `Load` at all — so clear pause here (`docs/12-decisions.md`).
+            // `Load` at all — so clear pause here.
             mpv.set_property_bool(PROP_PAUSE, false)
                 .map_err(|e| command_error(PROP_PAUSE, e))
         }
@@ -861,7 +860,7 @@ fn apply_command(mpv: &dyn MpvOps, cmd: AudioCommand) -> Result<(), AudioError> 
     }
 }
 
-/// Device hot-swap (`docs/05-audio-engine.md` §4): reads the current device first so a failed
+/// Device hot-swap: reads the current device first so a failed
 /// swap can roll back to it, never leaving the user with silence and no explanation. `time-pos`
 /// itself needs no explicit save/restore here — mpv's own device reinit already preserves
 /// playback position across a successful `audio-device` change; reading it is only how
@@ -882,8 +881,7 @@ fn apply_seek(mpv: &dyn MpvOps, target: SeekTarget) -> Result<(), AudioError> {
         // `SeekTarget::Relative` is signed **milliseconds** (its own doc comment says so, and the
         // keybindings emit `5_000` for a 5-second step). mpv's `seek` takes seconds, and this arm
         // used to hand the millisecond count straight over — so every seek ran `seek 5000
-        // relative` and jumped to the end of the track, whatever step was pressed
-        // (`docs/12-decisions.md`).
+        // relative` and jumped to the end of the track, whatever step was pressed.
         SeekTarget::Relative(millis) => (millis as f64 / 1000.0, SEEK_RELATIVE),
         SeekTarget::Absolute(d) => (d.as_secs_f64(), SEEK_ABSOLUTE),
         SeekTarget::Fraction(fraction) => {
@@ -1006,7 +1004,7 @@ mod tests {
                         "start=5".to_string(),
                     ],
                 },
-                // Loading a track clears any lingering pause so it plays (`docs/12-decisions.md`).
+                // Loading a track clears any lingering pause so it plays.
                 RecordedCall::SetPropertyBool {
                     name: PROP_PAUSE.to_string(),
                     value: false,
@@ -1210,7 +1208,7 @@ mod tests {
 
     /// `SeekTarget::Relative` is signed **milliseconds**, mpv's `seek` takes **seconds**. Handing
     /// the millisecond count over unconverted turned every seek into `seek 5000 relative` — a jump
-    /// to the end of the track, whichever step was pressed (`docs/12-decisions.md`). The values
+    /// to the end of the track, whichever step was pressed. The values
     /// here are exactly what the `[`/`]`/`{`/`}` bindings emit.
     #[test]
     fn relative_seek_converts_milliseconds_to_seconds() {
@@ -1237,7 +1235,7 @@ mod tests {
 
     #[test]
     fn set_device_restores_previous_on_failure() {
-        // `docs/12-decisions.md`: real mpv never actually returns a synchronous error from
+        // Real mpv never actually returns a synchronous error from
         // setting `audio-device` to a bogus id (verified against a real running instance,
         // `mpv-tests`), so `set_device`'s own "read the previous device, set the new one, restore
         // on failure" logic is proven directly here instead, against a double that *can* fail.
@@ -1484,7 +1482,7 @@ mod tests {
         /// A minimal, valid mono 8-bit PCM WAV file of `secs` seconds of silence. Substituted for
         /// a generated FLAC (encoding a real FLAC stream is unrelated complexity this test does not
         /// need): mpv's built-in WAV demuxer needs no external codec, so this
-        /// equally proves `Load` round-trips through real mpv. See `docs/12-decisions.md`.
+        /// equally proves `Load` round-trips through real mpv.
         fn silent_wav_bytes(secs: u32) -> Vec<u8> {
             let sample_rate: u32 = 8000;
             let data_len = sample_rate * secs;
@@ -1708,7 +1706,7 @@ mod tests {
         fn shutdown_joins_pump_thread() {
             let e = engine();
             drop(e); // must return within `SHUTDOWN_JOIN_TIMEOUT`, proven by the test harness's
-            // own `timeout 5 cargo test` wrapper.
+            // Own `timeout 5 cargo test` wrapper.
         }
 
         /// Not `#[tokio::test]`: nothing else in this module needs an async runtime, and a plain
@@ -1824,7 +1822,7 @@ mod tests {
         /// a secret). The encoder comma-joins entries, but `loadfile`'s options string is *itself*
         /// comma-separated, so the second header was parsed as a bogus option: mpv answered
         /// `Expected '=' and a value.` and refused the whole load. One header always worked, which
-        /// is why this survived (`docs/12-decisions.md`).
+        /// is why this survived.
         #[test]
         fn two_custom_headers_both_arrive() {
             let server = tiny_http::Server::http("127.0.0.1:0").unwrap();
@@ -1943,7 +1941,7 @@ mod tests {
             let _ = std::fs::remove_file(&path);
         }
 
-        /// `docs/12-decisions.md`: real mpv (verified here, against an actually-running
+        /// Real mpv (verified here, against an actually-running
         /// `ao=null` instance) accepts *any* string for `audio-device` — including a nonexistent
         /// driver name — without a synchronous error; it defers device resolution to whenever
         /// output is next (re)initialised, and doesn't surface a failure back through this

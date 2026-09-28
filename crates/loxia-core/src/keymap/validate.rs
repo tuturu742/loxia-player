@@ -4,7 +4,7 @@ use super::{ActionId, InputContext, KeyBinding, KeyMap};
 
 /// A binding attempted for more than one distinct action, in insertion order (defaults first,
 /// then config overrides). `context` is always `Normal` today — the default table and its
-/// overrides only ever populate the one flat table (`docs/04-state-and-input.md` §5); the field
+/// overrides only ever populate the one flat table; the field
 /// exists for a future per-modal binding table to reuse the same conflict-reporting shape.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct KeyConflict {

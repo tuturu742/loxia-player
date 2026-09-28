@@ -33,7 +33,7 @@ pub struct TestConnectionResult {
 }
 
 /// Authenticates, then reads `System/Info/Public` for the server's own name/version — bundled into
-/// one call since the editor never wants one without the other (`docs/12-decisions.md`). A failure
+/// one call since the editor never wants one without the other. A failure
 /// at either step is returned as-is; the caller (`workers::network`, `crates/loxia`) turns it into
 /// the mapped message the spec asks for via `EmbyError`'s existing `Display`.
 pub async fn test_connection(

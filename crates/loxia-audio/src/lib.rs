@@ -1,5 +1,5 @@
 //! Playback engine: the AudioBackend abstraction, the libmpv2-backed implementation, and a
-//! deterministic mock. Depends only on loxia-core — see docs/01-architecture.md §3.3.
+//! deterministic mock. Depends only on loxia-core.
 
 pub mod backend;
 pub mod device;

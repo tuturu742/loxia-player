@@ -1,4 +1,4 @@
-//! Top status header bar (`docs/07-ui-spec.md` §3):
+//! Top status header bar:
 //! `loxia │ <server> │ <active tab> │ <badges> │ <clock>`.
 
 use loxia_core::state::AppState;
@@ -19,7 +19,7 @@ fn timer_glyph() -> String {
     text::narrow_glyph('\u{23F1}')
 }
 
-/// One badge: its text and the role it's styled in, in the order `docs/07-ui-spec.md` §3 /
+/// One badge: its text and the role it's styled in, in the order /
 /// the spec text give. Badges are never dropped for width, unlike the left-hand
 /// segments.
 fn badges(state: &AppState) -> Vec<(String, Role)> {

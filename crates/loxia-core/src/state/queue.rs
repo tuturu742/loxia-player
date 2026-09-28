@@ -125,7 +125,7 @@ pub struct QueueEntry {
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 pub struct QueueState {
     /// The canonical, unshuffled order. **Never reordered by shuffle** — see `queue/shuffle.rs`'s
-    /// non-destructive contract (`docs/02-data-model.md` §4).
+    /// non-destructive contract.
     pub entries: Vec<QueueEntry>,
     /// Indices into `entries`; the identity permutation when unshuffled.
     pub play_order: Vec<usize>,
@@ -139,7 +139,7 @@ pub struct QueueState {
     /// `QueueSource::InstantMix` carries only the seed's `ItemId`, and an id is not something to
     /// put in front of a user. The Now Playing pane titles itself "MIX FOR `<name>`" from this —
     /// which is where "what is this queue?" belongs, rather than repeated on every single row as a
-    /// per-entry badge (`docs/12-decisions.md`).
+    /// per-entry badge.
     #[serde(default)]
     pub mix_name: Option<String>,
 }

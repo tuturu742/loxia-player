@@ -1,10 +1,10 @@
-//! Terminal graphics album art rendering (`docs/07-ui-spec.md` §11).
+//! Terminal graphics album art rendering.
 //!
 //! Three pieces, kept deliberately separate:
-//! - [`detect_renderer`] resolves which graphics protocol to use, once, at startup.
-//! - [`ArtCache`] holds already-encoded [`Protocol`] values, one per `(item, cell size)` — the
+//! [`detect_renderer`] resolves which graphics protocol to use, once, at startup.
+//! [`ArtCache`] holds already-encoded [`Protocol`] values, one per `(item, cell size)` — the
 //!   expensive resize/encode step, done at most once per size, never per frame.
-//! - [`render`] only ever reads the cache and blits (`Image::new(protocol)`, a stateless,
+//! [`render`] only ever reads the cache and blits (`Image::new(protocol)`, a stateless,
 //!   render-time-cheap widget) or draws the placeholder; it never decodes or encodes anything
 //!   itself, and it is the one place that decides — by finding nothing cached — that a fetch is
 //!   needed, returning that as an effect rather than doing any I/O of its own.
@@ -43,10 +43,10 @@ use crate::style;
 /// intermittently dead. Waiting past the library's own timeout means the thread is only ever
 /// abandoned when the terminal never answers at all, which is the one case nothing can rescue.
 /// A terminal that answers promptly still returns in milliseconds — `recv_timeout` yields as soon
-/// as the value lands — so this costs nothing in the normal case (`docs/12-decisions.md`).
+/// as the value lands — so this costs nothing in the normal case.
 const DETECT_TIMEOUT: Duration = Duration::from_millis(2500);
 
-/// "An LRU of 16" (`docs/07-ui-spec.md` §11).
+/// "An LRU of 16".
 const CACHE_CAPACITY: usize = 16;
 
 /// The resolved outcome of protocol detection/forcing. `Off` means art is never rendered at all —
@@ -207,16 +207,16 @@ impl ArtCache {
 
     /// Drops every cached size for `id` — the state half of "on resize, tab change, or track
     /// change, issue the protocol's delete before drawing the replacement"
-    /// (`docs/07-ui-spec.md` §11). The other half — actually writing a Kitty/iTerm2 delete escape
+    ///. The other half — actually writing a Kitty/iTerm2 delete escape
     /// sequence to the real terminal, outside the normal `Frame` render cycle — needs a live
-    /// terminal this state-only cache has no way to reach or verify; see `docs/12-decisions.md`.
+    /// terminal this state-only cache has no way to reach or verify;.
     pub fn evict_item(&mut self, id: &ItemId) {
         self.order.retain(|k| &k.0 != id);
         self.entries.retain(|k, _| &k.0 != id);
     }
 }
 
-/// Which pane is asking — the two sizing rules `docs/07-ui-spec.md` §11 gives.
+/// Which pane is asking — the two sizing rules the design gives.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ArtSizeContext {
     Inspector,
@@ -227,7 +227,7 @@ pub enum ArtSizeContext {
 /// being filled rather than the calling context: the Now Playing pane is `Inspector`, but since art
 /// now scales to the whole pane it is routinely far larger than the 64px `Thumb` that context used
 /// to request — and a 64px asset stretched over twenty rows is exactly the "images are too small /
-/// blocky" the field reported (`docs/12-decisions.md`).
+/// blocky" the field reported.
 fn fetch_size_for(rows: u16) -> ImageSize {
     if rows > THUMB_MAX_ROWS {
         ImageSize::Large
@@ -246,7 +246,7 @@ pub fn art_rect(_ctx: ArtSizeContext, pane: Rect) -> Rect {
     // Scales to whatever the pane actually offers rather than a fixed cap: a terminal cell is
     // roughly twice as tall as it is wide, so a square cover needs `2 * rows` columns. Taking the
     // larger of the two constraints kept art stuck at a dozen rows on a big terminal, which is what
-    // made covers look postage-stamp-sized (`docs/12-decisions.md`).
+    // made covers look postage-stamp-sized.
     let rows = pane.height.min(pane.width / 2);
     let cols = rows * 2;
     // Centred horizontally in the pane; art pinned hard left looked accidental beside centred text.
@@ -281,8 +281,7 @@ pub fn art_candidates(
 /// the one selected/inspected item on hand, never separately its parent album/artist objects (the
 /// inspector's own `active_column`/Miller stack doesn't reliably carry them). The richer 3-tier
 /// chain is fully implemented and tested above; only *reaching* it with real album/artist data is
-/// left unresolved here, the same shape ReplayGain's normalization fallback was left in
-/// (`docs/12-decisions.md`).
+/// left unresolved here, the same shape ReplayGain's normalization fallback was left in.
 pub fn candidates_for_item(item: Option<&MediaItem>) -> Vec<(ItemId, String)> {
     match item {
         Some(MediaItem::Track(t)) => art_candidates(t, None, None),
@@ -367,8 +366,7 @@ pub fn render(
 /// is rarely the 2:1 [`art_rect`] assumes — so the encoded image is usually a little narrower (or
 /// shorter) than the rect reserved for it. `Image` blits at the rect's top-left corner, so that
 /// slack all landed on one side and the cover sat visibly off-centre in both play views, most
-/// obviously when it was small enough for the slack to be a large share of the box
-/// (`docs/12-decisions.md`).
+/// obviously when it was small enough for the slack to be a large share of the box.
 ///
 /// Clamped to `area`: `Image` refuses to draw at all rather than clip, so a size larger than the
 /// rect would silently render nothing.
@@ -384,7 +382,7 @@ fn centred_in(area: Rect, size: ratatui::layout::Size) -> Rect {
 }
 
 /// A bordered box with a centred `♪` in `Dim` — never an empty hole, which reads as a rendering
-/// bug (`docs/07-ui-spec.md` §11's own wording, matching the equivalent rule for a missing image
+/// bug (its own wording, matching the equivalent rule for a missing image
 /// elsewhere in this codebase). `pub(crate)`: the own Zen view draws this same placeholder
 /// for its own art region — Zen has no `ArtCache` of its own to attempt real art with yet (see
 /// this module's own top-level doc comment on why that's deferred), but "no art available" should
@@ -412,12 +410,10 @@ mod tests {
     use super::*;
 
     /// End-to-end for the store hand-off: the worker decodes into `ArtStore`, and the next render
-    /// encodes it into the cache and blits it — no placeholder, and no repeat fetch
-    /// (`docs/12-decisions.md`).
+    /// encodes it into the cache and blits it — no placeholder, and no repeat fetch.
     /// `Resize::Fit` keeps the cover square against the terminal's real cell ratio, so the encoded
     /// image rarely fills the rect reserved for it — and `Image` blits at the top-left, which put
-    /// all of that slack on one side. The cover sat visibly off-centre in both play views
-    /// (`docs/12-decisions.md`).
+    /// all of that slack on one side. The cover sat visibly off-centre in both play views.
     #[test]
     fn a_cover_smaller_than_its_box_is_centred_in_it() {
         use ratatui::layout::Size;
@@ -585,7 +581,7 @@ mod tests {
     /// The query thread cannot be cancelled — it parks on a blocking `io::stdin().read()` — so
     /// abandoning it leaves it racing the real input reader for keystrokes. Waiting longer than
     /// `ratatui-image`'s own 2 s stdin budget is what keeps that from happening to any terminal
-    /// that merely answers slowly (`docs/12-decisions.md`).
+    /// that merely answers slowly.
     #[test]
     fn detection_outwaits_the_querys_own_stdin_budget() {
         const RATATUI_IMAGE_STDIN_TIMEOUT: Duration = Duration::from_millis(2000);
@@ -773,7 +769,7 @@ mod tests {
     }
 
     /// The fetch size follows the area actually being filled, not the calling context — a 64px
-    /// thumb stretched over a large pane is what made covers look blocky (`docs/12-decisions.md`).
+    /// thumb stretched over a large pane is what made covers look blocky.
     #[test]
     fn fetch_size_follows_the_rendered_area() {
         assert_eq!(fetch_size_for(4), ImageSize::Thumb);
@@ -783,7 +779,7 @@ mod tests {
     }
 
     /// Art scales to whatever the pane offers rather than a fixed per-context cap, which used to
-    /// leave covers postage-stamp-sized on a large terminal (`docs/12-decisions.md`).
+    /// leave covers postage-stamp-sized on a large terminal.
     #[test]
     fn art_scales_to_the_available_pane() {
         // Height-bound: 30 rows would need 60 columns, but only 40 are available -> 20 rows.

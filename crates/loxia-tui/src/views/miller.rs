@@ -1,5 +1,5 @@
 //! Sliding-window Miller column composition — the view behind five of the nine sidebar tabs
-//! (`docs/07-ui-spec.md` §5, `docs/02-data-model.md` §3).
+//! ().
 
 use loxia_core::state::AppState;
 use loxia_core::state::nav::NavFocus;
@@ -304,8 +304,7 @@ mod tests {
         // Folders, where each hidden column happens to carry a real per-instance name. The Genres
         // tab's level-1 column is a flat, generic list ("Genres" always, regardless of which genre
         // was drilled into), so unlike Folders this never surfaces the *specific* genre name in
-        // the breadcrumb itself — an accepted limitation of reusing the mechanism unchanged
-        // (`docs/12-decisions.md`).
+        // the breadcrumb itself — an accepted limitation of reusing the mechanism unchanged.
         assert!(
             rendered.contains("Genres/"),
             "breadcrumb shows the hidden root column's own title"

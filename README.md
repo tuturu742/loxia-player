@@ -253,9 +253,8 @@ tokens and header values redacted. It exits non-zero if any check fails.
 | [Keybindings](docs/user/keybindings.md) | The full default keymap, and how to remap it |
 | [Troubleshooting](docs/user/troubleshooting.md) | Symptoms, causes, and what `--doctor` tells you |
 
-**For contributors** — [docs/README.md](docs/README.md) indexes the architecture reference:
-crate boundaries and threading model, the domain model, the Emby endpoint contract, the state
-machine, the audio engine, the cache, the UI spec, the decision record and the locked dependency set.
+**For contributors** — [CONTRIBUTING.md](CONTRIBUTING.md) covers the workflow, the check suite
+and the rules the architecture depends on (`loxia-core` has no I/O, the reducer is pure, and so on).
 
 ## Contributing
 

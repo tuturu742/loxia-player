@@ -1,11 +1,11 @@
-//! Owns EmbyClient; serves network effects (`docs/01-architecture.md` §§4-5).
+//! Owns EmbyClient; serves network effects.
 //!
 //! Two families of fetch, distinguished by what they reply with:
 //!
-//! - **Column population** — `FetchColumn` (every `ColumnKind`: artists, album artists, albums,
+//! **Column population** — `FetchColumn` (every `ColumnKind`: artists, album artists, albums,
 //!   genres, folders, playlists and their tracks), `FetchDiscography` (an artist's ALBUMS/APPEARS
 //!   ON split) and `FetchAlbumTracks`. These reply `DataAction::ItemsLoaded`.
-//! - **Queue population** — `FetchAlbumTracksForQueue`, `FetchArtistTracksForQueue`,
+//! **Queue population** — `FetchAlbumTracksForQueue`, `FetchArtistTracksForQueue`,
 //!   `FetchGenreTracksForQueue`, `FetchFolderTracksForQueue`, `FetchPlaylistTracksForQueue` and
 //!   `InstantMix`. Same underlying endpoints, but always unfiltered, and replying
 //!   `DataAction::TracksLoaded` with a `QueueSource` rather than `ItemsLoaded`.
@@ -16,14 +16,14 @@
 //! (both fire-and-forget), and `TestServerConnection` for the profile editor. A live user found the top-level Albums tab
 //! (`ColumnKind::Albums { of_artist: None }`) spinning forever — it was never wired to an endpoint
 //! at all despite `seed_column_for_tab` emitting a bare `FetchColumn` for it same as `Artists`; see
-//! `docs/12-decisions.md`. `ColumnKind::Albums { of_artist: Some(_) }`/`Tracks`/`ArtistTracks` are
+//!. `ColumnKind::Albums { of_artist: Some(_) }`/`Tracks`/`ArtistTracks` are
 //! still reached only via their own dedicated effects (`FetchDiscography`/`FetchAlbumTracks`), never
 //! a bare `FetchColumn`; `SearchResults` is likewise still out of scope and only logged.
 //!
 //! Whenever `offline` is set, `FetchColumn { Artists }` and `FetchDiscography` are served
 //! straight from an `OfflineIndex` instead of ever touching `client` — the same `Event`s either
-//! way, so the reducer and UI need no offline-specific branch (`docs/06-cache-and-offline.md` §6).
-//! Every other effect still goes to HTTP regardless of `offline` (`docs/12-decisions.md`). Both
+//! way, so the reducer and UI need no offline-specific branch.
+//! Every other effect still goes to HTTP regardless of `offline`. Both
 //! `offline`/`offline_index` are wired through
 //! `Workers::spawn` but nothing yet flips `offline` to `true` or populates the index — that is
 //! the connectivity state machine.
@@ -93,13 +93,13 @@ pub struct OfflineHandle {
 }
 
 /// Spawns the real network worker: owns `client` and `library` (the first music library returned
-/// by `music_libraries`, picked once at bootstrap — see `docs/12-decisions.md` for the
+/// by `music_libraries`, picked once at bootstrap` for the
 /// single-library scope decision) for the lifetime of the task, consuming `effects` and replying
 /// on `events` until the channel closes.
 ///
 /// Also starts the WebSocket connection (when `enable_websocket` is set) as its own
 /// detached background task, alongside this one — not tracked in `Workers.handles`
-/// (`docs/12-decisions.md`): shutdown never needs to wait on it, since the whole tokio runtime
+///: shutdown never needs to wait on it, since the whole tokio runtime
 /// (and this task with it) ends the moment the process exits, right after `Workers::drain`'s own
 /// bounded wait for the *tracked* handles returns.
 pub fn spawn(
@@ -228,7 +228,7 @@ fn handle(
             // since that's how `drill_right` emits them. Only the bare top-level Albums tab
             // (`of_artist: None`, this module's own `seed_column_for_tab` seed) reaches `FetchColumn`
             // with this kind at all. This arm was missing entirely until a live user found the
-            // Albums tab spun forever ("unhandled effect" in the logs) — see `docs/12-decisions.md`.
+            // Albums tab spun forever ("unhandled effect" in the logs).
             ColumnKind::Albums { of_artist: None } => {
                 let key = InFlightKey::Column(kind.clone(), page);
                 run_guarded(in_flight, semaphore, key, events, async move {
@@ -298,7 +298,7 @@ fn handle(
             // libraries found only one showing — the root used to be hard-wired to the *first*
             // library's own children (`bootstrap::connect` only ever resolves `library[0]`). It now
             // lists **every** music library as a top-level folder to drill into, so all of them are
-            // reachable regardless of how many there are (`docs/12-decisions.md`).
+            // reachable regardless of how many there are.
             ColumnKind::Folders { of_parent: None } => {
                 let key = InFlightKey::Column(kind.clone(), page);
                 run_guarded(in_flight, semaphore, key, events, async move {
@@ -396,8 +396,7 @@ fn handle(
                 // `discography()` needs a full `Artist` but only ever reads `.id` (confirmed by
                 // reading its source) — the effect carries just the id, so a placeholder with
                 // every other field empty is built here rather than changing the
-                // already-committed, already-tested `loxia-emby` public signature
-                // (`docs/12-decisions.md`).
+                // already-committed, already-tested `loxia-emby` public signature.
                 let placeholder = placeholder_artist(artist);
                 match discography::discography(&client, &placeholder).await {
                     Ok(d) => Event::Data(DataAction::DiscographyLoaded {
@@ -432,8 +431,7 @@ fn handle(
                         // (`kind: ColumnKind::Tracks`) rather than `DataAction::TracksLoaded` —
                         // that variant carries `source`/`full_context` for queue-fill, has no
                         // `tab`/`depth`, and the reducer already treats it as a no-op for column
-                        // population (see `reducer::nav::apply_data`'s own doc comment). See
-                        // `docs/12-decisions.md`.
+                        // population (see `reducer::nav::apply_data`'s own doc comment). See.
                         Event::Data(DataAction::ItemsLoaded {
                             tab,
                             depth,
@@ -456,7 +454,7 @@ fn handle(
             run_guarded(in_flight, semaphore, key, events, async move {
                 match items::album_tracks(&client, &album).await {
                     // Unfiltered, always — the `ArtistOnly` filter (if any) is applied by the
-                    // reducer once this reply lands (`docs/12-decisions.md`), never here.
+                    // reducer once this reply lands, never here.
                     Ok(tracks) => Event::Data(DataAction::TracksLoaded {
                         tracks,
                         source: QueueSource::Album { id: album },
@@ -617,7 +615,7 @@ fn handle(
                     // `AppState::pending_favorite_toggles`'s entry for this id is only ever
                     // cleared by a *failure* reaching here, never by a quiet success — a
                     // harmless, bounded leak (one stale entry per item ever toggled this
-                    // session) documented in `docs/12-decisions.md`, not a correctness issue.
+                    // session) documented in, not a correctness issue.
                     let _ = events.send(Event::Data(DataAction::LoadFailed {
                         target: LoadTarget::FavoriteToggle(id),
                         message: e.to_string(),
@@ -726,7 +724,7 @@ fn handle(
         // never a genuinely redundant duplicate to drop the way column fetches have.
         NetEffect::FetchLyrics { track, stream_ref } => {
             // `lyrics::fetch` never actually returns `Err` (a failure degrades to
-            // `Lyrics::Unsynced(vec![])` — lyrics are cosmetic, `docs/03-emby-api.md` §7), so
+            // `Lyrics::Unsynced(vec![])` — lyrics are cosmetic), so
             // there is no `LoadFailed` reply to emit; `run_guarded` isn't used either, since a
             // stale in-flight fetch for a track the user has already skipped past is harmless
             // (`reducer::nav::lyrics_loaded` discards it by comparing against the current track).
@@ -758,7 +756,7 @@ fn handle(
                     // `lyrics::fetch` degrades every failure to empty lyrics rather than erroring,
                     // so this arm should be unreachable — but if it ever isn't, the pane would sit
                     // on "loading lyrics…" forever waiting for a reply that never comes. Reply with
-                    // empty lyrics so the UI always resolves (`docs/12-decisions.md`).
+                    // empty lyrics so the UI always resolves.
                     Err(error) => {
                         tracing::warn!(track = %track, %error, "lyrics fetch errored");
                         let _ = events.send(Event::Data(DataAction::LyricsLoaded {
@@ -774,7 +772,7 @@ fn handle(
         // (`images::fetch`'s own `Ok(Bytes::new())`), exactly like a missing lyric stream is
         // cosmetic, not an error. Decoding runs on the blocking-thread pool
         // (`tokio::task::spawn_blocking`), off this worker's own async task — the real substance
-        // of `docs/07-ui-spec.md` §11's "decoding happens off the main thread." The decoded
+        // of the "decoding happens off the main thread." The decoded
         // pixels go into the render layer's own `ArtStore`, which `render::draw` reads; this
         // worker keeps no store of its own.
         NetEffect::FetchImage { id, size, tag } => {
@@ -790,7 +788,7 @@ fn handle(
                 // The decoded pixels go to the render layer's own store, not through `Action` — a
                 // `DynamicImage` is render data, and actions stay plain serialisable values. The
                 // `ImageLoaded` reply below still goes out, purely to trigger the redraw that will
-                // pick it up (`docs/12-decisions.md`).
+                // pick it up.
                 if let Some(image) = decoded {
                     if let Ok(mut store) = art_store.lock() {
                         store.insert(id.clone(), image);
@@ -817,7 +815,7 @@ fn handle(
         }
         // The connectivity probe. A failure is silent — `reducer::connectivity`'s own
         // Tick-driven backoff will simply try again later, exactly like every other worker
-        // failure in this file (`docs/12-decisions.md`).
+        // failure in this file.
         NetEffect::Reconnect => {
             tokio::spawn(async move {
                 if probe::probe(&client).await.is_ok() {
@@ -861,7 +859,7 @@ fn handle(
 /// (`workers::spawn_network_stub`) — a candidate profile's "Test connection" needs neither an
 /// active `client` nor `library` (that's this function's whole point), so it must keep working
 /// even before the app has ever connected to any server at all, which is exactly the state the
-/// plain `spawn_stub` used to leave it stuck in forever (`docs/12-decisions.md`).
+/// plain `spawn_stub` used to leave it stuck in forever.
 pub(crate) async fn test_server_connection(
     url: &str,
     headers: &std::collections::BTreeMap<String, String>,
@@ -898,7 +896,7 @@ pub(crate) async fn test_server_connection(
         Err(e) => {
             // Found while debugging a real "the server reported an error" report: the on-screen
             // message is deliberately short (`EmbyError`'s own `Display`), so the response body
-            // — often the one thing that actually explains a non-standard status — only ever
+            // often the one thing that actually explains a non-standard status — only ever
             // went anywhere at all if it landed here. Truncated: a reverse proxy's own error page
             // can be an arbitrarily large HTML document, and a log line isn't the place for one.
             let debug = format!("{e:?}");
@@ -920,7 +918,7 @@ pub(crate) async fn test_server_connection(
 }
 
 /// Serves `net` from `offline_index` without ever touching `client`, if `net` is one of
-/// the two effects `docs/06-cache-and-offline.md` §6 names (`FetchColumn { Artists }`,
+/// the two effects the design names (`FetchColumn { Artists }`,
 /// `FetchDiscography`) and an index is actually loaded. `None` for anything else — the caller
 /// falls through to the normal HTTP path, which is this worker's existing (accepted) behaviour
 /// for every other effect while offline: it will simply fail or hang per its own retry/timeout
@@ -1029,7 +1027,7 @@ fn placeholder_artist(id: ItemId) -> Artist {
 }
 
 /// A minimal stand-in for the genre `genre_artists()` needs — only `name` is real, since
-/// `/Artists?Genres={name}` filters by name, not id (`docs/03-emby-api.md` §3), and nothing
+/// `/Artists?Genres={name}` filters by name, not id, and nothing
 /// downstream of `genre_artists()` reads `id`.
 fn placeholder_genre(name: String) -> Genre {
     Genre {
@@ -1160,7 +1158,7 @@ async fn run_session<S>(
                                     let _ = events.send(Event::Player(action));
                                 }
                                 // `SystemEvent::Toast` now carries bare `message`/`level`
-                                // — `AppState::toast` (the reducer) is the sole assigner of
+                                // `AppState::toast` (the reducer) is the sole assigner of
                                 // `id`/`created_at`, so there is no `Toast`/`Timestamp` to build
                                 // here at all any more.
                                 WsEvent::Toast(message) => {
@@ -1280,7 +1278,7 @@ mod tests {
     /// overlap through it. This exercises `run_guarded`'s semaphore gating directly instead, with
     /// synthetic futures that `tokio::time::sleep` (cooperative, not blocking) — the exact
     /// mechanism `worker_limits_concurrency_to_four` needs to prove, independent of any mock
-    /// server's own threading model. See `docs/12-decisions.md`.
+    /// server's own threading model.
     #[tokio::test]
     async fn worker_limits_concurrency_to_four() {
         let semaphore = Arc::new(Semaphore::new(MAX_CONCURRENT_REQUESTS));
@@ -1359,7 +1357,7 @@ mod tests {
 
     /// A live user found the top-level Albums tab (`ColumnKind::Albums { of_artist: None }`) spun
     /// forever — there was no `FetchColumn` arm for it at all, only the `_ => warn!` catch-all
-    /// (`docs/12-decisions.md`). This confirms the new arm actually reaches `/Users/{uid}/Items`
+    ///. This confirms the new arm actually reaches `/Users/{uid}/Items`
     /// and replies with `MediaItem::Album` rows, the way `ColumnKind::Artists`'s own worker test
     /// confirms `/Artists`.
     #[tokio::test]
@@ -1394,8 +1392,7 @@ mod tests {
     }
 
     /// A live user with several music libraries only ever saw one under Folders — the root was
-    /// wired to the first library's children. It now lists *every* music library as a folder
-    /// (`docs/12-decisions.md`).
+    /// wired to the first library's children. It now lists *every* music library as a folder.
     #[tokio::test]
     async fn folders_root_lists_every_music_library() {
         let server = MockServer::start().await;
@@ -1671,7 +1668,7 @@ mod tests {
     fn load_discography_fixture(name: &str) -> String {
         // `crates/loxia-emby`'s own fixtures, reused rather than copied — this crate is the only
         // one depending on both `loxia-emby` and `loxia-cache`, which is exactly why this parity
-        // test has to live here rather than in either of them (`docs/12-decisions.md`).
+        // test has to live here rather than in either of them.
         std::fs::read_to_string(format!(
             "{}/../loxia-emby/tests/fixtures/{name}",
             env!("CARGO_MANIFEST_DIR")
@@ -1679,7 +1676,7 @@ mod tests {
         .unwrap()
     }
 
-    /// the requirement: "the same fixture data through both paths yields identical
+    /// The requirement: "the same fixture data through both paths yields identical
     /// primary and appears-on sets." Runs the *real* online `discography()` (HTTP-mocked with
     /// `loxia-emby`'s own fixtures: artist `Sync24`/`66665`, 2 primary albums, 4 appears-on) and a
     /// hand-built offline library describing the identical artist/album/relation shape, then
@@ -1956,7 +1953,7 @@ mod tests {
         ));
     }
 
-    /// the integration acceptance test: with the server unreachable, playing three
+    /// The integration acceptance test: with the server unreachable, playing three
     /// tracks to completion buffers three `Played` reports instead of losing them; once the
     /// server is reachable again, draining the buffer delivers exactly those three, in order.
     #[tokio::test]

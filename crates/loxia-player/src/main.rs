@@ -1,5 +1,4 @@
-//! loxia binary: CLI, bootstrap, and the main event loop wiring the other five crates together.
-//! See docs/01-architecture.md §3.6.
+//! loxia binary: CLI, bootstrap, and the main event loop wiring the other five crates together..
 
 mod bootstrap;
 mod dispatch;
@@ -174,8 +173,7 @@ async fn main() {
     // message before the terminal UI even starts) was previously silent but for a `tracing::warn!`
     // line in `select_audio_backend` — from inside the running app, playback looked completely
     // normal (the queue plays, the position advances, since the mock engine simulates all of it)
-    // while producing no actual sound at all, with nothing on screen ever explaining why
-    // (`docs/12-decisions.md`).
+    // while producing no actual sound at all, with nothing on screen ever explaining why.
     if let Some(message) = audio_fallback_toast(&state.about.libmpv) {
         state.toast(message, loxia_core::state::toast::ToastLevel::Warning);
     }
@@ -192,12 +190,12 @@ async fn main() {
     // Applies the persisted config onto the runtime mirror the app actually reads — theme, quality
     // profile, ReplayGain mode and EQ. Must follow `PresetsLoaded` above: resolving the active EQ
     // preset's gains needs `known_presets`. Its effects go out with `restore_effects` below, once
-    // `workers` exists to dispatch them (`docs/12-decisions.md`).
+    // `workers` exists to dispatch them.
     let mut startup_effects = loxia_core::reducer::hydrate_from_config(&mut state);
 
     // Restored **before** connecting — the UI is usable immediately, and a slow or
     // failed connection still leaves the user with their queue rather than an empty screen
-    // (`docs/06-cache-and-offline.md` §8). Neither history nor the session snapshot need a live
+    //. Neither history nor the session snapshot need a live
     // connection; `bootstrap::restore_session` only ever touches `AppState`/`Paths`. Any effects
     // the restore itself produces (a real `Effect::Audio(Load)` for `ui.restore_autoplay`) need
     // `workers` to dispatch through, which doesn't exist yet — collected here, sent once it does.
@@ -220,7 +218,7 @@ async fn main() {
                 // `http: ... Immediate exit requested`, blamed on this re-fetching the exact track
                 // mpv was streaming. Measured against a real server since: a concurrent fetch of the
                 // *same* item, on the same device id, in both direct and transcode profiles, never
-                // interrupted a held-open stream (`docs/12-decisions.md`). It still costs double
+                // interrupted a held-open stream. It still costs double
                 // bandwidth on first play, which is why it now defaults off and is opt-in.
                 state.config.cache.prefetch_on_play,
             );
@@ -228,7 +226,7 @@ async fn main() {
             // structures `open_cache` (rolling cache manifest) and `loxia_cache::downloads::
             // Downloads::stats` (a read-only parse, no `Fetcher` needed) already give a synchronous
             // answer for; nothing keeps this live afterward (`loxia-core` has no I/O of its own to
-            // do so, `docs/12-decisions.md`).
+            // do so).
             if let Some((cache_arc, _)) = &cache {
                 state.cache_stats.audio_cache_bytes = cache_arc.lock().await.total_bytes();
             }
@@ -241,7 +239,7 @@ async fn main() {
             // this is only so the very first frame does not show `d` as un-pinned on something that
             // is already downloaded.
             // the connectivity state machine is what will actually flip `offline` and
-            // populate the index; until then this is an inert default (`docs/12-decisions.md`).
+            // populate the index; until then this is an inert default.
             let offline = workers::network::OfflineHandle {
                 offline: std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false)),
                 index: std::sync::Arc::new(std::sync::Mutex::new(None)),
@@ -272,7 +270,7 @@ async fn main() {
     // Enumerate audio devices once at startup so `player.known_devices` is populated before anything
     // needs it. Previously the *only* emitter was the device picker opening, so `known_devices` was
     // empty until the user happened to press `O`, leaving the Settings device/driver dropdowns with
-    // nothing to offer (`docs/12-decisions.md`).
+    // nothing to offer.
     let _ = workers.audio.send(loxia_core::effect::Effect::Audio(
         loxia_core::effect::AudioEffect::EnumerateDevices,
     ));

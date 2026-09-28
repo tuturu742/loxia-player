@@ -14,7 +14,7 @@ use super::search::SearchResults;
 ///
 /// Playlists are in the list because Emby favourites any item type and a user asked where theirs
 /// had gone — verified against a live server, which records `UserData.IsFavorite` on a playlist and
-/// returns it from this very query (`docs/12-decisions.md`).
+/// returns it from this very query.
 pub async fn favorites(client: &EmbyClient, page: Page) -> Result<SearchResults, EmbyError> {
     let query = ItemQuery::default()
         .filters(&[Filter::IsFavorite])

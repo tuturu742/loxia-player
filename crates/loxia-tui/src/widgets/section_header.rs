@@ -1,4 +1,4 @@
-//! Non-selectable section header rows: `── ALBUMS (2) ──────` (`docs/07-ui-spec.md` §5). Never
+//! Non-selectable section header rows: `── ALBUMS (2) ──────`. Never
 //! given the cursor style and never registered as a hit target — a click on one must do nothing,
 //! and the reducer's own `selectable_indices()` already skips them for keyboard navigation.
 

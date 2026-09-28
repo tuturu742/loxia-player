@@ -79,7 +79,7 @@ pub struct ReplayGainInfo {
     pub album_peak: Option<f32>,
 }
 
-/// One entry of mpv's `audio-device-list` (`docs/05-audio-engine.md` §7). Lives in `loxia-core`
+/// One entry of mpv's `audio-device-list`. Lives in `loxia-core`
 /// rather than `loxia-audio` because `state::modal::Modal::DevicePicker` needs it and `loxia-core`
 /// cannot depend on `loxia-audio` (the dependency runs the other way).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -89,7 +89,7 @@ pub struct AudioDevice {
     pub driver: String,
 }
 
-/// "Most capable first" (`docs/05-audio-engine.md` §4): ALSA, WASAPI, CoreAudio, then PipeWire,
+/// "Most capable first": ALSA, WASAPI, CoreAudio, then PipeWire,
 /// Pulse. A driver not in this list (unlikely — mpv's own `ao` list is fixed) sorts after all of
 /// these, in whatever order it was first encountered. Lives here rather than in
 /// `loxia-audio::device` (which originally defined it) because it and [`device_label`]

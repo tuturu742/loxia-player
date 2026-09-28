@@ -1,4 +1,4 @@
-//! The Online/Offline/Reconnecting state machine (`docs/06-cache-and-offline.md` §6).
+//! The Online/Offline/Reconnecting state machine.
 //!
 //! ```text
 //! Online ──(2 consecutive EmbyError::Offline)──► Offline
@@ -8,8 +8,7 @@
 //! no completion signal — the drain is fire-and-forget — so
 //! `advance_reconnecting` fires unconditionally on the very next `Tick` after
 //! `on_connectivity_changed` enters `Reconnecting`, having already emitted the
-//! `Effect::Cache(DrainScrobbles)` that starts the (currently fire-and-forget) drain
-//! (`docs/12-decisions.md`).
+//! `Effect::Cache(DrainScrobbles)` that starts the (currently fire-and-forget) drain.
 
 use jiff::{SignedDuration, Timestamp};
 
@@ -21,7 +20,7 @@ use crate::state::toast::ToastLevel;
 use crate::state::{AppState, Connectivity};
 
 /// Two consecutive `EmbyError::Offline` failures — never `Unauthorized`/`NotFound`/`Transient`
-/// (`docs/06-cache-and-offline.md` §6: "a 404 on one album is not a network outage") — before the
+/// ("a 404 on one album is not a network outage") — before the
 /// app considers itself offline.
 const OFFLINE_THRESHOLD: u32 = 2;
 const PROBE_MIN_BACKOFF_SECS: i64 = 5;
@@ -70,14 +69,13 @@ fn enter_offline(state: &mut AppState) -> Vec<Effect> {
 }
 
 /// "Recomputes every queue entry's availability against the cache manifest and downloads index"
-/// (`docs/06-cache-and-offline.md` §6) is not literally possible here: the reducer is pure and has
+/// is not literally possible here: the reducer is pure and has
 /// no visibility into `loxia-cache`'s real manifest/downloads index, and there is no mirrored
 /// per-item availability signal in `AppState` either (`reducer::queue::append_tracks`'s
 /// own doc comment already says as much: "no real cache manifest exists yet"). The best available
 /// approximation, consistent with that same existing simplification: every currently-`Remote`
 /// entry becomes `Unavailable`; `Downloaded`/`Cached` entries (however they came to exist) are
-/// left untouched, since they're still genuinely available with no network at all
-/// (`docs/12-decisions.md`).
+/// left untouched, since they're still genuinely available with no network at all.
 fn recompute_availability_offline(state: &mut AppState) {
     for entry in &mut state.queue.entries {
         if entry.availability == Availability::Remote {
@@ -87,7 +85,7 @@ fn recompute_availability_offline(state: &mut AppState) {
 }
 
 /// The inverse, run once `Reconnecting` advances to `Online`: everything becomes `Remote` again
-/// except `Downloaded` entries, which never need to be (`docs/06-cache-and-offline.md` §6).
+/// except `Downloaded` entries, which never need to be.
 fn recompute_availability_online(state: &mut AppState) {
     for entry in &mut state.queue.entries {
         if entry.availability != Availability::Downloaded {
@@ -142,9 +140,9 @@ pub(crate) fn mark_all_columns_idle(state: &mut AppState) {
     }
 }
 
-/// Tick-driven probe scheduling (`docs/06-cache-and-offline.md` §6: "jittered backoff of 5s to
+/// Tick-driven probe scheduling ("jittered backoff of 5s to
 /// 30s"). `now` is `Tick`'s own carried timestamp, read directly per reducer rule 2's `Tick`-only
-/// exception (`docs/04-state-and-input.md` §4) — never `Timestamp::now()`.
+/// exception — never `Timestamp::now()`.
 pub fn maybe_probe(state: &mut AppState, now: Timestamp) -> Vec<Effect> {
     if state.connectivity != Connectivity::Offline {
         return Vec::new();
@@ -161,7 +159,7 @@ pub fn maybe_probe(state: &mut AppState, now: Timestamp) -> Vec<Effect> {
     // connected with. Re-selecting rebuilds the client and the workers (`SysEffect::ReconnectServer`
     // -> `bootstrap::connect` -> `reach_server`), which is heavier than a probe, so it is left to
     // the point where the cheap answer has already failed a few times rather than done on the first
-    // tick (`docs/12-decisions.md`).
+    // tick.
     state.probes_since_offline += 1;
     if state.probes_since_offline > PROBES_BEFORE_RESELECT && has_other_endpoints(state) {
         return vec![Effect::Sys(crate::effect::SysEffect::ReconnectServer(
@@ -182,7 +180,7 @@ fn has_other_endpoints(state: &AppState) -> bool {
 }
 
 /// Deterministic "jitter" (0-2s) derived from `now`'s own second component rather than a real RNG
-/// — keeps the backoff schedule reproducible in tests while still varying run to run in
+/// keeps the backoff schedule reproducible in tests while still varying run to run in
 /// production, since `now` always does. Doubles the backoff for the *next* probe after this one,
 /// capped at [`PROBE_MAX_BACKOFF_SECS`].
 fn schedule_next_probe(state: &mut AppState, now: Timestamp) {
@@ -193,7 +191,7 @@ fn schedule_next_probe(state: &mut AppState, now: Timestamp) {
 }
 
 /// Called from `reducer::apply` right after dispatching, whenever the result contains a network
-/// effect while offline (`docs/06-cache-and-offline.md` §6: "a user reconnecting their VPN and
+/// effect while offline ("a user reconnecting their VPN and
 /// pressing a key should not wait 30 seconds"). `None` if a probe is already among `effects`, or
 /// if `effects` wants nothing from the network at all.
 pub fn maybe_immediate_probe(state: &mut AppState, effects: &[Effect]) -> Option<Effect> {
@@ -276,7 +274,7 @@ mod tests {
     fn unauthorized_does_not_count_as_offline() {
         // `offline: false` is exactly the signal an `Unauthorized` (or `NotFound`/`Transient`)
         // failure carries — the network worker never sets it for anything but
-        // `EmbyError::Offline` (`docs/12-decisions.md`).
+        // `EmbyError::Offline`.
         let mut state = fixtures::fixture_empty();
         observe_data_action(&mut state, &load_failed(false));
         assert_eq!(state.connectivity, Connectivity::Online);
@@ -387,8 +385,7 @@ mod tests {
     /// A profile with one address probes forever: the probe only asks the address already in use,
     /// which is the right cheap answer when the *server* is down. With a second address configured,
     /// "unreachable" stops being conclusive — a laptop that has left the LAN can reach the server
-    /// fine, just not that way — so after a couple of failed probes it re-selects
-    /// (`docs/12-decisions.md`).
+    /// fine, just not that way — so after a couple of failed probes it re-selects.
     #[test]
     fn a_profile_with_a_fallback_reselects_after_a_few_failed_probes() {
         let mut state = fixtures::fixture_empty();

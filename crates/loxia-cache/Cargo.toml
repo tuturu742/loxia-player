@@ -37,7 +37,7 @@ pretty_assertions = { workspace = true }
 # fetches) — dev-only, never a production dependency of this crate (`pin`/`unpin` are plain
 # `async fn`s driven by whatever executor the real caller, `crates/loxia`, already runs). Also used
 # by `offline_index.rs`'s own `rebuild_on_pin_and_unpin` test, which drives `Downloads::pin`/`unpin`
-# to completion via a plain current-thread `block_on`. See `docs/13-dependencies.md`.
+# to completion via a plain current-thread `block_on`. See.
 tokio = { workspace = true, features = ["macros", "rt-multi-thread", "sync", "time"] }
 # Self-dependency with the feature enabled, same idiom `loxia-tui`'s own Cargo.toml established
 # (`07-06`'s decisions.md entry): this task's tests need `loxia_core::test_support::fixtures` for

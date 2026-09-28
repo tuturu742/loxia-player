@@ -1,4 +1,4 @@
-//! Grapheme-safe text measurement and truncation (`docs/07-ui-spec.md` §13).
+//! Grapheme-safe text measurement and truncation.
 //!
 //! Every public function here sanitises its input first — stripping control characters and ANSI
 //! escape sequences — since track titles, album names, and every other display string ultimately
@@ -10,9 +10,9 @@ use std::borrow::Cow;
 use unicode_segmentation::UnicodeSegmentation;
 use unicode_width::UnicodeWidthStr;
 
-/// The default ellipsis. `docs/07-ui-spec.md` §13 also calls for an ASCII `"..."` variant when a
+/// The default ellipsis. also calls for an ASCII `"..."` variant when a
 /// theme is `ascii_only`, but neither `ellipsize` nor `ellipsize_start` takes a theme/flag
-/// parameter in the given signature — see `docs/12-decisions.md`. `ellipsize_with` (not
+/// parameter in the given signature. `ellipsize_with` (not
 /// part of that signature list, added alongside it) is what an `ascii_only`-aware caller uses
 /// instead, passing `"..."`.
 const ELLIPSIS: &str = "…";
@@ -72,7 +72,7 @@ fn width_raw(s: &str) -> usize {
 /// at all: every one of them has been swapped for a look-alike that has no emoji presentation
 /// (`♥`→`♡`, `☺`→`☻`, `⚙`→`⛭`, `▶`→`▸`, `⏸`→`‖`, `⏹`→`■`, `⚠`→`△`, `⏱`→`⧗`), and
 /// [`CHROME_GLYPHS`] pins that. This stays so a glyph added later without checking is still
-/// handled as well as it can be (`docs/12-decisions.md`).
+/// handled as well as it can be.
 ///
 /// Detected rather than hardcoded — if the emoji form would be wider, the glyph is at risk — so a
 /// glyph added later is handled without anyone having to remember this exists. A glyph with no
@@ -312,7 +312,7 @@ mod tests {
     /// layout — computed from `unicode-width` — then puts everything beside it a column out. U+FE0E
     /// is supposed to prevent that, but a terminal may ignore it, and the "off-centre heart" report
     /// came back after the selector was already being emitted. Choosing glyphs the question never
-    /// arises for is the only fix that does not depend on the terminal (`docs/12-decisions.md`).
+    /// arises for is the only fix that does not depend on the terminal.
     #[test]
     fn no_chrome_glyph_is_emoji_capable() {
         for c in CHROME_GLYPHS.chars() {

@@ -1,4 +1,4 @@
-//! Serde structs mirroring `config.toml` (`docs/02-data-model.md` §8).
+//! serde structs mirroring `config.toml`.
 //!
 //! Every struct is `#[serde(default)]` at the container level with a hand-written `Default` impl
 //! giving the documented value for each field — this is what makes a missing or empty config file
@@ -7,7 +7,7 @@
 //! container, not from a per-field zero value.
 //!
 //! `audio.crossfade_sec` and `ui.show_spectrum_analyzer` are deliberately absent — both features
-//! were cut (`docs/12-decisions.md` §3).
+//! were cut.
 
 use std::collections::BTreeMap;
 use std::fmt;
@@ -54,8 +54,7 @@ impl Config {
     ///
     /// The Emby installation's own id ([`ServerConfig::server_id`]) once known, and the profile id
     /// until then. Two profiles pointing at the same server therefore share all of it rather than
-    /// keeping two copies — which is the whole point of telling *addresses* apart from *servers*
-    /// (`docs/12-decisions.md`).
+    /// keeping two copies — which is the whole point of telling *addresses* apart from *servers*.
     ///
     /// Readable from config alone, with no network round trip, because the id is written back to
     /// the profile on the first successful connection. That matters: the session is restored before
@@ -100,7 +99,7 @@ pub struct ServerConfig {
     pub user_id: String,
     pub access_token: String,
     /// Empty means "not yet generated" — a UUID v4 is generated on first use and persisted
-    /// (`docs/12-decisions.md` §5); this must be stable across restarts for Emby session identity.
+    ///; this must be stable across restarts for Emby session identity.
     pub device_id: String,
     pub custom_headers: BTreeMap<String, String>,
     /// The Emby installation's own GUID (`System/Info/Public` → `Id`), learned on the first
@@ -110,8 +109,7 @@ pub struct ServerConfig {
     /// the rolling cache, permanent downloads, the session snapshot, the scrobble buffer — is
     /// namespaced by this, so two profiles pointing at one server (a LAN address and an external
     /// one behind a proxy, say) share it all instead of keeping two copies. Empty until the first
-    /// connection succeeds, which is the only reason the profile id is still used as a fallback
-    /// (`docs/12-decisions.md`).
+    /// connection succeeds, which is the only reason the profile id is still used as a fallback.
     #[serde(default)]
     pub server_id: String,
     /// Further addresses for the **same** server, tried in order after the primary
@@ -119,7 +117,7 @@ pub struct ServerConfig {
     ///
     /// Each is verified against `server_id` before it is used, so a stale DNS entry or a copied
     /// config that happens to answer can never quietly attach this profile's cache and downloads to
-    /// somebody else's library (`docs/12-decisions.md`).
+    /// somebody else's library.
     #[serde(default)]
     pub fallbacks: Vec<ServerEndpoint>,
 }
@@ -154,7 +152,7 @@ impl ServerConfig {
 /// *endpoints of one server*, not two servers: the same account, the same library, and — since
 /// storage is keyed on the server's own id ([`Config::storage_server_id`]) — the same cache,
 /// downloads and session. Only the address and whatever headers that path needs differ, which is
-/// why those are the only two fields here (`docs/12-decisions.md`).
+/// why those are the only two fields here.
 #[derive(Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct ServerEndpoint {
@@ -250,7 +248,7 @@ pub struct CacheConfig {
     /// double the bandwidth and the copy only pays off on a later replay or offline. Turn it on to
     /// have everything you listen to land in the cache as you go. (It was force-disabled in code
     /// for a while after being blamed for killing playback; that did not reproduce when measured —
-    /// `docs/12-decisions.md`.)
+    ///.)
     #[serde(default)]
     pub prefetch_on_play: bool,
     /// How many *upcoming* queue entries to pull into the rolling cache alongside the one being
@@ -273,8 +271,7 @@ fn default_true() -> bool {
 /// Defaulting this on was gated on the 2026-08-02 failure, where a background fetch alongside
 /// playback appeared to kill the stream. Measured against the live server: holding a stream open
 /// while fetching another track concurrently — on the same device id, in both direct and transcode
-/// profiles, and for the same item as well as a different one — never interrupted playback
-/// (`docs/12-decisions.md`).
+/// profiles, and for the same item as well as a different one — never interrupted playback.
 fn default_prefetch_next() -> u8 {
     1
 }
@@ -366,7 +363,7 @@ pub struct UiConfig {
     /// The player bar's own "what's playing" line, as a template. Supported placeholders:
     /// `{title}`, `{artist}`, `{album}`, `{album_artist}`, `{year}`, `{track_number}`,
     /// `{disc_number}`, `{genre}`, `{duration}`. An unknown placeholder is left verbatim so a typo
-    /// is visible rather than silently blanking the line (`docs/12-decisions.md`).
+    /// is visible rather than silently blanking the line.
     pub now_playing_format: String,
 }
 
@@ -495,7 +492,7 @@ impl Default for SortingConfig {
     }
 }
 
-/// The factory equalizer preset names (`docs/05-audio-engine.md` §5, `assets/eq_presets.toml`).
+/// The factory equalizer preset names (`assets/eq_presets.toml`).
 /// Defined here — not in `loxia-audio` — because `config::validate` needs to check
 /// a custom preset name for collisions without reaching into `loxia-audio::eq`. `loxia_audio::eq`
 /// reuses this constant when it embeds `assets/eq_presets.toml` rather than redefining the list.
@@ -517,7 +514,7 @@ pub struct EqPreset {
 }
 
 /// The ten ISO band centre frequencies every `EqPreset`/`EqState.gains` entry corresponds to,
-/// index-for-index (`docs/05-audio-engine.md` §5). Moved here from `loxia_audio::backend`
+/// index-for-index. Moved here from `loxia_audio::backend`
 /// (re-exported back for that module's own existing callers) because it's pure data with
 /// no OS-specific behaviour — `loxia-tui`'s equalizer modal needs the same frequency
 /// labels `loxia-audio`'s own mpv filter-string builder does, but cannot depend on `loxia-audio` to

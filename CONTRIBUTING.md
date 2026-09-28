@@ -1,7 +1,7 @@
 # Contributing to loxia
 
 Issues and pull requests are welcome. This document is the short version of what the code expects; the
-reasoning behind the architecture is in [`docs/`](docs/README.md).
+user-facing documentation lives in [`docs/user/`](docs/user/README.md).
 
 ## Reporting a bug
 
@@ -70,17 +70,16 @@ These are load-bearing, not style preferences. Each is enforced by CI, a test, o
    so remapping updates the help modal, the inspector legend and every inline hint at once.
 7. **Never log a token or a stream URL.** Redact in `Debug` and `Display`. A stream URL carries an
    `api_key`; `RedactedUrl` and `RedactedSecret` exist for exactly this.
-8. **Add no dependency** that is not in [`docs/13-dependencies.md`](docs/13-dependencies.md). If one is
-   genuinely needed, add it there in the same PR with a one-line justification. `tokio`, `reqwest`,
-   `ratatui` and `image` must stay single-versioned across the graph; CI checks that too.
+8. **Add dependencies sparingly**, and to `[workspace.dependencies]` so every crate shares one
+   version. `tokio`, `reqwest`, `ratatui` and `image` must stay single-versioned across the whole
+   graph; CI checks that, and `cargo deny` gates licences and advisories.
 
 ## Documenting a change
 
 - **User-visible behaviour** → update the relevant file in [`docs/user/`](docs/user/README.md). A new
   config key belongs in `configuration.md` with its default; a new binding belongs in `keybindings.md`.
-- **A decision that diverges from the architecture docs** → fix the doc in the same PR, and add a row to
-  [`docs/12-decisions.md`](docs/12-decisions.md) explaining what changed and why. That file is the
-  project's decision record and a great deal of code comments point at it.
+- **A non-obvious decision** → say why in a comment at the point it is made. The codebase leans on
+  comments that explain reasoning rather than restating the code.
 - **Anything a user would notice** → a `CHANGELOG.md` entry under `[Unreleased]`.
 - **Public items get doc comments.** The crate's `lib.rs` module list stays current.
 

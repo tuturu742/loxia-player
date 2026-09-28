@@ -1,5 +1,5 @@
 //! The main event loop: select over input, tick, and worker events; apply actions; dispatch
-//! effects; redraw when dirty (`docs/01-architecture.md` §4, `docs/04-state-and-input.md` §9).
+//! effects; redraw when dirty.
 
 use std::time::{Duration, Instant};
 
@@ -23,7 +23,7 @@ use crate::terminal::TerminalGuard;
 use crate::workers::Workers;
 
 /// Draws are throttled to at most once per this interval — a burst of held-key repeats yields a
-/// steady ~60 fps instead of one draw per keystroke (`docs/01-architecture.md` §4).
+/// steady ~60 fps instead of one draw per keystroke.
 const RENDER_INTERVAL: Duration = Duration::from_millis(16);
 const TICK_INTERVAL: Duration = Duration::from_millis(100);
 /// Fallback when the backend can't report a size (should not happen for a real terminal).
@@ -42,8 +42,7 @@ pub async fn run_terminal(
     // escape sequence and reads the terminal's reply off stdin, so a reader already blocked on
     // `crossterm::event::read` would swallow that reply — detection then times out and silently
     // falls back to halfblocks (chunky covers on a Kitty/Sixel-capable terminal) or to nothing at
-    // all. Ordering it first is what makes real graphics protocols actually get detected
-    // (`docs/12-decisions.md`).
+    // all. Ordering it first is what makes real graphics protocols actually get detected.
     let renderer =
         loxia_tui::widgets::album_art::detect_renderer(state.config.ui.album_art_protocol);
     let (input_tx, input_rx) = mpsc::unbounded_channel();
@@ -53,13 +52,13 @@ pub async fn run_terminal(
 
 /// Reads real crossterm events forever, on the blocking-task pool (crossterm's `read` blocks the
 /// calling thread), forwarding each raw event as-is. `input::to_action` needs live `&AppState` and
-/// the current `Viewport` — neither of which may be handed to a second thread (`docs/01-architecture.md` §4: `AppState` lives on the main thread only, behind a
+/// the current `Viewport` — neither of which may be handed to a second thread (`AppState` lives on the main thread only, behind a
 /// plain `&mut`, never an `Arc<Mutex<_>>`) — so the conversion happens in `run`'s own loop body,
 /// where both are already in scope. Ends — dropping the sender — only on a genuine read error or
 /// if nothing is listening any more; the main loop treats the input source disappearing as fatal
 /// and exits.
 ///
-/// `docs/01-architecture.md` §4 and the spec name `crossterm::event::EventStream` as
+/// and the spec name `crossterm::event::EventStream` as
 /// the input source, but `ratatui-crossterm` 0.1.2 does not forward crossterm's `event-stream`
 /// feature, and adding a direct `crossterm` dependency to obtain it ourselves is exactly what
 /// `13-dependencies.md` rule 1 forbids (two copies of crossterm risking incompatible `Event`
@@ -79,10 +78,10 @@ async fn read_terminal_input(input_tx: mpsc::UnboundedSender<CrosstermEvent>) {
 
 /// "[d] Copy diagnostics" — writes an OSC 52 terminal escape sequence
 /// (`\x1b]52;c;<base64>\x07`) directly to stdout rather than pulling in a clipboard crate
-/// (`arboard`/`copypasta`, neither in `docs/13-dependencies.md`): OSC 52 needs no new dependency,
+/// (`arboard`/`copypasta`, neither in): OSC 52 needs no new dependency,
 /// and — unlike an X11/Wayland clipboard API — works over SSH, which is exactly where a terminal
 /// music client is most likely to be run from when someone wants to paste a bug report
-/// (`docs/12-decisions.md`). Some terminals disable OSC 52 by default for security; this is a
+///. Some terminals disable OSC 52 by default for security; this is a
 /// narrow, accepted, documented limitation, the same shape as `apply_mouse_capture`'s own "errors
 /// are swallowed" posture — there is no reliable way to detect support ahead of time.
 fn copy_to_clipboard(text: &str) {
@@ -171,7 +170,7 @@ async fn reconnect_server(
         // was lifted.
         state.config.cache.prefetch_on_play,
     );
-    // the connectivity state machine is what will actually flip `offline` and populate the
+    // The connectivity state machine is what will actually flip `offline` and populate the
     // index; until then this is an inert default, the same one `main`'s own startup uses.
     let offline = crate::workers::network::OfflineHandle {
         offline: std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false)),
@@ -190,7 +189,7 @@ async fn reconnect_server(
     // Restores whatever this server's own queue/position was left at the last time a switch
     // moved *away* from it — symmetric with the outgoing side's own `PersistSessionForServer`.
     // Deliberately not gated on `ui.restore_session` the way startup's own restore is (`main.rs`)
-    // — a live switch's own point is picking up this server's session, not asking again whether
+    // a live switch's own point is picking up this server's session, not asking again whether
     // to.
     if let Ok(Some(snapshot)) = loxia_cache::session::load_for_server(paths, &server_id) {
         for effect in reducer::apply(
@@ -380,8 +379,7 @@ fn session_snapshot(state: &AppState) -> loxia_core::state::SessionSnapshot {
         // `state.server.server_name` (the server's own *display* name, or empty if never
         // connected this session), which can never equal `config.active_server` (the
         // config-assigned server *id* the restore validation compares against),
-        // making "restore only if the same server" silently discard every snapshot forever
-        // (`docs/12-decisions.md`).
+        // making "restore only if the same server" silently discard every snapshot forever.
         server_id: loxia_core::model::ServerId::from(state.config.storage_server_id()),
         queue: state.queue.clone(),
         position_secs: state.player.position.as_secs_f64(),
@@ -399,7 +397,7 @@ fn session_snapshot(state: &AppState) -> loxia_core::state::SessionSnapshot {
 /// the `HitMap` this fills is what the *next* frame's mouse events resolve against.
 /// Returns whatever effects the render itself asked for — today that is `NetEffect::FetchImage`
 /// from `widgets::album_art`, which discovers a missing cover only at the moment it tries to draw
-/// one at a particular size (`docs/12-decisions.md`).
+/// one at a particular size.
 fn draw<B>(
     terminal: &mut Terminal<B>,
     state: &AppState,

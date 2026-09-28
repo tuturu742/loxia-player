@@ -13,7 +13,7 @@ pub enum Resolution {
 }
 
 /// The keys `TextInput` still routes through the keymap — everything else (in particular any
-/// bare printable character) goes to the text buffer instead (`docs/04-state-and-input.md` §5).
+/// bare printable character) goes to the text buffer instead.
 fn text_input_allows(chord: &KeyChord) -> bool {
     matches!(
         chord.code,
@@ -28,7 +28,7 @@ fn text_input_allows(chord: &KeyChord) -> bool {
 }
 
 /// Available inside every modal regardless of `kind`, on top of that modal's own table
-/// (`docs/04-state-and-input.md` §5), which each modal kind's own table below extends.
+///, which each modal kind's own table below extends.
 fn modal_universal(chord: &KeyChord) -> Option<ActionId> {
     let m = chord.mods;
     match chord.code {
@@ -42,7 +42,7 @@ fn modal_universal(chord: &KeyChord) -> Option<ActionId> {
 /// The help modal's own table — `j`/`k`/`Ctrl+U`/`Ctrl+D`, reusing
 /// `MoveDown`/`MoveUp`/`HalfPageDown`/`HalfPageUp` rather than inventing dedicated scroll
 /// `ActionId`s, since `input.rs`'s own `action_for` already re-routes exactly these four to
-/// `ModalAction::Scroll` specifically while `Modal::Help` is open (`docs/12-decisions.md`).
+/// `ModalAction::Scroll` specifically while `Modal::Help` is open.
 /// Hardcoded to the *default* bindings for these four actions, deliberately, the same way
 /// `modal_universal`'s own `Esc`/`?`/`Ctrl+C` are — a user's own remap of `j`/`k` elsewhere is not
 /// consulted here, matching precedent rather than adding a new inconsistency.
@@ -65,7 +65,7 @@ fn help_scroll(chord: &KeyChord) -> Option<ActionId> {
 /// while its own target dropdown has focus), the same reuse-not-reinvent shape `help_scroll`
 /// already established above. Not folded into a single generic "every modal" table: a later
 /// modal's own up/down keys can mean something entirely different (`Modal::Equalizer`'s arrow-key
-/// gain nudging, moves a value, not a field cursor) — `docs/12-decisions.md`.
+/// gain nudging, moves a value, not a field cursor).
 fn list_nav(chord: &KeyChord) -> Option<ActionId> {
     let m = chord.mods;
     if m.ctrl || m.alt || m.shift {

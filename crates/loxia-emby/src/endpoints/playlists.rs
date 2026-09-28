@@ -27,7 +27,7 @@ pub struct PlaylistEntry {
 /// it passed against a mock that asserted the parameter was *sent* — but a real Emby answers
 /// `IncludeItemTypes=Playlist&MediaTypes=Audio` by ignoring the type filter entirely and returning
 /// audio-ish items of every kind: on a live library, 106,115 folders, albums and tracks in place of
-/// 3 playlists (`docs/12-decisions.md`). Dropping it returns exactly what the official client
+/// 3 playlists. Dropping it returns exactly what the official client
 /// shows.
 ///
 /// Non-music playlists are therefore listed again. They are handled where the problem actually is
@@ -64,7 +64,7 @@ pub async fn items(client: &EmbyClient, id: &PlaylistId) -> Result<Vec<PlaylistE
             // A playlist can hold video, photos or books. Those have no `Track` representation, and
             // converting one used to fail the whole fetch — so a single stray entry made an
             // otherwise-good playlist unopenable. Skipped instead: a playlist of them simply comes
-            // back empty (`docs/12-decisions.md`).
+            // back empty.
             dto.item_type.as_deref() == Some("Audio")
         })
         .map(|dto| {
@@ -252,7 +252,7 @@ mod tests {
     /// The `MediaTypes=Audio` filter this used to send made a real Emby ignore the type filter
     /// altogether and return 106,115 folders/albums/tracks in place of 3 playlists — while this
     /// very test passed, because a mock that asserts a parameter was *sent* says nothing about what
-    /// a server does with it (`docs/12-decisions.md`). It must not come back.
+    /// a server does with it. It must not come back.
     #[tokio::test]
     async fn list_asks_only_for_playlists() {
         let server = MockServer::start().await;

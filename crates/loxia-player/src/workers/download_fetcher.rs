@@ -3,8 +3,7 @@
 //!
 //! `loxia_cache::downloads` was written against this trait so it could be tested with a fake and
 //! stay free of any network dependency, and until now the fake was the *only* implementation: the
-//! whole download feature was reachable from nowhere, so pressing `d` did nothing at all
-//! (`docs/12-decisions.md`).
+//! whole download feature was reachable from nowhere, so pressing `d` did nothing at all.
 
 use std::path::Path;
 use std::pin::Pin;

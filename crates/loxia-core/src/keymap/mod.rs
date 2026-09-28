@@ -1,6 +1,6 @@
 //! KeyChord, KeyBinding, KeyMap, ActionId.
 //!
-//! `loxia-core` cannot depend on `ratatui`/`crossterm` (`docs/01-architecture.md` §3.2), so
+//! `loxia-core` cannot depend on `ratatui`/`crossterm`, so
 //! [`KeyCode`] and [`KeyModifiers`] are crate-local mirrors, not re-exports — `loxia-tui`'s input
 //! handler converts a real `crossterm::event::KeyEvent` into a [`KeyChord`] at the boundary. Only
 //! the variants the default keymap and user rebinding actually need are represented.
@@ -68,7 +68,7 @@ pub struct KeyChord {
 pub struct KeyBinding(pub SmallVec<[KeyChord; 2]>);
 
 /// Carves out the two exclusive input modes; `Normal` is a single flat table where no chord can
-/// mean two things (`docs/04-state-and-input.md` §5).
+/// mean two things.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum InputContext {
     Normal,
@@ -76,7 +76,7 @@ pub enum InputContext {
     Modal(ModalKind),
 }
 
-/// Every bindable action identity (`docs/04-state-and-input.md` §6). Distinct from `Action`: a
+/// Every bindable action identity. Distinct from `Action`: a
 /// keymap binding names *which* action fires, `resolve.rs` turns an `ActionId` plus
 /// the current UI context into a concrete, payload-carrying `Action`.
 ///
@@ -278,7 +278,7 @@ impl ActionId {
 }
 
 /// A resolved binding table: one flat `KeyBinding -> ActionId` map (`Normal` is deliberately a
-/// single table with no per-context scoping, `docs/04-state-and-input.md` §5) plus a stable
+/// single table with no per-context scoping) plus a stable
 /// display hint per action for UI surfaces that must never hardcode a key.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct KeyMap {
@@ -308,7 +308,7 @@ impl KeyMap {
     /// override *replaces* every binding the action previously held (defaults included), rather
     /// than adding an alias — rebinding an action to a new key is expected to give up the old one.
     /// Every parse failure or conflict produces a `ConfigWarning` rather than aborting — the app
-    /// must always start (`docs/12-decisions.md` §4).
+    /// must always start.
     pub fn from_config(overrides: &BTreeMap<String, String>) -> (KeyMap, Vec<ConfigWarning>) {
         let mut map = KeyMap::defaults();
         let mut warnings = Vec::new();
@@ -374,7 +374,7 @@ impl KeyMap {
     /// [`KeyMap::from_config`] — that rebuild replays overrides in the `BTreeMap`'s own
     /// alphabetical-by-action-name order, not the order the user actually made the edits in,
     /// which would silently let an earlier (alphabetically later) override re-win over a change
-    /// just made in this session (`docs/12-decisions.md`). `config.keybindings` is still updated
+    /// just made in this session. `config.keybindings` is still updated
     /// by the caller for what a *future restart* replays.
     pub(crate) fn rebind(&mut self, action: ActionId, binding: KeyBinding) {
         self.remove_bindings_for(action);
@@ -516,7 +516,7 @@ mod tests {
 
     /// F1 is the help key in effectively every program a user has ever run. It used to be an alias
     /// for `alt+1` (jump to tab 1) alongside `f2`…`f9`, and reaching for help with it was reported
-    /// as a bug (`docs/12-decisions.md`). Tab 1 keeps `alt+1`; the rest keep both aliases.
+    /// as a bug. Tab 1 keeps `alt+1`; the rest keep both aliases.
     #[test]
     fn f1_opens_help_while_the_other_function_keys_still_jump_tabs() {
         let map = KeyMap::defaults();
@@ -534,7 +534,7 @@ mod tests {
     /// `shift+enter` is only distinguishable from a bare `Enter` when the terminal's keyboard
     /// enhancement protocol is on, which loxia does not enable — so the chord never arrives, and
     /// advertising it left the "add to queue" action looking broken while `A`, which does work,
-    /// went unmentioned (`docs/12-decisions.md`). The advertised key must be the deliverable one.
+    /// went unmentioned. The advertised key must be the deliverable one.
     #[test]
     fn the_advertised_queue_keys_are_ones_a_terminal_can_actually_send() {
         let map = KeyMap::defaults();

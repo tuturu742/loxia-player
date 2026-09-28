@@ -1,5 +1,5 @@
 //! Renders one Miller column: rows, cursor, scrolling, section headers, selection checkboxes,
-//! appears-on highlighting, and load states (`docs/07-ui-spec.md` §5). Used by every browsing view.
+//! appears-on highlighting, and load states. Used by every browsing view.
 
 use std::borrow::Cow;
 use std::time::Duration;
@@ -77,7 +77,7 @@ fn title_for(col: &Column) -> std::borrow::Cow<'_, str> {
 }
 
 /// `<title> /<query>`, the query in `Accent` — plus a trailing cursor block while the filter is
-/// actively being typed (`col.filter_editing`), per `docs/07-ui-spec.md` §5.
+/// actively being typed (`col.filter_editing`).
 fn title_line<'a>(col: &Column, theme: &Theme) -> Line<'a> {
     let mut spans = vec![Span::raw(title_for(col).into_owned())];
     if let Some(query) = &col.filter {
@@ -134,7 +134,7 @@ fn render_empty(f: &mut Frame, area: Rect, kind: &ColumnKind, theme: &Theme) {
 }
 
 /// "Error states in columns show the message plus `{Ctrl+R} retry`, and preserve any previously
-/// loaded items beneath" (`docs/07-ui-spec.md` §13) — when `col`
+/// loaded items beneath" — when `col`
 /// still holds items from an earlier successful load, this renders those rows (`render_rows`,
 /// unchanged) in the top of the area and anchors the error + retry message to the bottom, rather
 /// than replacing the whole column with just the error text.
@@ -252,7 +252,7 @@ fn now_playing_id(state: &AppState) -> Option<&ItemId> {
 }
 
 /// `♡` favourite, `↓` downloaded, `▸` currently playing. (`△` unavailable still has no data source
-/// — per-item offline availability doesn't exist on `MediaItem`.)
+/// per-item offline availability doesn't exist on `MediaItem`.)
 ///
 /// The download marker is the only visible confirmation that `d` did anything: the work happens off
 /// screen and can take minutes, so without it the feature looks broken even when it isn't.

@@ -8,9 +8,9 @@
 //!
 //! The report is grouped into sections, each line carrying one of three verdicts:
 //!
-//! - `ok` — checked, nothing wrong.
-//! - `warn` — worth knowing, but the app runs. Does not affect the exit code.
-//! - `FAIL` — something that will stop the app, or a feature of it, from working. Any single
+//! `ok` — checked, nothing wrong.
+//! `warn` — worth knowing, but the app runs. Does not affect the exit code.
+//! `FAIL` — something that will stop the app, or a feature of it, from working. Any single
 //!   `FAIL` makes the process exit `1`, so `--doctor` is usable as a scripted pre-flight check.
 //!
 //! Deliberately ASCII-only: this output gets pasted into issue trackers, and a box-drawing

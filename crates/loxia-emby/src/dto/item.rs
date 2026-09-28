@@ -145,7 +145,7 @@ fn require_name(dto: &BaseItemDto) -> Result<String, EmbyError> {
 /// The fallback is not an edge case: on a real library only 81 of 300 albums carry their own tag
 /// while 195 carry the pointer, so ignoring it left most albums showing a placeholder — while
 /// tracks, 287 of 300 of which have their own tag, looked fine. Verified against the live server,
-/// including that the pointed-at URL actually serves the image (`docs/12-decisions.md`).
+/// including that the pointed-at URL actually serves the image.
 fn image_ref(dto: &BaseItemDto) -> Option<ImageRef> {
     if let Some(tag) = dto.image_tags.get("Primary") {
         let id = dto.id.clone()?;
@@ -216,7 +216,7 @@ impl TryFrom<BaseItemDto> for Artist {
             // it away, which is why the Artists column read `0 albums` for every artist in the
             // library. It counts the artist's **tracks**, not albums: verified against the live
             // server, where an artist with 28 albums reports 289 and has 288 tracks
-            // (`docs/12-decisions.md`). `FieldSet::default()` has always requested it.
+            //. `FieldSet::default()` has always requested it.
             track_count: dto.child_count.unwrap_or(0),
             genres: dto.genres.clone(),
             is_favorite: user_data.is_favorite,
@@ -314,7 +314,7 @@ impl TryFrom<BaseItemDto> for Track {
             // ("discovered lazily"), and the only code that ever *did* discover it
             // (`endpoints::playback::playback_info`) is never called for a queued track — so
             // `lyric_stream` was always `None`, `load_current` never emitted `FetchLyrics`, and the
-            // lyrics pane could never appear at all (`docs/12-decisions.md`).
+            // lyrics pane could never appear at all.
             lyric_stream: dto
                 .media_sources
                 .iter()
@@ -384,7 +384,7 @@ mod tests {
 
     /// A real gap: `lyric_stream` was hardcoded `None`, so `load_current` never emitted
     /// `FetchLyrics` and the lyrics pane could never appear. It is discovered here from the
-    /// `MediaSources` the default `Fields` set already requests (`docs/12-decisions.md`).
+    /// `MediaSources` the default `Fields` set already requests.
     #[test]
     fn a_subtitle_stream_becomes_the_tracks_lyric_stream() {
         let dto: BaseItemDto = serde_json::from_value(serde_json::json!({
@@ -437,7 +437,7 @@ mod tests {
     /// `ChildCount` for an artist. It does — `FieldSet::default()` asks for it and the server
     /// sends it — so every artist in the library rendered as `0 albums`. The fixture was captured
     /// before the field was noticed and has since been given the counts the live server really
-    /// returns for these two artists (`docs/12-decisions.md`).
+    /// returns for these two artists.
     #[test]
     fn artist_track_count_comes_from_child_count() {
         let response = load_fixture("artists.json");
@@ -461,7 +461,7 @@ mod tests {
     /// Most albums hold no image of their own: Emby answers with an empty `ImageTags` and a
     /// `PrimaryImageItemId`/`PrimaryImageTag` naming the item that does. Reading only `ImageTags`
     /// left two thirds of a real library's albums showing a placeholder while tracks — which
-    /// nearly always carry their own tag — looked fine (`docs/12-decisions.md`). The shape here is
+    /// nearly always carry their own tag — looked fine. The shape here is
     /// copied from an actual response.
     #[test]
     fn an_album_inherits_its_cover_from_the_item_that_holds_it() {

@@ -1,4 +1,4 @@
-//! Offline browse tree built from download sidecars (`docs/06-cache-and-offline.md` §6).
+//! Offline browse tree built from download sidecars.
 //!
 //! Every `.loxia.json` sidecar under `downloads_root` is a complete, serialised `Track` — this
 //! walks all of them and reconstructs artists/albums purely from what those tracks carry, since
@@ -39,7 +39,7 @@ struct ArtistAgg {
 /// A browsable library reconstructed entirely from downloaded tracks' own sidecars — no server
 /// round trip. `album_count`/`track_count` on synthesised artists, and every count on synthesised
 /// albums, reflect **what is downloaded**, never a true server-side total: showing a server count
-/// next to a partial offline library would be misleading (`docs/06-cache-and-offline.md` §6).
+/// next to a partial offline library would be misleading.
 pub struct OfflineIndex {
     tracks: HashMap<ItemId, Track>,
     tracks_by_album: HashMap<ItemId, Vec<ItemId>>,
@@ -130,7 +130,7 @@ impl OfflineIndex {
 
     /// The same ALBUMS / APPEARS ON split the online path produces, via
     /// [`loxia_core::discography::classify`] applied to every downloaded track that involves
-    /// `artist` (`docs/12-decisions.md`).
+    /// `artist`.
     pub fn discography(&self, artist: &ItemId) -> Discography {
         let mut primary_ids: HashSet<ItemId> = HashSet::new();
         let mut appears_on_ids: HashSet<ItemId> = HashSet::new();
@@ -230,7 +230,7 @@ impl OfflineIndex {
             })
             // `relation` is meaningless outside a discography-for-one-artist context; defaulting
             // to `Primary` matches the same placeholder every other bare (non-discography) album
-            // fetch already uses (`loxia-emby`'s DTO conversion, `docs/12-decisions.md`).
+            // fetch already uses (`loxia-emby`'s DTO conversion).
             .map(|id| self.build_album(id, AlbumRelation::Primary))
             .collect();
 
@@ -259,8 +259,7 @@ impl OfflineIndex {
     }
 
     /// Whether `id` (a track, album, or artist) is present in this offline library — used to
-    /// decide whether an item that isn't cached can still be browsed/queued offline
-    /// (`docs/06-cache-and-offline.md` §6).
+    /// decide whether an item that isn't cached can still be browsed/queued offline.
     pub fn contains(&self, id: &ItemId) -> bool {
         self.tracks.contains_key(id)
             || self.albums.contains_key(id)
@@ -286,7 +285,7 @@ impl OfflineIndex {
     }
 
     /// Best-effort: `Track` has no `album_artist_ids` field (only the string
-    /// `album_artist_names`, `docs/12-decisions.md`), so this recovers ids by scanning the
+    /// `album_artist_names`), so this recovers ids by scanning the
     /// album's own tracks for a contributor whose name matches one of `album_artist_names` —
     /// works whenever the album artist is also a per-track contributor, true for every real
     /// release. Empty if none match (an album artist absent from every downloaded track's own
@@ -434,7 +433,7 @@ mod tests {
     /// An internal sanity check on `discography`'s own split logic — the *real* parity test
     /// against the online path (the named acceptance test,
     /// `offline_discography_split_matches_online`) lives in `crates/loxia`, the only crate
-    /// depending on both `loxia-emby` and `loxia-cache` (`docs/12-decisions.md`).
+    /// depending on both `loxia-emby` and `loxia-cache`.
     #[test]
     fn discography_splits_primary_and_appears_on() {
         let dir = tempdir().unwrap();

@@ -1,5 +1,5 @@
 //! WebSocket session: connect-URL/handshake building, inbound message parsing, and reconnect
-//! backoff (`docs/03-emby-api.md` §10). Everything here is pure/connection-agnostic;
+//! backoff. Everything here is pure/connection-agnostic;
 //! `crates/loxia-player/src/workers/network.rs` owns the actual `tokio-tungstenite` connection, its
 //! reconnect loop, and the keepalive timer.
 
@@ -22,7 +22,7 @@ use crate::dto::ticks::ticks_to_duration;
 /// `client`'s own base URL (`EmbyClient::base`), the same approach `client::append_emby_path`
 /// already uses, rather than building a URL from scratch: a reverse-proxy path prefix in the
 /// user's configured server URL survives unchanged. Deliberately **not** under `/emby` (unlike
-/// every REST endpoint) — `docs/03-emby-api.md` §10's own URL has no `/emby` segment.
+/// every REST endpoint) — the URL has no `/emby` segment.
 pub fn connect_url(client: &EmbyClient) -> Url {
     let mut url = client.base().clone();
     let ws_scheme = if url.scheme() == "https" { "wss" } else { "ws" };
@@ -113,7 +113,7 @@ struct PlaystateData {
     seek_position_ticks: i64,
 }
 
-/// `docs/03-emby-api.md` §10's own table simplifies Emby's real `Pause`/`Unpause` pair to a
+/// The table simplifies Emby's real `Pause`/`Unpause` pair to a
 /// single "`PlayPause`" row, matching this app's own `PlayerAction::PlayPause` toggle (there is
 /// no separate `Play`/`Pause` action to pick between) — both real commands, plus a literal
 /// `"PlayPause"` some clients may send, all map here.

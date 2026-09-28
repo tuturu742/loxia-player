@@ -1,6 +1,6 @@
 //! Action — the only way state changes. An intent, not an effect: applying one never performs
 //! I/O itself, it only mutates `AppState` and optionally returns `Effect`s for the runtime to
-//! carry out (`docs/04-state-and-input.md` §§1-2).
+//! carry out.
 
 use std::time::Duration;
 
@@ -76,7 +76,7 @@ pub enum NavAction {
     /// A click on a row of the shared three-section list (`Search`/`Favourites`). Those rows had
     /// no click behaviour at all: neither tab has a Miller column, so `FocusColumnAt` cannot reach
     /// them, and the mouse simply did nothing on either — half of a live "I can't select anything
-    /// from favourites" report (`docs/12-decisions.md`).
+    /// from favourites" report.
     FocusSectionAt {
         section: crate::state::search::SearchSection,
         index: usize,
@@ -87,7 +87,7 @@ pub enum NavAction {
     FocusQueueEntry(QueueEntryId),
     /// `ScrollUp`/`ScrollDown` over the Now Playing tab's queue/history pane. That pane is not a
     /// Miller column, so `ScrollColumn` cannot reach it and the wheel did nothing there at all
-    /// (`docs/12-decisions.md`). Like `ScrollColumn` this targets the pane under the pointer
+    ///. Like `ScrollColumn` this targets the pane under the pointer
     /// rather than whatever holds focus — in particular it must still scroll the list when focus
     /// is parked on the tab sidebar, where a plain `MoveDown` would change tabs instead.
     ScrollNowPlaying {
@@ -111,7 +111,7 @@ pub enum QueueAction {
     /// `Enter` — **replace** the queue with the selection and play it now, as opposed to
     /// `QueueSelection`'s append. Implemented as "clear, then queue": the cleared queue is empty, so
     /// the queued tracks (or the fetch reply, for a container) start playing from the top the same
-    /// way appending to an empty queue already does (`docs/12-decisions.md`).
+    /// way appending to an empty queue already does.
     PlaySelection {
         full_context: bool,
     },
@@ -123,7 +123,7 @@ pub enum QueueAction {
     },
     Clear,
     /// `seed` drives `queue::shuffle::shuffle`'s `ChaCha8Rng` — supplied by whoever builds this
-    /// action from `state.clock` (`docs/12-decisions.md`), never read from a clock inside
+    /// action from `state.clock`, never read from a clock inside
     /// the reducer itself, or every shuffle test becomes flaky.
     ToggleShuffle {
         seed: u64,
@@ -136,7 +136,7 @@ pub enum QueueAction {
     InstantMix,
     JumpTo(QueueEntryId),
     /// `a` on a History row — appends the track back onto the queue as
-    /// `QueueSource::Manual`. Boxed: `Track` is a ~450-byte struct (`docs/12-decisions.md`'s own
+    /// `QueueSource::Manual`. Boxed: `Track` is a ~450-byte struct (own
     /// `MediaItem`/`large_enum_variant` note), and unlike that case this is a brand new variant
     /// with no pre-existing call sites to disrupt, so there's no reason not to box it from the
     /// start.
@@ -188,7 +188,7 @@ pub enum ModalAction {
     /// The help modal's own `j`/`k`/`Ctrl+U`/`Ctrl+D` scroll — positive scrolls down,
     /// negative up. Not a generic "every modal can scroll" action: `keymap::resolve`'s own
     /// `Modal(_)` branch only ever produces this for `ModalKind::Help` specifically (see that
-    /// module's own doc comment, `docs/12-decisions.md`).
+    /// module's own doc comment).
     Scroll(i32),
     /// `↑`/`↓` in the equalizer modal — adjusts the *currently selected* band
     /// (`Modal::Equalizer.band`, moved by `FieldNext`/`FieldPrev`) of `draft_gains` by `delta` dB,
@@ -220,7 +220,7 @@ pub enum ModalAction {
     /// Bypass keeps the filter chain installed with a flat curve, for A/B-ing a setting. "Off" is
     /// the thing a user actually looks for, and until now the only control for it was a row buried
     /// in Settings — the modal always switched the equalizer *on* when submitted and offered no way
-    /// back (`docs/12-decisions.md`).
+    /// back.
     ToggleEqEnabled,
     /// `Space` in the sleep timer modal — selects the focused radio trigger or toggles
     /// the focused checkbox, whichever `Modal::SleepTimer.field_cursor` currently names. Not
@@ -242,7 +242,7 @@ pub enum ModalAction {
     /// selection, or the single focused item when nothing is multi-selected — two genuinely
     /// different sources no shared auto-detection can express. Also runs the "nothing to save"/
     /// "needs a connection" open-time refusals the spec requires, closing a
-    /// previously-flagged gap (`docs/12-decisions.md`).
+    /// previously-flagged gap.
     OpenSavePlaylist(SaveSource),
     /// `↑`/`↓` while the save-playlist modal's target dropdown has focus (`field == 0`) —
     /// moves `target_cursor` through `Create New Playlist…` (`0`) then the loaded existing
@@ -272,15 +272,14 @@ pub enum ModalAction {
     /// `Esc` while `capturing` — abandons the in-progress capture entirely (clears
     /// `captured`/`conflict`/`capture_deadline`, returns to plain row browsing), never closes the
     /// modal itself. Distinct from `Nav::Cancel`'s usual "close this modal" meaning, the same way
-    /// Settings' own `CancelTextEdit` needed a dedicated action rather than reusing that ladder
-    /// (`docs/12-decisions.md`).
+    /// Settings' own `CancelTextEdit` needed a dedicated action rather than reusing that ladder.
     CancelCapture,
     /// `d` on a `Modal::KeymapEditor` row — rebinds the focused action to whatever
     /// `KeyMap::defaults()` gives it, unconditionally (a restore-to-factory action, not gated
-    /// behind the conflict-refusal flow a fresh capture goes through — `docs/12-decisions.md`).
+    /// behind the conflict-refusal flow a fresh capture goes through).
     ResetRowToDefault,
     /// `x` on a `Modal::KeymapEditor` row — removes every binding the focused action
-    /// currently holds; its row then shows `—` (`docs/04-state-and-input.md` §7).
+    /// currently holds; its row then shows `—`.
     UnbindRow,
     /// `R` on a `Modal::KeymapEditor` row — opens the `Confirm` modal the spec requires ("a footer
     /// action resets all bindings to defaults, behind a `Confirm`"); the
@@ -326,7 +325,7 @@ pub enum ItemAction {
         new_index: usize,
     },
     /// `X` — always opens a `Confirm` modal naming the playlist and its track count first
-    /// (`docs/12-decisions.md`); never deletes directly.
+    ///; never deletes directly.
     DeletePlaylist(PlaylistId),
     /// The `Confirm` modal's own `on_confirm` target for `DeletePlaylist` — never bound to a key
     /// itself, so confirming can't loop back into opening another confirm.
@@ -382,7 +381,7 @@ pub enum DataAction {
     },
     /// A background cache fetch finished cleanly. Carries the manifest's new total so
     /// the About view's cache size stops being a startup-only reading, and lets the player bar stop
-    /// claiming a track is merely streaming once its local copy exists (`docs/12-decisions.md`).
+    /// claiming a track is merely streaming once its local copy exists.
     CacheFetched {
         track: crate::model::ItemId,
         profile: crate::config::QualityProfile,
@@ -434,7 +433,7 @@ pub enum DataAction {
     /// Fired once at startup by the `loxia` binary, which merges `loxia_audio::eq`'s
     /// embedded factory presets with `config.equalizer.custom_presets` — the same
     /// precompute-in-the-platform-crate-carry-as-data shape `DevicesLoaded` already uses
-    /// (`docs/12-decisions.md`), since `loxia-core` cannot depend on `loxia-audio` to parse
+    ///, since `loxia-core` cannot depend on `loxia-audio` to parse
     /// `assets/eq_presets.toml` itself.
     PresetsLoaded {
         presets: Vec<EqPreset>,
@@ -450,7 +449,7 @@ pub enum DataAction {
     /// from whatever URL `Load` already started with"), but what `Load` "already started with" is
     /// always just `placeholder_url`'s inert `emby-track:{id}` scheme — mpv cannot open that, so a
     /// track with no local cache yet never actually played at all. A real, confirmed defect found
-    /// live: see `docs/12-decisions.md`.
+    /// live:.
     CacheResolved {
         track: ItemId,
         profile: QualityProfile,
@@ -458,8 +457,8 @@ pub enum DataAction {
         stream_url: crate::effect::RedactedUrl,
     },
     /// `offline`: whether the underlying `EmbyError` was specifically `Offline` — a
-    /// transport-level failure, never `Unauthorized`/`NotFound`/`Transient` (`docs/12-decisions.md`,
-    /// `docs/06-cache-and-offline.md` §6: "a 404 on one album is not a network outage"). This is
+    /// transport-level failure, never `Unauthorized`/`NotFound`/`Transient` (
+    /// "a 404 on one album is not a network outage"). This is
     /// the only signal `reducer::connectivity`'s consecutive-failure counter reads; `message`
     /// stays a plain string (`e.to_string()`, computed by the network worker, the only place that
     /// still has the real `EmbyError`) since `loxia-core` cannot depend on `loxia-emby` to carry
@@ -476,7 +475,7 @@ pub enum DataAction {
         name: String,
     },
     /// Progress from `loxia_cache::downloads::Downloads::pin` for one track of a
-    /// permanent-download batch — `docs/06-cache-and-offline.md` §5's own wording
+    /// permanent-download batch — the wording
     /// (`Event::DownloadProgress { id, done_bytes, total_bytes }`) reads as shorthand for this
     /// variant, not a new top-level `Event` bucket: every other cross-crate reply in this enum
     /// (`CacheResolved`, `ImageLoaded`, ...) already arrives as `Event::Data(DataAction::_)`, and a
@@ -496,7 +495,7 @@ pub enum DataAction {
     /// The WebSocket's `LibraryChanged` message — carries no payload since every column
     /// is marked `Idle` regardless of exactly which items changed, the same "not a refetch storm"
     /// simplification `reducer::connectivity::advance_reconnecting` already makes for the
-    /// analogous "something changed server-side" case (`docs/12-decisions.md`): this app's
+    /// analogous "something changed server-side" case: this app's
     /// column-kind model has no cheap way to map Emby's own changed-item-id lists onto
     /// "affected" columns specifically.
     LibraryChanged,
@@ -524,7 +523,7 @@ pub enum DataAction {
     },
 }
 
-/// Mirrors what the audio engine reports, 1:1 with `Event::Audio` (`docs/04-state-and-input.md`
+/// Mirrors what the audio engine reports, 1:1 with `Event::Audio` (
 /// §1) — the runtime converts one directly into the other with no translation.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AudioEvent {
@@ -537,8 +536,8 @@ pub enum AudioEvent {
         natural: bool,
     },
     FormatDetected(AudioFormat),
-    /// Mirrors `loxia_audio::backend::AudioEvent::VolumeChanged` — see `docs/12-decisions.md` for
-    /// why neither `docs/05-audio-engine.md` §2's table nor this enum's own first draft had
+    /// Mirrors `loxia_audio::backend::AudioEvent::VolumeChanged`` for
+    /// why neither the table nor this enum's own first draft had
     /// anywhere to put a volume/mute confirmation from the engine.
     VolumeChanged {
         volume: u8,
@@ -547,7 +546,7 @@ pub enum AudioEvent {
     EngineError(String),
     /// A specific case of the engine's own generic error, carrying the device `id` that
     /// failed to swap in — `AudioError::DeviceUnavailable`'s own `Display` is a fixed, generic
-    /// sentence (`docs/12-decisions.md`'s "never interpolate a field's actual content" rule for
+    /// sentence ("never interpolate a field's actual content" rule for
     /// engine errors), so folding this into `EngineError(String)` like every other engine error
     /// would lose the one piece of information the device picker's own "could not switch to
     /// `<name>`" toast needs. `workers::audio`'s translation layer is what special-cases this one
@@ -582,7 +581,7 @@ pub enum SystemEvent {
     SessionRestored(Box<crate::state::SessionSnapshot>),
     ConfigChanged(Box<Config>),
     /// A `g`-style two-chord prefix was just typed (`keymap::resolve` returned
-    /// `Resolution::Pending`) — not in `docs/04-state-and-input.md` §1's original `System` list,
+    /// `Resolution::Pending`) — not in the original `System` list,
     /// added while implementing `to_action`, whose own resolution rule 3
     /// ("`Resolution::Pending` → `Action::System(SetPendingChord(chord))`") names it but no such
     /// variant existed. There is no corresponding "clear" variant: an unresolved second chord
@@ -605,7 +604,7 @@ pub enum SettingsAction {
     NextSection,
     PrevSection,
     /// `Esc` from the section's own rows — moves focus to the left-hand section (group) list, where
-    /// `↑`/`↓` pick a group and `Enter`/`→` step back into its rows (`docs/12-decisions.md`).
+    /// `↑`/`↓` pick a group and `Enter`/`→` step back into its rows.
     FocusSectionList,
     /// `Enter`/`→` from the section list — steps focus back into the focused section's rows.
     FocusRows,
@@ -644,7 +643,7 @@ pub enum SettingsAction {
     /// Opens the add-profile form (a blank `ServerDraft`, `id: None`) from the server list
     /// sub-view. `device_id` is stamped immediately, not left for a later `validate()` pass to
     /// fill in lazily — "generated once per profile," and there is no more natural "once" than the
-    /// moment the profile is conceived (`docs/12-decisions.md`).
+    /// moment the profile is conceived.
     ServerEditorAddNew,
     /// Opens the edit form for whichever profile the list sub-view's own cursor currently names.
     ServerEditorEdit,
@@ -667,7 +666,7 @@ pub enum SettingsAction {
     /// The `Confirm`'s own `on_confirm` payload — stops playback, clears the queue and history,
     /// persists the outgoing session under its own server id, sets `config.active_server`, and
     /// emits `Effect::Sys(ReconnectServer)` for the runtime to actually reconnect and reseed the
-    /// columns with (`docs/12-decisions.md`: this reducer cannot do the reconnect itself, since it
+    /// columns with (this reducer cannot do the reconnect itself, since it
     /// has no access to `&mut Workers`).
     ServerEditorSwitchConfirmed(crate::model::ServerId),
     /// Validates the new-header name/value pair the draft's own two input fields hold — refuses a
@@ -692,7 +691,7 @@ pub enum SettingsAction {
     ServerEditorSave,
     /// `Esc` while the editor is open — from the add/edit form, discards the draft and returns to
     /// the profile list; from the list itself, closes the editor and returns to the Servers
-    /// section's own normal row list (`docs/12-decisions.md`: distinct from `Nav::Cancel`'s usual
+    /// section's own normal row list (distinct from `Nav::Cancel`'s usual
     /// "close the modal" meaning, the same reason `CancelTextEdit` and `CancelCapture` each
     /// needed their own dedicated action instead of reusing that ladder).
     ServerEditorClose,
@@ -704,7 +703,7 @@ pub enum SettingsAction {
     /// it named the profile being renamed (the spec).
     SortEditorRename,
     /// `x` — opens a `Confirm` modal naming the focused profile (a live user deleted their profiles
-    /// by accident and asked for a guard, `docs/12-decisions.md`). Confirming dispatches
+    /// by accident and asked for a guard). Confirming dispatches
     /// `SortEditorDeleteProfileConfirmed`.
     SortEditorDeleteProfile,
     /// The `Confirm` modal's own payload — the actual deletion. Clears `default_queue_profile` if it
@@ -713,7 +712,7 @@ pub enum SettingsAction {
     SortEditorDeleteProfileConfirmed,
     /// `R` — re-adds the two built-in profiles (`chronological_discog`/`release_chronology`) from
     /// `SortingConfig::default()`, skipping any whose name already exists so a user's own edits are
-    /// never clobbered. Recovery for the "deleted them all by accident" case (`docs/12-decisions.md`).
+    /// never clobbered. Recovery for the "deleted them all by accident" case.
     SortEditorRestoreDefaults,
     /// `a` — appends a default rule (`SortField::Name`, `Direction::Asc`) to the focused profile;
     /// refused with an inline reason once it already has 4 (`config::MAX_SORT_RULES`), rather than

@@ -1,4 +1,4 @@
-//! The default binding table — normative, transcribed exactly from `docs/04-state-and-input.md`
+//! The default binding table — normative, transcribed exactly from
 //! §6, aliases included. If a binding here looks wrong, change the doc in the same change rather
 //! than diverging from it.
 
@@ -27,7 +27,7 @@ pub(crate) const DEFAULT_BINDINGS: &[(&str, ActionId)] = &[
     ("shift+tab", ActionId::PrevTab),
     // `f1` is *not* an alias for `alt+1` the way `f2`…`f9` are for `alt+2`…`alt+9`: F1 is the help
     // key in effectively every program a user has ever run, and reaching for it expecting help
-    // while it silently jumped to the first tab was reported as a bug (`docs/12-decisions.md`).
+    // while it silently jumped to the first tab was reported as a bug.
     // Tab 1 keeps `alt+1`; only its F-row alias is given up.
     ("alt+1", ActionId::JumpTab1),
     ("alt+2", ActionId::JumpTab2),
@@ -73,7 +73,7 @@ pub(crate) const DEFAULT_BINDINGS: &[(&str, ActionId)] = &[
     // the one that actually reaches us. `shift+enter` needs the terminal's keyboard-enhancement
     // protocol to be distinguishable from a bare `Enter`, which loxia does not enable — so without
     // it the chord is simply undeliverable, and the legend was advertising the one key that could
-    // never work while hiding the one that does (`docs/12-decisions.md`). Kept as an alias for the
+    // never work while hiding the one that does. Kept as an alias for the
     // terminals that do report it.
     ("A", ActionId::QueueFullContext),
     ("shift+enter", ActionId::QueueFullContext),
@@ -104,7 +104,7 @@ pub(crate) const DEFAULT_BINDINGS: &[(&str, ActionId)] = &[
     ("H", ActionId::ToggleHistory),
     ("L", ActionId::ToggleLyrics),
     // The shifted pair of the `j`/`k` that move a list: unsynced lyrics are the other scrollable
-    // thing on screen, and both letters were free in every context (`docs/12-decisions.md`).
+    // thing on screen, and both letters were free in every context.
     ("K", ActionId::LyricsScrollUp),
     ("J", ActionId::LyricsScrollDown),
     ("?", ActionId::ToggleHelp),

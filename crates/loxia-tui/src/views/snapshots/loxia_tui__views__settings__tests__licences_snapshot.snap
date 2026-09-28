@@ -1,6 +1,6 @@
 ---
 source: crates/loxia-tui/src/views/settings.rs
-assertion_line: 1998
+assertion_line: 2103
 expression: rendered
 ---
 Buffer {
@@ -10,7 +10,7 @@ Buffer {
         "│Servers       ││# Third-party licences                                                            │",
         "│Audio         ││                                                                                  │",
         "│Cache         ││loxia is `GPL-3.0-or-later`. This file lists the licences of every third-party com│",
-        "│Transcode     ││against or bundles, per `docs/11-packaging.md` §7.                                │",
+        "│Transcode     ││against or bundles.                                                               │",
         "│Interface     ││                                                                                  │",
         "│Sorting       ││## libmpv                                                                         │",
         "│Equalizer     ││                                                                                  │",

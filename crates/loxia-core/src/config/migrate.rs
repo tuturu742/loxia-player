@@ -1,4 +1,4 @@
-//! schema_version migrations.
+//! Schema_version migrations.
 //!
 //! Runs on the raw `toml::Value` tree **before** deserialization into `Config`. Schema version 1
 //! is current, so today this is a no-op that stamps `schema_version = 1` when the key is absent.

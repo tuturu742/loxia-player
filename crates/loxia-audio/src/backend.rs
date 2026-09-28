@@ -1,4 +1,4 @@
-//! AudioBackend trait, AudioCommand, AudioEvent (`docs/05-audio-engine.md` §§1-2).
+//! AudioBackend trait, AudioCommand, AudioEvent.
 //!
 //! Everything above this layer talks only to [`AudioBackend`] — `MpvEngine` and
 //! `MockEngine` are its only two implementations.
@@ -18,7 +18,7 @@ use crate::error::AudioError;
 
 /// One gain in dB per `EQ_BANDS_HZ` entry. A distinct type from `loxia_core::effect::EqCurve`
 /// (a bare `[f32; 10]` alias `Effect::Audio::SetEq` already carries) — the spec names
-/// a wrapping struct rather than reusing that alias; see `docs/12-decisions.md` for why they
+/// a wrapping struct rather than reusing that alias;` for why they
 /// aren't unified. The audio worker converts one to the other at the effect/command
 /// boundary (`EqCurve { gains: curve }`).
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -62,7 +62,7 @@ pub enum AudioCommand {
 pub enum AudioEvent {
     StatusChanged(PlayStatus),
     /// Throttled to 4 Hz by the backend — a raw per-mpv-callback rate would flood the channel and
-    /// the render loop (`docs/05-audio-engine.md` §2).
+    /// the render loop.
     Position {
         secs: f64,
         duration: f64,
@@ -75,9 +75,9 @@ pub enum AudioEvent {
     Devices(Vec<AudioDevice>),
     Buffering(u8),
     /// The engine's own volume/mute state, e.g. after `SetVolume`/`SetMute` completes. Added in
-    /// `docs/05-audio-engine.md` §2's own table has no volume/mute-carrying variant, but
+    /// the table has no volume/mute-carrying variant, but
     /// §3's property→event mapping requires one (`PlayStatus`, `StatusChanged`'s payload, has no
-    /// room for either value). See `docs/12-decisions.md`.
+    /// room for either value).
     VolumeChanged {
         volume: u8,
         muted: bool,

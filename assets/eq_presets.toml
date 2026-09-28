@@ -1,4 +1,4 @@
-# Factory equalizer presets (docs/05-audio-engine.md §5), embedded into loxia-audio via
+# Factory equalizer presets, embedded into loxia-audio via
 # `include_str!`. Names must exactly match `loxia_core::config::schema::FACTORY_EQ_PRESET_NAMES`
 # — that list is the single source of truth for which names are "factory" (config validation,
 # 01-02, checks a user's custom preset name against it before this file ever gets parsed), not

@@ -12,11 +12,11 @@
 //! [`crate::state::queue::QueueBatch`] is for.
 //!
 //! **Stream URL resolution does not happen here.** Resolving a real playable URL needs `POST /Items/{id}/PlaybackInfo` plus
-//! `stream::StreamUrl::build` (`docs/03-emby-api.md` §5) — both live in `loxia-emby`, which
+//! `stream::StreamUrl::build` — both live in `loxia-emby`, which
 //! `loxia-core` cannot depend on, and both require an actual network round trip this pure reducer
 //! has no way to perform. Every `Effect::Audio(Load/Preload)` this module emits carries a
 //! placeholder `emby-track:{id}` URL, clearly not a real HTTP URL, so at least nothing here
-//! silently pretends to have solved a problem it hasn't. See `docs/12-decisions.md`.
+//! silently pretends to have solved a problem it hasn't.
 
 use crate::action::{Action, ItemAction, QueueAction};
 use crate::effect::{AudioEffect, CacheEffect, Effect, NetEffect, SysEffect, TrackChange};
@@ -84,7 +84,7 @@ pub fn apply_item(state: &mut AppState, action: ItemAction) -> Vec<Effect> {
         ItemAction::DeletePlaylistConfirmed(id) => delete_playlist(state, id),
         ItemAction::ToggleDownload => toggle_download(state),
         // `AddToPlaylist`/`SaveQueueAsPlaylist` are driven from the `SavePlaylist` modal's own submit
-        // path (`reducer::modal`), not from here (`docs/12-decisions.md`).
+        // path (`reducer::modal`), not from here.
         ItemAction::AddToPlaylist { .. } => Vec::new(),
         ItemAction::SaveQueueAsPlaylist { .. } => Vec::new(),
     }
@@ -114,7 +114,7 @@ fn toggle_favorite(state: &mut AppState) -> Vec<Effect> {
     // newly-favourited track to a list that has never held it. The Favourites tab loads once, on
     // first entry (`LoadState::Idle`), and nothing invalidated it — so a track favourited from a
     // Miller column showed its heart there and then never turned up in Favourites, however many
-    // times you visited the tab (`docs/12-decisions.md`).
+    // times you visited the tab.
     //
     // Marked stale rather than patched in place: the server decides what is in that list and in
     // what order, and a locally inserted row would be a guess at both. Unfavouriting *from* the tab
@@ -164,7 +164,7 @@ fn resolve_favorite_target(state: &AppState) -> Option<(ItemId, bool)> {
 ///
 /// Neither view has a Miller column, so `AppState::selected_item` returns `None` on both and `f`
 /// did nothing at all there: you could not favourite the track you were listening to from the two
-/// screens that exist to show it (`docs/12-decisions.md`). The same gap the Favourites tab had.
+/// screens that exist to show it. The same gap the Favourites tab had.
 ///
 /// `None` for every other tab, so nothing else changes.
 fn focused_play_view_track(state: &AppState) -> Option<Track> {
@@ -381,7 +381,7 @@ fn move_in_playlist(
 }
 
 /// `X` — never deletes directly; opens a `Confirm` modal naming the playlist and its track
-/// count, whose `on_confirm` is `DeletePlaylistConfirmed` (`docs/12-decisions.md`).
+/// count, whose `on_confirm` is `DeletePlaylistConfirmed`.
 fn confirm_delete_playlist(state: &mut AppState, id: PlaylistId) -> Vec<Effect> {
     let Some(column) = playlists_column_mut(state) else {
         return Vec::new();
@@ -546,7 +546,7 @@ pub fn prev(state: &mut AppState) -> Vec<Effect> {
 
 /// Toggles shuffle on or off; `preload_effects` (called uniformly by
 /// `apply_queue` for every `QueueAction`) picks up whatever is now next. `seed` is supplied by the
-/// caller (`docs/12-decisions.md`: derived from `state.clock` at the input-mapping layer, never
+/// caller (derived from `state.clock` at the input-mapping layer, never
 /// read from a clock here).
 fn toggle_shuffle(state: &mut AppState, seed: u64) -> Vec<Effect> {
     if state.queue.shuffled {
@@ -621,7 +621,7 @@ pub(crate) fn preload_effects(state: &mut AppState) -> Vec<Effect> {
 ///
 /// Emitted as one effect carrying the whole run: the cache worker owns a single in-flight fetch
 /// slot keyed by track, and N separate `EnsureCached`es would cancel one another and the current
-/// track's own fetch (`docs/06-cache-and-offline.md` §4).
+/// track's own fetch.
 ///
 /// Skipped entirely when the cache is off (nowhere to put them), while offline (nothing to fetch
 /// from), or when the run would be empty. Entries already local, or unavailable, are left out
@@ -677,7 +677,7 @@ pub(crate) fn apply_sort_profile(state: &mut AppState, name: &str) -> Vec<Effect
     // Reorders `play_order`, never `entries`. `entries` holds the order tracks were queued in —
     // an album's disc/track order, a playlist's own order, a folder's file paths — and that *is*
     // the default order, so destroying it (as sorting `entries` in place used to) left no way back
-    // from a sort (`docs/12-decisions.md`). Shuffle has always worked this way; sorting now matches
+    // from a sort. Shuffle has always worked this way; sorting now matches
     // it, which is what makes `restore_default_order` a plain reset rather than a re-fetch.
     let current_index = state.queue.play_order.get(state.queue.position).copied();
     let mut order: Vec<usize> = (0..state.queue.entries.len()).collect();
@@ -685,8 +685,7 @@ pub(crate) fn apply_sort_profile(state: &mut AppState, name: &str) -> Vec<Effect
         let entries = &state.queue.entries;
         // Key the `Year` field off each album's own year (not each track's, which is often missing
         // or inconsistent) so a chronological-discography sort keeps every album together and in
-        // order — the fix for "artist + year + album + track scatters years and albums"
-        // (`docs/12-decisions.md`).
+        // order — the fix for "artist + year + album + track scatters years and albums".
         let album_years = sort::album_years(entries.iter().map(|e| &e.track));
         order.sort_by(|&a, &b| {
             sort::compare_with_album_year(
@@ -710,7 +709,7 @@ pub(crate) fn apply_sort_profile(state: &mut AppState, name: &str) -> Vec<Effect
 
 /// Puts the queue back into the order its tracks were added in — an album's own disc/track order, a
 /// playlist's order, a folder's file paths — undoing a sort profile the way `unshuffle` undoes a
-/// shuffle, and by the identical mechanism (`docs/12-decisions.md`).
+/// shuffle, and by the identical mechanism.
 pub(crate) fn restore_default_order(state: &mut AppState) -> Vec<Effect> {
     let current_index = state.queue.play_order.get(state.queue.position).copied();
     state.queue.play_order = (0..state.queue.entries.len()).collect();
@@ -737,7 +736,7 @@ fn cycle_repeat(state: &mut AppState) -> Vec<Effect> {
 /// `pub(crate)`: reused directly by `reducer::settings`'s server-switch confirmation,
 /// which needs the exact same "stop playback, empty the queue" behaviour before it separately
 /// clears `state.history` too (something an ordinary `Clear` deliberately never does,
-/// `docs/06-cache-and-offline.md` §8 — switching servers is the one case that legitimately wants
+/// switching servers is the one case that legitimately wants
 /// both).
 pub(crate) fn clear(state: &mut AppState) -> Vec<Effect> {
     // "Stopped" reported before anything about the current entry is torn down —
@@ -798,12 +797,12 @@ fn jump_to(state: &mut AppState, id: crate::model::QueueEntryId) -> Vec<Effect> 
 }
 
 fn remove_current_entry(state: &mut AppState) -> Vec<Effect> {
-    // `docs/04-state-and-input.md` §4 says `RemoveEntry`'s target is "resolved from `nav.focus`" —
+    // The design says `RemoveEntry`'s target is "resolved from `nav.focus`" —
     // the `NowPlaying` tab has its own cursor to resolve that from (`nav.focus`
     // itself is still `NavFocus::Sidebar`/never a column there, `seed_column_for_tab` excludes it,
     // so `now_playing_cursor` is what actually stands in for it). History is read-only (`x` is a
     // no-op there); every other tab keeps removing the currently-*playing* entry, the only
-    // unambiguous interpretation available without a cursor of its own. See `docs/12-decisions.md`.
+    // unambiguous interpretation available without a cursor of its own.
     let removed_index = if state.nav.active_tab == Tab::NowPlaying {
         if state.now_playing_subview != crate::state::NowPlayingSub::Queue {
             return Vec::new();
@@ -871,7 +870,7 @@ fn remove_by_index(state: &mut AppState, removed_index: usize) -> Vec<Effect> {
     } else if state.queue.entries.is_empty() {
         // Removing the last entry used to update the *mirror* only — `current = None`, status
         // `Stopped` — and emit no effect at all, so the player bar read "nothing playing" while
-        // mpv carried on playing the track (`docs/12-decisions.md`). The engine has to be told,
+        // mpv carried on playing the track. The engine has to be told,
         // and the rest of the now-meaningless play state torn down with it, exactly as `clear`
         // does for the whole queue.
         state.player.status = PlayStatus::Stopped;
@@ -902,8 +901,7 @@ fn remove_by_index(state: &mut AppState, removed_index: usize) -> Vec<Effect> {
 ///
 /// Shared by `load_current` and `resume_after_restore`: a restored session sets `player.current`
 /// without going through `load_current` at all, so a restored track used to fetch nothing — the pane
-/// then sat on "loading lyrics…" indefinitely, with no request ever issued to explain it
-/// (`docs/12-decisions.md`).
+/// then sat on "loading lyrics…" indefinitely, with no request ever issued to explain it.
 fn lyrics_fetch_for(state: &AppState, track: &Track) -> Vec<Effect> {
     if !state.config.ui.show_lyrics {
         return Vec::new();
@@ -1029,7 +1027,7 @@ fn load_current(state: &mut AppState) -> Vec<Effect> {
 /// unknown state notifies normally, `AppState::terminal_focused`'s own doc comment). There is no
 /// artwork file path to offer: there is no disk cache for decoded images (only a URL/cache-key
 /// naming scheme, and `DataAction::ImageLoaded` reports that a decode succeeded, never a path),
-/// so `art_path` is always `None` (`docs/12-decisions.md`). Rate
+/// so `art_path` is always `None`. Rate
 /// limiting and coalescing rapid skips are entirely `crates/loxia-player/src/workers/notify.rs`'s job —
 /// this reducer reports every genuine change, unthrottled.
 fn notify_track_change(state: &AppState, track: &Track) -> Option<Effect> {
@@ -1053,7 +1051,7 @@ fn notify_track_change(state: &AppState, track: &Track) -> Option<Effect> {
 /// authenticating proxy needs the same custom headers repeated here. Without them the proxy answers
 /// mpv's request with an HTML deny page, which mpv reports as `Failed to recognize file format` —
 /// after first trying `ytdl_hook` on it — while every browsing request keeps working, since those
-/// go through `reqwest` (`docs/12-decisions.md`).
+/// go through `reqwest`.
 ///
 /// Empty for a `file://` path out of the cache and for the inert `emby-track:` placeholder: neither
 /// is an HTTP request, and attaching credentials to a local path is pointless at best.
@@ -1092,7 +1090,7 @@ pub fn placeholder_url(id: &ItemId) -> crate::effect::RedactedUrl {
 /// `load_current` started it with") — but `load_current`/`resume_after_restore` only ever start
 /// with `placeholder_url`'s inert `emby-track:{id}` scheme, which mpv cannot open. A track with no
 /// local cache copy yet (i.e. almost any track never played before) therefore never actually
-/// played at all — a real, confirmed defect found live: see `docs/12-decisions.md`.
+/// played at all — a real, confirmed defect found live:.
 pub(crate) fn cache_resolved(
     state: &mut AppState,
     track: ItemId,
@@ -1130,8 +1128,7 @@ pub(crate) fn cache_resolved(
 ///
 /// This arm returned `Vec::new()` — the key was bound, the inspector offered the action and the
 /// help sheet listed it, and pressing it did nothing at all, anywhere. Reported as "downloads not
-/// working when hitting `d` in artists/albums views, and it doesn't work in select mode either"
-/// (`docs/12-decisions.md`).
+/// working when hitting `d` in artists/albums views, and it doesn't work in select mode either".
 ///
 /// Works on whatever is focused: a track, an album, an artist, a playlist — every scope
 /// `loxia_cache::downloads` already understood — and on each row of a visual multi-selection, since
@@ -1242,7 +1239,7 @@ pub(crate) fn cache_fetch_started(
 /// exists now, even though *this* play is still reading the bytes it already has in flight; the
 /// question a user is asking of that readout is "is this cached?", not "which file descriptor is
 /// mpv holding". And the About view's cache size updates, which until now was read once at startup
-/// and so sat at whatever it was then — usually zero (`docs/12-decisions.md`).
+/// and so sat at whatever it was then — usually zero.
 pub(crate) fn cache_fetched(
     state: &mut AppState,
     track: ItemId,
@@ -1281,7 +1278,7 @@ fn is_sectioned_tab(tab: Tab) -> bool {
 ///
 /// Only Search had this wiring. Favourites has the identical shape and had none of it, so `Enter`,
 /// `a`, `A`, `i` and `m` all did nothing whatsoever on the tab — a live user reported it as "I
-/// can't select anything from favourites" (`docs/12-decisions.md`). Routing both tabs through one
+/// can't select anything from favourites". Routing both tabs through one
 /// accessor is what makes them behave the same by construction rather than by duplication.
 ///
 /// `None` for a tab with a real column, and for Search while the query line has focus (typing must
@@ -1410,7 +1407,7 @@ fn queue_selection(state: &mut AppState, full_context: bool) -> Vec<Effect> {
 ///
 /// `v`-selecting albums and pressing `a` used to queue nothing — `resolve_selection_tracks` kept
 /// only `MediaItem::Track` rows, so a selection of albums resolved to an empty candidate list and
-/// silently did nothing (`docs/12-decisions.md`).
+/// silently did nothing.
 ///
 /// Returns `None` — leaving the caller's existing single-row and all-tracks paths untouched — when
 /// there is no multi-selection, or when the selection is entirely tracks and so needs no fetch at
@@ -1547,7 +1544,7 @@ pub(crate) fn queue_batch_fetch_failed(state: &mut AppState) -> Vec<Effect> {
 /// for a container (album/artist/playlist/folder) that issues the same fetch, whose reply then fills
 /// the empty queue and plays from the top. A container fetch that fails leaves the queue empty
 /// (the old queue is genuinely gone) — the accepted cost of "replace" over "append"
-/// (`docs/12-decisions.md`). Guarded so a selection that would queue *nothing* (e.g. a bare genre
+///. Guarded so a selection that would queue *nothing* (e.g. a bare genre
 /// row, or the query line on Search) does not needlessly wipe a queue that's already playing.
 fn play_selection(state: &mut AppState, full_context: bool) -> Vec<Effect> {
     if !selection_is_queueable(state) {
@@ -1739,7 +1736,7 @@ fn container_fetch(
         )),
         // A genre queues every track in it. It was refused outright on the grounds that a genre can
         // span tens of thousands of tracks — but a user selecting one is asking for exactly that,
-        // and said so (`docs/12-decisions.md`). The append toast reports the count, so a genre
+        // and said so. The append toast reports the count, so a genre
         // larger than expected is visible rather than silent.
         MediaItem::Genre(genre) => Some((
             Effect::Net(NetEffect::FetchGenreTracksForQueue {
@@ -1754,7 +1751,7 @@ fn container_fetch(
         // `A`/`Shift+Enter` recursive), but a live user found shallow-by-default surprising: a
         // parent/library folder holds only subfolders, so a non-recursive queue came back empty
         // ("Enter on a folder plays nothing"). They asked for it to just queue everything, so the
-        // shallow variant is dropped (`docs/12-decisions.md`).
+        // shallow variant is dropped.
         MediaItem::Folder(f) => Some((
             Effect::Net(NetEffect::FetchFolderTracksForQueue {
                 folder: f.id.clone(),
@@ -1769,7 +1766,7 @@ fn container_fetch(
         // first drilling into its own tracks) used to fall all the way through to
         // `resolve_selection_tracks`, which has no `Track` to find on a bare `Playlist` item and
         // so silently queued nothing at all — "when i press enter on playlists it doesn't play"
-        // (`docs/12-decisions.md`). Every other container row type already queues this way.
+        //. Every other container row type already queues this way.
         MediaItem::Playlist(p) => Some((
             Effect::Net(NetEffect::FetchPlaylistTracksForQueue {
                 playlist: PlaylistId::from(p.id.as_str()),
@@ -1859,8 +1856,7 @@ pub fn apply_tracks_loaded(
         if let TrackFilter::ArtistOnly(artist) = &filter {
             // No artist-name lookup exists at this layer for an arbitrary `context_artist` id
             // (`AlbumRelation::AppearsOn` carries only the id, and there is no artist-directory
-            // cache on `AppState` to resolve it from) — the id is what's shown until one exists.
-            // See `docs/12-decisions.md`.
+            // cache on `AppState` to resolve it from) — the id is what's shown until one exists..
             state.toast(
                 format!("no tracks by {artist} on this release"),
                 ToastLevel::Warning,
@@ -1868,7 +1864,7 @@ pub fn apply_tracks_loaded(
         } else if matches!(source, QueueSource::Artist { .. }) {
             // An artist that resolves to no tracks at all (even after `artist_tracks`' own
             // `AlbumArtistIds` fallback) must say so rather than silently doing nothing — a live
-            // user read that silence as "Enter is broken on artists" (`docs/12-decisions.md`).
+            // user read that silence as "Enter is broken on artists".
             state.toast("no playable tracks for this artist", ToastLevel::Warning);
         }
         if !batched {
@@ -1891,7 +1887,7 @@ pub fn apply_tracks_loaded(
 /// Three cases, because "the right order" genuinely differs by what was selected:
 ///
 /// * A **folder** keeps the order the server gave it — file path, i.e. the directory structure —
-///   which is the whole point of queueing a folder (`docs/12-decisions.md`).
+///   which is the whole point of queueing a folder.
 /// * A source spanning **many albums** (a genre, an artist) uses the user's own queue sort profile.
 ///   These used to be sorted by `(disc, track)` like an album, which across albums is nonsense: it
 ///   groups every album's track 1 together, then every track 2. A user asked for genres to follow
@@ -1902,7 +1898,7 @@ pub fn apply_tracks_loaded(
 ///
 /// Uses `compare_with_album_year`, not a bare `compare`, so a `Year` rule keys off each album's own
 /// year rather than each track's — the same correction `apply_sort_profile` makes, for the same
-/// reason (`docs/12-decisions.md`).
+/// reason.
 fn order_incoming(state: &AppState, source: &QueueSource, tracks: &mut [Track]) {
     match source {
         QueueSource::Folder { .. } => {}
@@ -2008,7 +2004,7 @@ fn append_tracks_gated(
     } else if queued > 0 && !will_play && !from_folder {
         // An append that isn't about to start playing changes nothing you can see: the queue lives
         // on another tab, so "Add to Queue" read as a no-op even when it had worked
-        // (`docs/12-decisions.md`). The play path stays quiet — playback starting is its own
+        //. The play path stays quiet — playback starting is its own
         // feedback.
         state.toast(
             format!(
@@ -2025,7 +2021,7 @@ fn append_tracks_gated(
     // alone can't see that, so newly queued tracks would just sit appended behind yesterday's
     // session forever, and a user who never happens to press Space (the other path that clears
     // `restored_unloaded`) would see every subsequent selection silently do nothing (a real bug
-    // report, `docs/12-decisions.md`). Jumps straight to the first newly queued track rather than
+    // report). Jumps straight to the first newly queued track rather than
     // replaying the stale restored one, matching what selecting something new is actually asking
     // for; the `was_empty` case is unaffected (`play_order.len() - queued == 0` there, same as
     // before).
@@ -2040,7 +2036,7 @@ fn append_tracks_gated(
     effects
 }
 
-/// `docs/12-decisions.md`: the only rule the gate currently expresses is "genuinely `Unavailable`
+/// The only rule the gate currently expresses is "genuinely `Unavailable`
 /// while offline" — every freshly-resolved track defaults to exactly that combination (see
 /// `append_tracks`) absent a real cache manifest, but the gate itself is written against
 /// `Availability` directly so `Cached`/`Downloaded` entries (however they come to exist) already
@@ -2049,7 +2045,7 @@ fn is_queueable(availability: Availability, connectivity: Connectivity) -> bool 
     !(availability == Availability::Unavailable && connectivity == Connectivity::Offline)
 }
 
-/// the own, *stricter* gate for preloading specifically — deliberately not [`is_queueable`]:
+/// The own, *stricter* gate for preloading specifically — deliberately not [`is_queueable`]:
 /// queueing an `Unavailable` track for *later* (once connectivity returns) is fine, but preloading
 /// means buffering it *right now*, which an `Unavailable` entry can never satisfy regardless of
 /// connectivity, and a `Remote` entry can't satisfy while offline either (it would need a network
@@ -2066,7 +2062,7 @@ fn can_preload(availability: Availability, connectivity: Connectivity) -> bool {
 /// A container row needs its tracks fetched first, and the reply carries no record of which key
 /// asked for it, so `i` on an album or artist used to fall through to `resolve_selection_tracks`,
 /// find no `Track` row, and do nothing at all — "`i` inserts tracks, not albums or artists"
-/// (`docs/12-decisions.md`). A single-slot [`QueueBatch`] is what carries the insert-vs-append
+///. A single-slot [`QueueBatch`] is what carries the insert-vs-append
 /// intent across the round trip; a multi-selection uses the same machinery with more slots.
 fn insert_next(state: &mut AppState) -> Vec<Effect> {
     if let Some(effects) = queue_multi_selection(state, false, QueueBatchMode::InsertNext) {
@@ -2148,7 +2144,7 @@ fn insert_tracks_next(state: &mut AppState, candidates: Vec<(Track, QueueSource)
 
 /// The three invariants the spec requires after every mutation. `debug_assert!` only —
 /// a release build must never crash over a state a user can't do anything about; a bug here is
-/// this reducer's own fault, and the panic-free rule (`docs/04-state-and-input.md` §4 rule 1)
+/// this reducer's own fault, and the panic-free rule
 /// still holds in release.
 fn debug_assert_invariants(state: &AppState) {
     #[cfg(debug_assertions)]
@@ -2326,7 +2322,7 @@ mod tests {
     }
 
     /// Adding to a queue that is already playing changes nothing on screen — the queue lives on
-    /// another tab — so the action read as a no-op even when it had worked (`docs/12-decisions.md`).
+    /// another tab — so the action read as a no-op even when it had worked.
     #[test]
     fn appending_to_a_playing_queue_says_so() {
         let mut state = tracks_state();
@@ -2446,8 +2442,7 @@ mod tests {
     /// A new track's source is unknown until its own lookup answers — carrying the previous
     /// track's answer over would assert something never checked.
     /// "Force cache is enabled but the source readout still shows stream." It always did: the
-    /// source was decided once, at resolve time, and a fetch that completed mid-track told nobody
-    /// (`docs/12-decisions.md`).
+    /// source was decided once, at resolve time, and a fetch that completed mid-track told nobody.
     #[test]
     fn the_source_readout_follows_the_cache_fetch() {
         use crate::state::player::PlaybackSource;
@@ -2554,8 +2549,7 @@ mod tests {
     /// mpv issues its **own** HTTP request and does not share `EmbyClient`'s header map, so a
     /// server behind an authenticating proxy needs the custom headers repeated on the Load. They
     /// were never attached: browsing worked (that goes through `reqwest`) while every track failed
-    /// with `Failed to recognize file format`, mpv having been handed the proxy's HTML deny page
-    /// (`docs/12-decisions.md`).
+    /// with `Failed to recognize file format`, mpv having been handed the proxy's HTML deny page.
     #[test]
     fn the_corrective_load_carries_the_servers_custom_headers() {
         let mut state = state_with_custom_headers();
@@ -2688,7 +2682,7 @@ mod tests {
         // non-empty with nothing actually loaded into the audio engine (`restored_unloaded`) —
         // `was_empty` alone couldn't see that, so a user browsing to something new and pressing
         // Enter saw it silently appended behind yesterday's queue forever, with playback never
-        // starting unless they happened to press Space first (`docs/12-decisions.md`).
+        // starting unless they happened to press Space first.
         let mut state = tracks_state();
         let restored_track = fixtures::track(
             "Yesterday's Song",
@@ -2738,7 +2732,7 @@ mod tests {
 
     /// A restored session sets `player.current` without going through `load_current`, so nothing
     /// ever requested lyrics for the restored track and the pane sat on "loading lyrics…" forever
-    /// with no request in the logs to explain it (`docs/12-decisions.md`).
+    /// with no request in the logs to explain it.
     #[test]
     fn a_restored_track_still_fetches_its_lyrics() {
         let mut state = tracks_state();
@@ -2880,7 +2874,7 @@ mod tests {
 
     /// Removing the last entry updated only the mirror — `current = None`, status `Stopped` — and
     /// emitted nothing, so the player bar said "nothing playing" while mpv carried on playing the
-    /// track (`docs/12-decisions.md`).
+    /// track.
     #[test]
     fn removing_the_last_entry_actually_stops_the_engine() {
         let mut state = tracks_state();
@@ -3413,7 +3407,7 @@ mod tests {
     // --- genres tab ----------------------------------------------------------------------
 
     /// Sorting used to reorder `entries` in place, destroying the order the tracks were queued in
-    /// — so there was no way back to it (`docs/12-decisions.md`). It permutes `play_order` now, the
+    /// so there was no way back to it. It permutes `play_order` now, the
     /// way shuffle always has, which makes the default order recoverable.
     #[test]
     fn a_sort_can_be_undone_back_to_the_queued_order() {
@@ -3568,7 +3562,7 @@ mod tests {
     }
 
     /// Emby favourites any item type, playlists included — but `resolve_favorite_target` matched
-    /// only artists, albums and tracks, so `f` on a playlist row did nothing (`docs/12-decisions.md`).
+    /// only artists, albums and tracks, so `f` on a playlist row did nothing.
     #[test]
     fn f_favourites_a_playlist_row() {
         let playlist = crate::model::Playlist {
@@ -3605,7 +3599,7 @@ mod tests {
 
     /// Neither play view has a Miller column, so `selected_item` returns `None` on both and `f`
     /// did nothing at all — you could not favourite the track you were listening to from the two
-    /// screens that exist to show it (`docs/12-decisions.md`).
+    /// screens that exist to show it.
     #[test]
     fn f_favourites_the_track_a_play_view_is_showing() {
         for zen in [false, true] {
@@ -3648,7 +3642,7 @@ mod tests {
     }
 
     /// The heart appeared on the row but the track never turned up in the Favourites tab: that list
-    /// is fetched once on first entry and nothing ever invalidated it (`docs/12-decisions.md`).
+    /// is fetched once on first entry and nothing ever invalidated it.
     #[test]
     fn favouriting_elsewhere_makes_the_favourites_tab_reload() {
         let mut state = fixtures::fixture_playing_queue();
@@ -3692,7 +3686,7 @@ mod tests {
     // --- downloads -----------------------------------------------------------------------------
 
     /// `d` was bound, offered by the inspector and listed in the help sheet, and its reducer arm
-    /// returned no effects at all — so it did nothing, anywhere (`docs/12-decisions.md`).
+    /// returned no effects at all — so it did nothing, anywhere.
     #[test]
     fn d_pins_an_album_and_unpins_it_again() {
         let (mut state, first, _second) = two_album_state();
@@ -3772,7 +3766,7 @@ mod tests {
 
     /// Favourites reuses Search's three-section shape, but only Search was ever wired into the
     /// queueing paths: `AppState::selected_item` returns `None` on a tab with no Miller column, so
-    /// `Enter`, `a`, `i` and `m` all did nothing whatsoever on Favourites (`docs/12-decisions.md`).
+    /// `Enter`, `a`, `i` and `m` all did nothing whatsoever on Favourites.
     fn favourites_state(
         artists: Vec<crate::model::Artist>,
         albums: Vec<crate::model::Album>,
@@ -3909,7 +3903,7 @@ mod tests {
 
     /// `i` on an album row did nothing whatsoever: it went straight to `resolve_selection_tracks`,
     /// which kept only `Track` rows, found none, and returned — "`i` inserts tracks, not albums or
-    /// artists" (`docs/12-decisions.md`). It must fetch, and the reply must be *inserted* after the
+    /// artists". It must fetch, and the reply must be *inserted* after the
     /// current track rather than appended, which is the part no reply can work out on its own.
     #[test]
     fn insert_next_on_an_album_row_inserts_the_fetched_tracks() {
@@ -3958,7 +3952,7 @@ mod tests {
 
     /// `v`-selecting albums and pressing `a` queued nothing at all — `resolve_selection_tracks`
     /// dropped every non-`Track` row, so the candidate list came back empty and the press was
-    /// silently discarded (`docs/12-decisions.md`).
+    /// silently discarded.
     ///
     /// The replies are delivered **second album first**, deliberately: the queue must come out in
     /// the order the rows are displayed, not the order the server happened to answer in.
@@ -4142,7 +4136,7 @@ mod tests {
     }
 
     /// A genre spans many albums, so it follows the user's own queue sort profile — the default
-    /// `chronological_discog` being album-artist, year, album, track (`docs/12-decisions.md`).
+    /// `chronological_discog` being album-artist, year, album, track.
     #[test]
     fn a_queued_genre_follows_the_configured_sort_profile() {
         let mut state = fixtures::fixture_empty();
@@ -4226,7 +4220,7 @@ mod tests {
 
     /// A genre used to be refused outright, on the grounds that one can span tens of thousands of
     /// tracks. A user selecting a genre is asking for exactly that, and said so — it queues the
-    /// whole thing now, and the append toast reports the count (`docs/12-decisions.md`).
+    /// whole thing now, and the append toast reports the count.
     #[test]
     fn queueing_a_genre_fetches_all_of_its_tracks() {
         let genre = MediaItem::Genre(crate::model::Genre {
@@ -4670,7 +4664,7 @@ mod tests {
 
     /// mpv's own `Preload` reaches one track ahead and keeps nothing on disk, so before
     /// `cache.prefetch_next` the rolling cache only ever held what had already been played
-    /// (`docs/12-decisions.md`). The read-ahead must cover the next N *upcoming* entries, in play
+    ///. The read-ahead must cover the next N *upcoming* entries, in play
     /// order, at the profile the current track is playing at.
     #[test]
     fn prefetch_covers_the_next_n_upcoming_tracks_at_the_active_profile() {
@@ -5880,8 +5874,8 @@ mod tests {
         );
     }
 
-    /// the named acceptance test — a table over every reducer entry point
-    /// `docs/06-cache-and-offline.md` §6 names as needing a connection: favourite toggle,
+    /// The named acceptance test — a table over every reducer entry point
+    /// the design names as needing a connection: favourite toggle,
     /// playlist add (via the `SavePlaylist` modal's own submit path,
     /// `reducer::modal::submit`), playlist delete, and instant mix. Each already has its own
     /// guard (`toggle_favorite`/`delete_playlist`/`instant_mix`, plus the `Modal::SavePlaylist`

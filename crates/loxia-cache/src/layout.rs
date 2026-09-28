@@ -1,4 +1,4 @@
-//! Directory scheme, cache keys, and the path sanitiser (`docs/06-cache-and-offline.md` §§1-3).
+//! Directory scheme, cache keys, and the path sanitiser.
 //!
 //! This is the code that decides where files are written and deleted, so a bug here destroys
 //! user data — every path a server or a track's own metadata contributes must pass through
@@ -21,14 +21,14 @@ const MAX_COMPONENT_LEN: usize = 100;
 const FORBIDDEN_CHARS: [char; 9] = ['/', '\\', ':', '*', '?', '"', '<', '>', '|'];
 
 /// Case-insensitive; checked against the component's own name **before its first dot**, so
-/// `CON.flac` is caught exactly like bare `CON` (`docs/06-cache-and-offline.md` §2 step 3).
+/// `CON.flac` is caught exactly like bare `CON`.
 const RESERVED_NAMES: [&str; 22] = [
     "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8",
     "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
 ];
 
 /// `(server_id, item_id, quality_profile)` — the same track cached at `Direct` and at
-/// `TranscodeHigh` are distinct files (`docs/06-cache-and-offline.md` §3); cycling quality with
+/// `TranscodeHigh` are distinct files; cycling quality with
 /// `q` must never serve one profile's file for another.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct CacheKey {
@@ -40,7 +40,7 @@ pub struct CacheKey {
 impl CacheKey {
     /// `"<item>.<profile>.<ext>"` — `<profile>` alone already makes every profile's file distinct
     /// regardless of what `<ext>` resolves to, so a mid-session change to the global
-    /// `transcode.target_codec` setting (`docs/12-decisions.md`) can never silently reuse a
+    /// `transcode.target_codec` setting can never silently reuse a
     /// differently-encoded file under an unchanged name.
     ///
     /// `ext` is supplied by the caller because the key alone cannot know it: under `Direct` the
@@ -56,7 +56,7 @@ impl CacheKey {
 /// Under `Direct` the server streams the source file untouched, so the extension is the **track's
 /// own** codec — every cached file was previously named `.flac` regardless, because the extension
 /// was derived from the quality profile alone and `Direct` was assumed to mean FLAC
-/// (`docs/12-decisions.md`). Under a transcode profile the bytes are whatever
+///. Under a transcode profile the bytes are whatever
 /// `transcode.target_codec` asked for; the profile only picks the bitrate, so it cannot name the
 /// container either.
 pub fn cache_extension(profile: QualityProfile, source: &Codec, target: TargetCodec) -> String {
@@ -105,7 +105,7 @@ fn codec_extension(codec: &Codec) -> String {
 ///
 /// The rolling cache used to be a flat `<server>/<item>.<profile>.<ext>`, which made the cache
 /// directory unreadable — you could not tell which artists or albums had actually been pulled down
-/// (`docs/12-decisions.md`). The directory shape now mirrors `download_path`'s, so both tiers are
+///. The directory shape now mirrors `download_path`'s, so both tiers are
 /// browsable the same way; the `<profile>` segment stays in the filename because the same track at
 /// two quality profiles is two distinct files.
 ///
@@ -153,7 +153,7 @@ fn album_of(t: &Track) -> &str {
 }
 
 /// Every user- or server-derived path component passes through this before touching a filesystem
-/// path, in this exact order (`docs/06-cache-and-offline.md` §2):
+/// path, in this exact order:
 /// 1. Strip `/ \ : * ? " < > |` and all ASCII control characters.
 /// 2. Trim leading/trailing whitespace and `.`.
 /// 3. Case-insensitively reject Windows reserved names, prefixing with `_` when matched.
@@ -193,12 +193,12 @@ fn reject_reserved_name(s: String) -> String {
 }
 
 /// `<root>/<server>/<AlbumArtist>/<Album>/<disc>-<track> - <title>.<ext>`
-/// (`docs/06-cache-and-offline.md` §1) — every path-derived component sanitised individually
+/// every path-derived component sanitised individually
 /// (never the assembled path as one string, which would let a track title containing a literal
 /// `/` merge two components together). Disc and track are zero-padded to 2; a missing album
 /// artist or album name falls back to `Unknown Artist`/`Unknown Album`. The extension follows the
 /// track's own real codec (this is the permanent-downloads path, always fetched via the `Direct`
-/// profile — `transcode.download_uncompressed`, `docs/06-cache-and-offline.md` §5 — so the actual
+/// profile — `transcode.download_uncompressed` — so the actual
 /// codec is known precisely, unlike `CacheKey::filename`'s own fixed per-profile guess for the
 /// rolling cache).
 pub fn download_path(root: &Path, server: &ServerId, t: &Track) -> PathBuf {
@@ -311,8 +311,7 @@ mod tests {
 
     /// Every cached file used to be named `.flac`, because the extension came from the quality
     /// profile alone and `Direct` was taken to mean FLAC. `Direct` actually streams the source
-    /// file untouched, so the extension is whatever that file already is
-    /// (`docs/12-decisions.md`).
+    /// file untouched, so the extension is whatever that file already is.
     #[test]
     fn direct_caching_keeps_the_sources_own_extension() {
         for (codec, expected) in [
@@ -366,7 +365,7 @@ mod tests {
     }
 
     /// The rolling cache was a flat `<server>/<item>.<profile>.<ext>`, so the directory said
-    /// nothing about which artists or albums had been pulled down (`docs/12-decisions.md`).
+    /// nothing about which artists or albums had been pulled down.
     #[test]
     fn cached_tracks_are_filed_under_album_artist_and_album() {
         let artist = fixtures::artist("Boy Harsher");

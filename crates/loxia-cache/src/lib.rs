@@ -1,5 +1,5 @@
 //! Dual-tier cache (rolling LRU + permanent downloads), offline browse index, scrobble buffer,
-//! and session/history persistence. Depends only on loxia-core — see docs/01-architecture.md §3.4.
+//! and session/history persistence. Depends only on loxia-core.
 
 pub mod downloads;
 pub mod error;

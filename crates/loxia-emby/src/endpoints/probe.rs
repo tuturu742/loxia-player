@@ -1,4 +1,4 @@
-//! Connectivity probe (`docs/06-cache-and-offline.md` §6): `GET /System/Info/Public`,
+//! Connectivity probe: `GET /System/Info/Public`,
 //! unauthenticated, checked only for "did a response come back at all" — never decoded, since the
 //! probe's only job is proving the server is reachable, not reading anything from it.
 //!
@@ -39,7 +39,7 @@ pub struct SystemInfoPublic {
     /// This is what makes "the same server" a decidable question: a LAN `http://` profile and an
     /// external `https://` one are two *endpoints*, not two servers, and everything stored per
     /// server (cache, downloads, session, scrobbles) should be shared between them rather than
-    /// duplicated (`docs/12-decisions.md`). Empty if an older server omits it.
+    /// duplicated. Empty if an older server omits it.
     pub id: String,
 }
 

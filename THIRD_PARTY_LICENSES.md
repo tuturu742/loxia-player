@@ -1,7 +1,7 @@
 # Third-party licences
 
 loxia is `GPL-3.0-or-later`. This file lists the licences of every third-party component it links
-against or bundles, per `docs/11-packaging.md` §7.
+against or bundles.
 
 ## libmpv
 

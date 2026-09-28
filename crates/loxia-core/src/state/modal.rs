@@ -125,7 +125,7 @@ pub enum Modal {
         /// instant a second one arrives or the window lapses — `reducer::modal::
         /// expire_capture_window` (called from `tick`) finalizes the capture as a 1-chord binding
         /// once this passes, mirroring `AppState::pending_chord`'s own prefix-timeout shape
-        /// (`docs/04-state-and-input.md` §7's "2-second window" for the editor specifically, as
+        /// ("2-second window" for the editor specifically, as
         /// opposed to `pending_chord`'s 1-second window for *resolving* an existing sequence).
         capture_deadline: Option<crate::Timestamp>,
     },

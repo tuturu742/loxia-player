@@ -1,4 +1,4 @@
-//! apply(&mut AppState, Action) -> Vec<Effect> — the reducer entry point.
+//! Apply(&mut AppState, Action) -> Vec<Effect> — the reducer entry point.
 
 pub mod connectivity;
 pub mod modal;
@@ -29,7 +29,7 @@ const PENDING_CHORD_TTL: SignedDuration = SignedDuration::from_secs(1);
 /// the rest of the app actually reads (`state.theme`, `player.quality_profile`, `player.replay_gain`,
 /// `player.eq`) were left at `Default::default()` on every launch. So a chosen theme reverted to the
 /// default, transcoding silently stayed `Direct`, and the equalizer did nothing at all, however the
-/// config read (`docs/12-decisions.md`).
+/// config read.
 ///
 /// Call **after** `DataAction::PresetsLoaded` — resolving `equalizer.active_preset` into real gains
 /// needs `player.known_presets` populated, exactly as `set_eq_preset` does at runtime.
@@ -76,14 +76,14 @@ pub fn hydrate_from_config(state: &mut AppState) -> Vec<Effect> {
 /// `Theme::ascii_only` is loaded from the *theme file* (only `green_crt` and `amber_crt` declare
 /// it), and nothing ever combined it with the user's own setting — so the Interface toggle changed
 /// a config field that no widget ever read, and appeared to do nothing at all
-/// (`docs/12-decisions.md`). ORed rather than assigned: a theme built for a vintage terminal stays
+///. ORed rather than assigned: a theme built for a vintage terminal stays
 /// ASCII whatever the setting says, since its glyph choices assume it.
 fn apply_ascii_only(state: &mut AppState) {
     state.theme.ascii_only |= state.config.ui.ascii_only;
 }
 
 /// Total and panic-free: every index is clamped, every `Option` handled
-/// (`docs/04-state-and-input.md` §4 rule 1) — a reducer panic crashes the app with the terminal in
+/// a reducer panic crashes the app with the terminal in
 /// raw mode. Dispatches by action group, and is total: an action group with nothing to do returns
 /// no effects rather than panicking. `Modal` is intercepted first, so an open modal swallows keys
 /// the underlying view would otherwise act on.
@@ -119,7 +119,7 @@ pub fn apply(state: &mut AppState, action: Action) -> Vec<Effect> {
         // flag; nothing here writes `state.config` (`Effect::Sys(WriteConfig)` is never emitted),
         // matching the "persists to state but not to config" (`reducer::modal`'s own
         // stale comment on this variant, previously "not yet wired to a handler", is now out of
-        // date — see `docs/12-decisions.md`).
+        // date`).
         Action::View(ViewAction::ToggleZen) => {
             state.zen_mode = !state.zen_mode;
             state.touch();
@@ -153,8 +153,7 @@ pub fn apply(state: &mut AppState, action: Action) -> Vec<Effect> {
         }
         Action::System(SystemEvent::Tick(now)) => tick(state, now),
         // `Ctrl+R` — only the Favourites tab actually refreshes anything today; no other tab has ever
-        // wired `Refresh`, so this is a narrow scope rather than a regression
-        // (`docs/12-decisions.md`).
+        // wired `Refresh`, so this is a narrow scope rather than a regression.
         Action::System(SystemEvent::Refresh) => {
             if state.nav.active_tab == Tab::Favourites {
                 nav::refresh_favourites(state)
@@ -195,7 +194,7 @@ pub fn apply(state: &mut AppState, action: Action) -> Vec<Effect> {
 
     // Whatever this dispatch itself just asked the network for, while offline, also
     // gets an immediate probe — "a user who reconnects their VPN and presses a key should not
-    // wait 30 seconds" (`docs/06-cache-and-offline.md` §6).
+    // wait 30 seconds".
     if let Some(probe) = connectivity::maybe_immediate_probe(state, &effects) {
         effects.push(probe);
     }
@@ -203,11 +202,11 @@ pub fn apply(state: &mut AppState, action: Action) -> Vec<Effect> {
     effects
 }
 
-/// Every 100th tick (10 s) — the cadence `docs/04-state-and-input.md` §9 rule 5 gives the
+/// Every 100th tick (10 s) — the cadence rule 5 gives the
 /// periodic playback-progress report.
 const PROGRESS_REPORT_EVERY_N_TICKS: u64 = 100;
 
-/// `docs/04-state-and-input.md` §9's `Tick` responsibilities are the reducer's, not the runtime
+/// The `Tick` responsibilities are the reducer's, not the runtime
 /// loop's (which only supplies the timestamp) — this implements: expiring toasts and
 /// `pending_chord`; recording the tick's timestamp as `state.clock` for the header clock to read;
 /// the periodic playback-progress report; sleep-timer evaluation (`evaluate_sleep_timer` —
@@ -251,8 +250,7 @@ fn tick(state: &mut AppState, now: Timestamp) -> Vec<Effect> {
     effects.extend(nav::maybe_fire_search(state));
     effects.extend(player::evaluate_sleep_timer(state, now));
     // "persistence is debounced 1 second" — the settings view's own edits only; every
-    // other pre-existing config-writing path in this codebase still writes immediately
-    // (`docs/12-decisions.md`).
+    // other pre-existing config-writing path in this codebase still writes immediately.
     effects.extend(settings::maybe_write_config(state, now));
     // The keymap editor's own 2-second "was that a 2-chord sequence?" window —
     // finalizes a lone captured chord once nothing else has arrived by now.
@@ -270,7 +268,7 @@ fn tick(state: &mut AppState, now: Timestamp) -> Vec<Effect> {
 ///
 /// Counted in source lines rather than rendered rows so the clamp is exact: the reducer has no idea
 /// how the pane wraps, and guessing a row count is what left `ASSUMED_VIEWPORT_ROWS` a known wart
-/// elsewhere (`docs/12-decisions.md`). The last line can always be scrolled to the top, never past.
+/// elsewhere. The last line can always be scrolled to the top, never past.
 fn scroll_lyrics(state: &mut AppState, delta: i32) -> Vec<Effect> {
     let Some((_, crate::model::Lyrics::Unsynced(lines))) = state.lyrics.as_ref() else {
         return Vec::new();
@@ -303,7 +301,7 @@ mod tests {
     }
 
     /// Untimed lyrics have no active line to follow, so a long track's lyrics simply ran off the
-    /// bottom of the pane with no way to read the rest (`docs/12-decisions.md`).
+    /// bottom of the pane with no way to read the rest.
     #[test]
     fn unsynced_lyrics_scroll_and_clamp_at_both_ends() {
         let mut state = state_with_unsynced_lyrics(40);
@@ -362,7 +360,7 @@ mod tests {
 
     /// `Theme::ascii_only` comes from the *theme file*, and the user's own `ui.ascii_only` setting
     /// was never folded into it — so the Interface toggle wrote a config field no widget ever read
-    /// and appeared to do nothing at all (`docs/12-decisions.md`).
+    /// and appeared to do nothing at all.
     #[test]
     fn ascii_only_setting_reaches_the_live_theme() {
         let mut state = fixtures::fixture_empty();
@@ -413,7 +411,7 @@ mod tests {
 
     /// A real class of bug: settings were persisted to `config` but never applied to the runtime
     /// mirror at startup, so a chosen theme reverted, transcoding stayed `Direct`, and the EQ did
-    /// nothing however the config read (`docs/12-decisions.md`).
+    /// nothing however the config read.
     #[test]
     fn hydrate_from_config_applies_persisted_settings_to_runtime_state() {
         let mut state = fixtures::fixture_empty();

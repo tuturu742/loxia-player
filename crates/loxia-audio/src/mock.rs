@@ -1,4 +1,4 @@
-//! MockEngine: deterministic fake backend driven by a virtual clock (`docs/05-audio-engine.md`
+//! MockEngine: deterministic fake backend driven by a virtual clock (
 //! §§1, 9). Lets the whole test suite, and every layer above this crate, run with no mpv and no
 //! sound card — `AppState`/reducer tests never need this directly, but `loxia-player --no-audio`
 //! and `loxia-audio`'s own suite do.
@@ -15,13 +15,13 @@ use crate::backend::{AudioBackend, AudioCommand, AudioEvent};
 use crate::error::AudioError;
 
 /// Position events fire at this cadence of *virtual* time, matching the real engine's own 4 Hz
-/// throttle (`docs/05-audio-engine.md` §2) so tests exercise the same event rate.
+/// throttle so tests exercise the same event rate.
 const POSITION_INTERVAL: Duration = Duration::from_millis(250);
 
 /// What a seeded `Load` simulates — the `Format` event it emits and the duration `advance()` runs
 /// against. Not named in the `MockControl` signature, but "`Format(..)` from a
 /// per-track table the test can seed" names a capability with no given method or type; see
-/// `docs/12-decisions.md`. `Default` gives any unseeded URL a plausible, generously long track so
+///. `Default` gives any unseeded URL a plausible, generously long track so
 /// a test that doesn't care about specific values can still call `advance()` freely.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TrackProfile {

@@ -1,4 +1,4 @@
-//! Now Playing tab (`docs/07-ui-spec.md` §8): the queue (or history) on the left, track
+//! Now Playing tab: the queue (or history) on the left, track
 //! detail and transport on the right.
 
 use loxia_core::keymap::ActionId;
@@ -59,12 +59,12 @@ fn format_mmss(d: std::time::Duration) -> String {
 /// Centres the cursor (clamped at both ends) — a real bug found in the field: the Queue/History
 /// panes rendered from index 0 with a bare `.take(height)`, so anything past the first screenful
 /// (including the current track once the queue grew) was simply invisible and unreachable on screen
-/// even as `↑`/`↓` moved an off-screen cursor over it (`docs/12-decisions.md`).
+/// even as `↑`/`↓` moved an off-screen cursor over it.
 /// The first visible row: the offset the reducer stores, clamped into range.
 ///
 /// It used to be derived from the cursor by centring it, with no stored offset at all — so every
 /// cursor move recentred the list, a click scrolled the row out from under the pointer, and the
-/// second click of a double-click landed on a different track (`docs/12-decisions.md`).
+/// second click of a double-click landed on a different track.
 ///
 /// The cursor is still *nudged* into view here, by the minimum amount and never by centring,
 /// because the reducer maintains the offset against a fixed `ASSUMED_VIEWPORT_ROWS` rather than
@@ -91,7 +91,7 @@ fn scroll_start(len: usize, cursor: usize, height: usize, stored: usize) -> usiz
 /// word down the whole list and told the user nothing they did not already know from having queued
 /// it — the one case where the source is genuinely worth stating is an instant mix, whose seed is
 /// otherwise invisible. So the badge is gone from the rows and the mix is named once, here, where
-/// "what is this queue?" belongs (`docs/12-decisions.md`).
+/// "what is this queue?" belongs.
 ///
 /// The title only claims a mix while the queue is *still* that mix: a mix replaces the queue
 /// wholesale, so anything appended afterwards makes it something else, and every entry's source is
@@ -197,8 +197,7 @@ fn render_queue_rows(
         let duration = format_mmss(track.duration);
         // A fixed-width slot either way, so favouriting a row never shifts the column beside it.
         // Without *some* marker here, `f` in this view changes nothing on screen and reads as a
-        // no-op — which is exactly how it read while it genuinely was one
-        // (`docs/12-decisions.md`).
+        // no-op — which is exactly how it read while it genuinely was one.
         let favourite = if track.is_favorite { "♡ " } else { "  " };
         let right = format!("{favourite}{artist}  {duration}");
         let right_w = text::width(&right);
@@ -346,7 +345,7 @@ fn render_right_pane(
 
     // The progress bar and transport controls used to live here too — both now sit in the global
     // player bar, where they are visible from *every* tab rather than only this one, and the space
-    // they freed goes to album art below (`docs/12-decisions.md`).
+    // they freed goes to album art below.
 
     // Hidden entirely (no reserved area at all) when the pane is off, the track has no
     // lyric stream, or a fetch resolved to genuinely nothing — "an empty box labelled LYRICS for
@@ -355,7 +354,7 @@ fn render_right_pane(
     let show_lyrics = crate::widgets::lyrics::should_show(state);
     // The art's share is reserved from whether this *track has* a lyric stream, never from whether
     // the pane is currently toggled on — keying it off the toggle made the cover jump and resize
-    // every time lyrics were shown or hidden (`docs/12-decisions.md`). Toggling now only fills or
+    // every time lyrics were shown or hidden. Toggling now only fills or
     // empties the area beneath it, leaving the art exactly where it was.
     let track_has_lyrics = state
         .current_entry()
@@ -533,7 +532,7 @@ mod tests {
 
     /// The whole point of storing the offset: a cursor that is already on screen must not move the
     /// view. Clicking a row used to recentre the list, sliding it out from under the pointer so the
-    /// second click of a double-click landed on a different track (`docs/12-decisions.md`).
+    /// second click of a double-click landed on a different track.
     #[test]
     fn a_visible_cursor_never_moves_the_view() {
         // Rows 40..59 are on screen; every cursor within them keeps the offset at 40.
@@ -574,7 +573,7 @@ mod tests {
 
     #[test]
     /// The per-row source badge is gone: it repeated one word down the whole list and said nothing
-    /// the user did not already know from having queued it (`docs/12-decisions.md`).
+    /// the user did not already know from having queued it.
     fn no_per_row_source_badge() {
         let mut state = now_playing_state();
         state.queue.entries[0].source = QueueSource::Playlist {
@@ -587,7 +586,7 @@ mod tests {
     }
 
     /// Without a marker on the row, `f` in this view changes nothing visible — which is exactly how
-    /// it looked while it genuinely did nothing (`docs/12-decisions.md`). The slot is fixed width
+    /// it looked while it genuinely did nothing. The slot is fixed width
     /// so favouriting never shifts the columns beside it.
     #[test]
     fn a_favourited_queue_row_is_marked_without_shifting_the_row() {

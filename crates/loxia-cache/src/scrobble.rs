@@ -1,5 +1,5 @@
 //! Offline playback-event queue: buffers `PlaybackReport`s while offline and replays them on
-//! reconnect, so play counts survive a network drop (`docs/06-cache-and-offline.md` §7).
+//! reconnect, so play counts survive a network drop.
 
 use std::collections::{HashMap, HashSet};
 use std::future::Future;
@@ -14,7 +14,7 @@ use loxia_core::model::{ItemId, PlaySessionId, PlaybackReport, ServerId};
 use crate::error::CacheError;
 
 /// Records past this are trimmed — oldest `Progress` first, `Played` never
-/// (`docs/06-cache-and-offline.md` §7: "the only one whose loss a user can observe in Emby").
+/// ("the only one whose loss a user can observe in Emby").
 const MAX_RECORDS: usize = 5000;
 
 /// One line of `scrobbles.json`: `{ kind, item_id, server_id, position_ticks, occurred_at,
@@ -132,7 +132,7 @@ impl ScrobbleBuffer {
     /// Drops the oldest `Progress` records first; once none remain, the oldest non-`Played`
     /// record; `Played` itself is never removed, even if the cap is still technically exceeded
     /// afterwards — a pathological case (5000 records with none droppable) this priority order
-    /// accepts rather than violates "never drop `Played`" (`docs/12-decisions.md`).
+    /// accepts rather than violates "never drop `Played`".
     fn enforce_cap(&mut self) {
         while self.records.len() > MAX_RECORDS {
             let idx = self
