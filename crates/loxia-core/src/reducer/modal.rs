@@ -1041,29 +1041,62 @@ fn field_cursor_mut(modal: &mut Modal) -> Option<&mut usize> {
     }
 }
 
+/// Fields the renderer leaves out, and which the field cursor must therefore step over.
+///
+/// `SavePlaylist`'s name and description rows are drawn only while the target is a *new* playlist
+/// (`modals::save_playlist` gates both on `is_new`); adding to an existing playlist takes neither,
+/// so without this `Tab` parked focus on two rows that were not on screen and the modal looked
+/// frozen. A predicate rather than a target-dependent `field_count` deliberately: the indices have
+/// to stay stable, since `field_input`, `activate_field` and `HitTarget::ModalField` all hardcode
+/// `0`/`1`/`2`/`3`.
+fn field_hidden(modal: &Modal, index: usize) -> bool {
+    matches!(
+        (modal, index),
+        (
+            Modal::SavePlaylist {
+                target: PlaylistTarget::Existing(_),
+                ..
+            },
+            1 | 2
+        )
+    )
+}
+
 fn field_next(state: &mut AppState) -> Vec<Effect> {
-    let Some(count) = state.modal.as_ref().map(field_count) else {
-        return Vec::new();
-    };
-    if count == 0 {
-        return Vec::new();
-    }
-    if let Some(cursor) = state.modal.as_mut().and_then(field_cursor_mut) {
-        *cursor = (*cursor + 1) % count;
-        state.touch();
-    }
-    Vec::new()
+    step_field(state, 1)
 }
 
 fn field_prev(state: &mut AppState) -> Vec<Effect> {
+    step_field(state, -1)
+}
+
+/// One step of the field cursor in either direction, wrapping, skipping whatever `field_hidden`
+/// rules out. The scan is bounded by `count` so a modal with every field hidden (not reachable
+/// today, but nothing in the types forbids it) leaves the cursor where it was instead of spinning.
+fn step_field(state: &mut AppState, delta: isize) -> Vec<Effect> {
     let Some(count) = state.modal.as_ref().map(field_count) else {
         return Vec::new();
     };
     if count == 0 {
         return Vec::new();
     }
+    // Read the cursor through a borrow that ends here — `field_hidden` needs a shared borrow of
+    // the same modal that `field_cursor_mut` holds exclusively.
+    let Some(start) = state.modal.as_mut().and_then(field_cursor_mut).map(|c| *c) else {
+        return Vec::new();
+    };
+    let Some(modal) = state.modal.as_ref() else {
+        return Vec::new();
+    };
+    let mut next = start;
+    for _ in 0..count {
+        next = (next as isize + delta).rem_euclid(count as isize) as usize;
+        if !field_hidden(modal, next) {
+            break;
+        }
+    }
     if let Some(cursor) = state.modal.as_mut().and_then(field_cursor_mut) {
-        *cursor = (*cursor + count - 1) % count;
+        *cursor = next;
         state.touch();
     }
     Vec::new()
@@ -2501,6 +2534,63 @@ mod tests {
             .dispatch(Action::Modal(ModalAction::FieldNext))
             .dispatch(Action::Modal(ModalAction::FieldInput('X')))
             .dispatch(Action::Modal(ModalAction::Submit))
+    }
+
+    fn save_playlist_field(scenario: &Scenario) -> usize {
+        match scenario.state().modal.as_ref().unwrap() {
+            Modal::SavePlaylist { field, .. } => *field,
+            _ => unreachable!(),
+        }
+    }
+
+    /// Saving to a *new* playlist draws all four rows, so `Tab` visits all four in order and wraps.
+    #[test]
+    fn save_playlist_tab_cycles_every_field_for_a_new_playlist() {
+        let mut scenario = Scenario::new(fixture_queue_and_selection()).dispatch(Action::Modal(
+            ModalAction::OpenSavePlaylist(SaveSource::Queue),
+        ));
+        assert_eq!(save_playlist_field(&scenario), 0);
+
+        for expected in [1, 2, 3, 0] {
+            scenario = scenario.dispatch(Action::Modal(ModalAction::FieldNext));
+            assert_eq!(save_playlist_field(&scenario), expected);
+        }
+
+        for expected in [3, 2, 1, 0] {
+            scenario = scenario.dispatch(Action::Modal(ModalAction::FieldPrev));
+            assert_eq!(save_playlist_field(&scenario), expected);
+        }
+    }
+
+    /// Adding to an *existing* playlist draws neither the name nor the description row, so `Tab`
+    /// has to step straight from the dropdown to the sort checkbox. Landing on `1`/`2` here would
+    /// put focus on a row that is not on screen — the modal looks frozen and typing goes nowhere.
+    #[test]
+    fn save_playlist_tab_skips_the_rows_an_existing_target_does_not_draw() {
+        // Seeded directly rather than reached through the dropdown: this test is about field
+        // navigation, not about which entry `cycle_save_target` picks out of a loaded column.
+        let mut state = fixture_queue_and_selection();
+        state.modal = Some(Modal::SavePlaylist {
+            target: PlaylistTarget::Existing(crate::model::PlaylistId::from("pl-1")),
+            target_cursor: 1,
+            name: String::new(),
+            overview: String::new(),
+            autosort: false,
+            field: 0,
+            source: SaveSource::Queue,
+            error: None,
+        });
+        let mut scenario = Scenario::new(state);
+
+        for expected in [3, 0, 3, 0] {
+            scenario = scenario.dispatch(Action::Modal(ModalAction::FieldNext));
+            assert_eq!(save_playlist_field(&scenario), expected);
+        }
+
+        for expected in [3, 0] {
+            scenario = scenario.dispatch(Action::Modal(ModalAction::FieldPrev));
+            assert_eq!(save_playlist_field(&scenario), expected);
+        }
     }
 
     #[test]
