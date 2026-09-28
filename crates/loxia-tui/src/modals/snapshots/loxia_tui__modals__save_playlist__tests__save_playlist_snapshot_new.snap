@@ -1,6 +1,6 @@
 ---
 source: crates/loxia-tui/src/modals/save_playlist.rs
-assertion_line: 383
+assertion_line: 449
 expression: rendered
 ---
 Buffer {
@@ -19,9 +19,9 @@ Buffer {
         "      │                                                                            │      ",
         "      │[ ] Sort tracks with the active sort profile before saving                  │      ",
         "      │                                                                            │      ",
+        "      │[ Tab ] Next field    [ Shift+Tab ] Previous    [ Space ] Toggle checkbox   │      ",
         "      │[ Enter ] Save    [ Esc ] Cancel                                            │      ",
         "      └────────────────────────────────────────────────────────────────────────────┘      ",
-        "                                                                                          ",
         "                                                                                          ",
         "                                                                                          ",
         "                                                                                          ",
@@ -66,10 +66,15 @@ Buffer {
         x: 84, y: 12, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
         x: 6, y: 13, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
         x: 7, y: 13, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
-        x: 39, y: 13, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 80, y: 13, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
         x: 83, y: 13, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
         x: 84, y: 13, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
         x: 6, y: 14, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 7, y: 14, fg: Indexed(8), bg: Reset, underline: Reset, modifier: NONE,
+        x: 39, y: 14, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 83, y: 14, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
         x: 84, y: 14, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
+        x: 6, y: 15, fg: Indexed(12), bg: Reset, underline: Reset, modifier: NONE,
+        x: 84, y: 15, fg: Reset, bg: Reset, underline: Reset, modifier: NONE,
     ]
 }
