@@ -17,8 +17,9 @@ and an offline cache that keeps working when the server does not.
 ---
 
 > **Status: 0.1.0 release candidate.** Every feature below is implemented and in daily use.
-> The only supported installation route right now is **building from source** — package-manager
-> and installer distribution is the next milestone. See [ROADMAP.md](ROADMAP.md).
+> Prebuilt binaries are published for Linux, Windows and macOS. Remaining before 0.1.0 final:
+> the AUR package, and two subsystems that are built but not yet wired in — see
+> [ROADMAP.md](ROADMAP.md).
 
 ## What it looks like
 
@@ -88,14 +89,38 @@ media keys. Both degrade quietly when absent.
 
 ## Installation
 
-### Homebrew (macOS and Linux)
+### Homebrew — macOS (Apple Silicon) and Linux
 
 ```sh
 brew tap tuturu742/tap
 brew install loxia-player
 ```
 
-Pulls in mpv as a dependency, so there is nothing else to install.
+Installs a prebuilt binary and brings mpv with it, so there is nothing else to do. Note that
+Homebrew always installs its own mpv even if your system already has one — it never reuses system
+libraries, by design.
+
+On **Intel macOS** this builds from source. Homebrew has demoted that configuration to Tier 3 and
+publishes no binaries for it at all, so its whole dependency tree compiles too; expect it to take a
+while.
+
+### Download a binary
+
+From the [latest release](https://github.com/tuturu742/loxia-player/releases/latest):
+
+| | | |
+| :-- | :-- | :-- |
+| **Linux x86_64** | `…-x86_64-linux.tar.gz` | Needs `mpv` and `libdbus-1` from your distribution. glibc 2.34 or newer — Ubuntu 22.04+, Debian 12+, RHEL 9+, any rolling release. |
+| **Windows x86_64** | `…-x86_64-windows.zip` | Self-contained: `libmpv-2.dll` ships beside the executable. Unzip and run. Windows Terminal recommended. |
+
+Every asset has a matching `.sha256`. On Linux:
+
+```sh
+tar xzf loxia-player-*-x86_64-linux.tar.gz
+cd loxia-player-*-x86_64-linux
+install -Dm755 loxia-player ~/.local/bin/loxia-player
+loxia-player --doctor
+```
 
 ### From source
 
@@ -115,8 +140,10 @@ The AUR, Scoop, WinGet, an `.msi` and a `.dmg` are planned but not yet available
 
 ### Installing mpv
 
-loxia links dynamically against **libmpv** and will not start without it. Install the `mpv` package
-for your system; on most platforms it brings libmpv with it.
+loxia links dynamically against **libmpv** and will not start without it. Homebrew and the Windows
+ZIP both supply it, so this applies to the **Linux tarball and source builds**: install the `mpv`
+package for your system, which on most platforms brings libmpv with it. The `-dev`/`-devel` half is
+only needed to build from source.
 
 | Platform | Command |
 | :-- | :-- |

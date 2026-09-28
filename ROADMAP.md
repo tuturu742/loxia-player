@@ -9,8 +9,8 @@ the equalizer, ReplayGain, quality profiles, lyrics, artwork, Zen mode, mouse
 support, media keys, notifications, WebSocket remote control, multi-server profiles with fallback
 addresses, the settings UI and the in-app keymapper are all implemented.
 
-**Installation is from source only.** That is the one thing standing between the release candidate
-and 0.1.0 final.
+**Distribution is done.** A tagged release builds and publishes a Linux tarball, a self-contained
+Windows ZIP, and Homebrew bottles for Apple Silicon and Linux, and bumps the tap automatically.
 
 Known gaps at rc:
 
@@ -50,11 +50,13 @@ Other known gaps at rc:
 
 The whole reason this is still an rc.
 
-| Target | Planned artifacts | mpv |
+| Target | Status | mpv |
 | :-- | :-- | :-- |
-| Linux `x86_64`, `aarch64` | `.tar.gz`, AUR `loxia-player-bin` | System libmpv from the distribution |
-| macOS `aarch64`, `x86_64` | Homebrew tap **(done)**; `.dmg`/`.pkg` deferred | System mpv, as a Homebrew dependency |
-| Windows `x86_64` | `.msi`, portable `.zip`, Scoop, WinGet | Bundled `mpv-1.dll` beside the executable |
+| Linux `x86_64` | `.tar.gz` **shipping**, Homebrew bottle **shipping**; AUR outstanding | System libmpv from the distribution |
+| Linux `aarch64` | deferred — needs a native runner or a cross sysroot | System libmpv |
+| macOS Apple Silicon | Homebrew bottle **shipping**; `.dmg`/`.pkg` deferred | Homebrew's own mpv |
+| macOS Intel | source build only — Homebrew ships no bottles for Tier 3 | Homebrew's own mpv, also from source |
+| Windows `x86_64` | portable `.zip` **shipping**; `.msi`, Scoop, WinGet outstanding | `libmpv-2.dll` bundled beside the executable |
 
 Driven by [`cargo-dist`](https://opensource.axo.dev/cargo-dist/) from a `v*` tag, with the pieces it
 cannot do — WiX customisation for the mpv bundle, AUR publishing — as post-build steps in the same

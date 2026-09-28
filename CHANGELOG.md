@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0-rc.3] — 2026-09-27
 
+### Added
+- **Prebuilt binaries.** A tagged release now publishes a Linux x86_64 tarball (glibc 2.34, so
+  Ubuntu 22.04+, Debian 12+, RHEL 9+), a self-contained Windows x86_64 ZIP with `libmpv-2.dll`
+  bundled, and Homebrew bottles for Apple Silicon and Linux — so `brew install` no longer compiles.
+  Each asset ships a `.sha256`.
+
 ### Security
 - `rustls` 0.23.42 → 0.23.45 (RUSTSEC-2026-0285: TLS 1.3 handshake messages accepted across
   encryption level boundaries) and `h2` 0.4.15 → 0.4.19 (RUSTSEC-2026-0258: unbounded empty DATA

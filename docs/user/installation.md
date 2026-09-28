@@ -1,7 +1,31 @@
 # Installation
 
-Two routes: **Homebrew**, which handles mpv for you, or **building from source**. Standalone
-binaries, the AUR, Scoop and WinGet are the next milestone — see [ROADMAP.md](../../ROADMAP.md).
+Three routes: **Homebrew**, a **prebuilt binary**, or **building from source**. The AUR, Scoop,
+WinGet and the macOS/Windows installers are still to come — see [ROADMAP.md](../../ROADMAP.md).
+
+## Download a binary
+
+From the [latest release](https://github.com/tuturu742/loxia-player/releases/latest). Each asset has
+a matching `.sha256`.
+
+**Linux x86_64** — `loxia-player-<version>-x86_64-linux.tar.gz`
+
+Built against glibc 2.34, so it runs on Ubuntu 22.04+, Debian 12+, RHEL 9+ and any rolling release.
+It needs `mpv` (for `libmpv.so.2`) and `libdbus-1` from your distribution — see
+[Installing mpv](#installing-mpv).
+
+```sh
+tar xzf loxia-player-*-x86_64-linux.tar.gz
+cd loxia-player-*-x86_64-linux
+install -Dm755 loxia-player ~/.local/bin/loxia-player
+loxia-player --doctor
+```
+
+**Windows x86_64** — `loxia-player-<version>-x86_64-windows.zip`
+
+Self-contained: `libmpv-2.dll` ships beside `loxia-player.exe`, so there is nothing to install.
+Unzip anywhere and run it; Windows Terminal is strongly recommended over the classic console. The
+DLL is a separate, replaceable file — drop in a newer libmpv build if you want one.
 
 ## Homebrew (macOS and Linux)
 
@@ -18,6 +42,7 @@ Homebrew's.
 Then skip to [Verifying the install](#verifying-the-install).
 
 - [Homebrew](#homebrew-macos-and-linux)
+- [Download a binary](#download-a-binary)
 - [Requirements](#requirements)
 - [Installing mpv](#installing-mpv)
 - [Installing the Rust toolchain](#installing-the-rust-toolchain)
