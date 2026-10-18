@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0] — 2026-10-18
 
+### Security
+- rustls updated to 0.23.46 for RUSTSEC-2026-0346 through -0349.
+
 ### Fixed
 - **The "Save to playlist" modal (`P`) could not be filled in.** It opens with the target dropdown
   focused, and from there no key reached any other field: `Tab` was not bound in a modal context,

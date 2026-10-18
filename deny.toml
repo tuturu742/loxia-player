@@ -12,7 +12,14 @@ no-default-features = false
 # No blanket ignores. Each ignored advisory must carry an inline reason and a review date, e.g.:
 # { id = "RUSTSEC-0000-0000", reason = "no fix available yet; reviewed 2026-07-21, low impact for
 #   our usage because ..." }
-ignore = []
+ignore = [
+    # zbus 6 absorbed these as modules; they reach us only through notify-rust, whose newest
+    # release (4.18.2) still pins zbus 5. Unmaintained, not vulnerable. Drop once notify-rust
+    # moves to zbus 6. Reviewed 2026-10-18.
+    { id = "RUSTSEC-2026-0370", reason = "zvariant merged into zbus 6; transitive via notify-rust" },
+    { id = "RUSTSEC-2026-0371", reason = "zbus_names merged into zbus 6; transitive via notify-rust" },
+    { id = "RUSTSEC-2026-0372", reason = "zvariant_derive merged into zbus 6; transitive via notify-rust" },
+]
 yanked = "deny"
 
 [licenses]
