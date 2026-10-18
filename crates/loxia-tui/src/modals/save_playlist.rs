@@ -97,8 +97,9 @@ pub fn render(f: &mut Frame, area: Rect, state: &AppState, theme: &Theme, _hits:
 
     let is_new = *target == PlaylistTarget::New;
     // Summary, blank, target row, (name + description rows, only for New), blank, sort checkbox,
-    // (error row, only when set), blank, footer — 7 rows always present, plus the conditional ones.
-    let content_rows = 7 + if is_new { 2 } else { 0 } + usize::from(error.is_some());
+    // (error row, only when set), blank, two footer lines — 8 rows always present, plus the
+    // conditional ones.
+    let content_rows = 8 + if is_new { 2 } else { 0 } + usize::from(error.is_some());
     let width = MODAL_WIDTH.min(area.width).max(1);
     let height = ((content_rows + 2) as u16).min(area.height).max(1);
     let modal_area = Rect::new(
@@ -197,13 +198,32 @@ pub fn render(f: &mut Frame, area: Rect, state: &AppState, theme: &Theme, _hits:
     }
 
     y = draw_line(f, inner, y, end_y, "", fg);
+    // Two footer lines, not one. Every control this modal has except `Enter`/`Esc` used to be
+    // undiscoverable — nothing on screen said that `Tab` moves between the rows or that `↑`/`↓`
+    // change the target, which on the dropdown (where the modal opens) is the difference between
+    // filling the form in and being stuck on it.
+    y = draw_line(
+        f,
+        inner,
+        y,
+        end_y,
+        "[ Tab ] Next field    [ Shift+Tab ] Previous    [ Space ] Toggle checkbox",
+        dim,
+    );
     let verb = if is_new { "Save" } else { "Add" };
+    // `↑`/`↓` only do anything while the dropdown itself has focus (`cycle_save_target` no-ops
+    // elsewhere), so the hint appears exactly where it is true.
+    let target_hint = if *field == 0 {
+        "[ \u{2191}/\u{2193} ] Change target    "
+    } else {
+        ""
+    };
     draw_line(
         f,
         inner,
         y,
         end_y,
-        &format!("[ Enter ] {verb}    [ Esc ] Cancel"),
+        &format!("{target_hint}[ Enter ] {verb}    [ Esc ] Cancel"),
         dim,
     );
 }
@@ -270,6 +290,33 @@ mod tests {
             })
             .unwrap();
         format!("{:?}", terminal.backend().buffer())
+    }
+
+    /// The state `P` actually opens the modal in — target dropdown focused, nothing typed yet.
+    /// This is where the modal was unescapable, so it is worth pinning: the footer has to name
+    /// `Tab` (the way off the dropdown) and `↑`/`↓` (what the dropdown itself does).
+    #[test]
+    fn save_playlist_snapshot_dropdown_focused() {
+        let state = state_with(modal(PlaylistTarget::New, "", "", false, 0, None));
+        insta::assert_snapshot!(draw_at(90, 20, &state));
+    }
+
+    #[test]
+    fn dropdown_focus_advertises_the_keys_that_leave_it() {
+        let state = state_with(modal(PlaylistTarget::New, "", "", false, 0, None));
+        let rendered = draw_at(90, 20, &state);
+        assert!(rendered.contains("[ Tab ] Next field"));
+        assert!(rendered.contains("[ \u{2191}/\u{2193} ] Change target"));
+    }
+
+    /// The target hint is scoped to the dropdown, since `cycle_save_target` no-ops anywhere else —
+    /// a hint for a key that does nothing is worse than no hint.
+    #[test]
+    fn target_hint_is_absent_off_the_dropdown() {
+        let state = state_with(modal(PlaylistTarget::New, "", "", false, 1, None));
+        let rendered = draw_at(90, 20, &state);
+        assert!(!rendered.contains("Change target"));
+        assert!(rendered.contains("[ Tab ] Next field"));
     }
 
     #[test]

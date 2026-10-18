@@ -147,6 +147,27 @@ Toggling is `.` rather than `Space` because `Space` is unconditionally play/paus
 | `Ctrl+Q` `Ctrl+C` | `quit` | Save the session and exit |
 | `Ctrl+R` | `refresh` | Re-fetch the focused column, or retry a failed request |
 
+### Inside a modal
+
+A modal takes the whole keyboard, so the table above does not apply while one is open. These keys
+are fixed and are not remappable.
+
+| Keys | What it does |
+| :-- | :-- |
+| `Esc` | Close the modal without applying anything |
+| `Enter` | Confirm — save, apply, or activate the focused row |
+| `?` | Toggle the help modal |
+| `↑` `↓` `j` `k` | Move between a modal's rows, or change the value of the focused control |
+| `Tab` `Shift+Tab` | Move between the fields of a modal that is a form (Save to playlist) |
+| `Space` | Toggle the focused checkbox |
+
+In **Save to playlist** (`P`), the target dropdown is the first field and `↑`/`↓` change which
+playlist it points at, so `Tab` is what moves on to the name, the description and the sort
+checkbox. The modal's own footer names whichever of these apply to the field you are on.
+
+The equalizer is the one modal that reads the arrows differently: `←`/`→` pick a band and `↑`/`↓`
+adjust its gain. It also takes `p` (cycle preset), `b` (bypass) and `t` (equalizer on/off).
+
 ### Mouse
 
 Mouse support is on by default (`ui.enable_mouse`). Scroll wheel moves through lists and columns;

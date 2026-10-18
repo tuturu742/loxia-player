@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **The "Save to playlist" modal (`P`) could not be filled in.** It opens with the target dropdown
+  focused, and from there no key reached any other field: `Tab` was not bound in a modal context,
+  and `↑`/`↓` belong to the dropdown itself, so the name field was unreachable and `Enter` could
+  only ever refuse to save an empty name. The sort checkbox was a second dead end — reachable only
+  by `Tab`, and toggled only by `Space`, neither of which resolved. `Tab`, `Shift+Tab` and `Space`
+  now work on every field, and the modal's footer names them.
+- Field navigation in that modal no longer stops on the name and description rows when adding to an
+  existing playlist, which does not draw them — focus used to land on rows that were not on screen.
+
 ## [0.1.0-rc.3] — 2026-09-27
 
 ### Added

@@ -207,6 +207,39 @@ pub fn to_action(
                         _ => unreachable!(),
                     }
                 }
+                // `Tab`/`Shift+Tab`/`Space` (move between the form's fields / toggle the sort
+                // checkbox) have no existing `ActionId` worth reusing either — hardcoded the same
+                // way `Tab`/`e` are for `SortProfile` above, and bound to the same three actions
+                // `modal_text_input_action` already binds them to on this modal's two text fields.
+                // Only fields `0` (the target dropdown) and `3` (the sort checkbox) reach this arm
+                // at all — on fields `1`/`2` `context_for` returns `TextInput` instead.
+                //
+                // Without this both non-text fields were dead ends: `keymap::resolve`'s per-modal
+                // table offers this modal only `list_nav` (`↑`/`↓`, which `action_for` then claims
+                // for `CycleSaveTarget` on the dropdown) plus `Esc`/`?`/`Ctrl+C`, so a freshly
+                // opened modal — which starts on `field: 0` — had no key at all that reached the
+                // name field, `Space` could not toggle the checkbox, and `Enter` could therefore
+                // only ever refuse to save an unfillable empty name.
+                InputContext::Modal(ModalKind::SavePlaylist)
+                    if matches!(chord.code, LoxiaKeyCode::Tab | LoxiaKeyCode::Char(' '))
+                        && !chord.mods.ctrl
+                        && !chord.mods.alt =>
+                {
+                    match chord.code {
+                        LoxiaKeyCode::Tab if chord.mods.shift => {
+                            Some(Action::Modal(loxia_core::action::ModalAction::FieldPrev))
+                        }
+                        LoxiaKeyCode::Tab => {
+                            Some(Action::Modal(loxia_core::action::ModalAction::FieldNext))
+                        }
+                        // `activate_field` already no-ops on anything but the `field == 3`
+                        // checkbox, so this needs no field check of its own.
+                        LoxiaKeyCode::Char(' ') if !chord.mods.shift => Some(Action::Modal(
+                            loxia_core::action::ModalAction::ActivateField,
+                        )),
+                        _ => None,
+                    }
+                }
                 // `d`/`x`/`R` (reset row / unbind row / reset all, behind a confirm) have
                 // no existing `ActionId` worth reusing either — hardcoded the same way `Tab`/`e`
                 // are for `SortProfile` above. Not reachable while `capturing` (that's claimed
@@ -2204,6 +2237,110 @@ mod tests {
             Viewport { rows: 40 },
         );
         assert_eq!(action, Some(Action::Nav(NavAction::HalfPageDown { n: 20 })));
+    }
+
+    /// The reported bug: `P` opens this modal on `field: 0`, and from there no key at all reached
+    /// the name field — `Tab` was unbound in `InputContext::Modal`, and `↓`/`↑` were claimed by
+    /// the target dropdown — so `Enter` could only ever refuse to save an empty name.
+    #[test]
+    fn save_playlist_tab_leaves_the_target_dropdown_for_the_name_field() {
+        let mut state = state_with_keymap();
+        state.modal = Some(save_playlist_modal_on_field(0));
+
+        let tab = ta(
+            &state,
+            press(CtKeyCode::Tab, CtKeyModifiers::NONE),
+            viewport(),
+        );
+        assert_eq!(
+            tab,
+            Some(Action::Modal(loxia_core::action::ModalAction::FieldNext))
+        );
+
+        let back = ta(
+            &state,
+            press(CtKeyCode::BackTab, CtKeyModifiers::SHIFT),
+            viewport(),
+        );
+        assert_eq!(
+            back,
+            Some(Action::Modal(loxia_core::action::ModalAction::FieldPrev))
+        );
+    }
+
+    /// The sort checkbox was the other dead end: reachable only by `Tab`, which did not resolve,
+    /// and activated only by `Space`, which did not either.
+    #[test]
+    fn save_playlist_space_toggles_the_sort_checkbox() {
+        let mut state = state_with_keymap();
+        state.modal = Some(save_playlist_modal_on_field(3));
+
+        let space = ta(
+            &state,
+            press(CtKeyCode::Char(' '), CtKeyModifiers::NONE),
+            viewport(),
+        );
+        assert_eq!(
+            space,
+            Some(Action::Modal(
+                loxia_core::action::ModalAction::ActivateField
+            ))
+        );
+
+        let tab = ta(
+            &state,
+            press(CtKeyCode::Tab, CtKeyModifiers::NONE),
+            viewport(),
+        );
+        assert_eq!(
+            tab,
+            Some(Action::Modal(loxia_core::action::ModalAction::FieldNext))
+        );
+    }
+
+    /// `↑`/`↓` keep the dropdown behaviour they had — the fix adds a way off the dropdown, it does
+    /// not take the dropdown's own keys away.
+    #[test]
+    fn save_playlist_arrows_still_cycle_the_target_on_the_dropdown() {
+        let mut state = state_with_keymap();
+        state.modal = Some(save_playlist_modal_on_field(0));
+
+        let down = ta(
+            &state,
+            press(CtKeyCode::Down, CtKeyModifiers::NONE),
+            viewport(),
+        );
+        assert_eq!(
+            down,
+            Some(Action::Modal(
+                loxia_core::action::ModalAction::CycleSaveTarget(1)
+            ))
+        );
+
+        let up = ta(
+            &state,
+            press(CtKeyCode::Up, CtKeyModifiers::NONE),
+            viewport(),
+        );
+        assert_eq!(
+            up,
+            Some(Action::Modal(
+                loxia_core::action::ModalAction::CycleSaveTarget(-1)
+            ))
+        );
+    }
+
+    fn save_playlist_modal_on_field(field: usize) -> Modal {
+        Modal::SavePlaylist {
+            target: loxia_core::state::modal::PlaylistTarget::New,
+            target_cursor: 0,
+            name: String::new(),
+            overview: String::new(),
+            autosort: false,
+            field,
+            source: loxia_core::state::modal::SaveSource::Queue,
+            error: None,
+        }
     }
 
     #[test]
