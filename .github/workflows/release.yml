@@ -465,6 +465,9 @@ jobs:
           ls -la ./*.bottle.json
 
           brew tap tuturu742/tap
+          # Homebrew refuses to load formulae from non-official taps until they are trusted,
+          # and `bottle --merge` names the formula only via the JSON, which does not count.
+          brew trust --tap tuturu742/tap
           # --write edits the formula in place; --no-commit leaves the commit to us so the
           # message matches the rest of the tap's history.
           brew bottle --merge --write --no-commit ./*.bottle.json
