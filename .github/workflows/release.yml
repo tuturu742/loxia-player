@@ -311,6 +311,10 @@ jobs:
           f=tap/Formula/loxia-player.rb
           sed -i -E "s|^  url \".*\"|  url \"$url\"|" "$f"
           sed -i -E "s|^  sha256 \"[0-9a-f]{64}\"|  sha256 \"$sha\"|" "$f"
+          # The previous release's bottles point at that release's assets under the new version's
+          # filenames, which 404. Drop them; tap-bottles writes this release's block if it can, and
+          # until then (or if it fails) brew builds from source rather than breaking.
+          sed -i '/^  bottle do$/,/^  end$/{/^  end$/!d;N;/\n$/d;s/^.*\n//}' "$f"
           grep -E '^  (url|sha256)' "$f"
 
       - name: Commit and push
@@ -465,6 +469,9 @@ jobs:
           ls -la ./*.bottle.json
 
           brew tap tuturu742/tap
+          # Homebrew refuses to load formulae from non-official taps until they are trusted,
+          # and `bottle --merge` names the formula only via the JSON, which does not count.
+          brew trust --tap tuturu742/tap
           # --write edits the formula in place; --no-commit leaves the commit to us so the
           # message matches the rest of the tap's history.
           brew bottle --merge --write --no-commit ./*.bottle.json
