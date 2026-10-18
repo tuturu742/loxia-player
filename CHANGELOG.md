@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] — 2026-10-18
+
+### Security
+- rustls updated to 0.23.46 for RUSTSEC-2026-0346 through -0349.
+
 ### Fixed
 - **The "Save to playlist" modal (`P`) could not be filled in.** It opens with the target dropdown
   focused, and from there no key reached any other field: `Tab` was not bound in a modal context,
@@ -144,7 +149,8 @@ the work remaining before 0.1.0 final — see [ROADMAP.md](ROADMAP.md).
 - Windows is functional and builds in CI, but has had much less real-world use than Linux.
 - The access token is plaintext in `config.toml`; an OS-keyring backend is post-0.1.0.
 
-[Unreleased]: https://github.com/tuturu742/loxia-player/compare/v0.1.0-rc.3...HEAD
+[Unreleased]: https://github.com/tuturu742/loxia-player/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/tuturu742/loxia-player/releases/tag/v0.1.0
 [0.1.0-rc.3]: https://github.com/tuturu742/loxia-player/releases/tag/v0.1.0-rc.3
 [0.1.0-rc.2]: https://github.com/tuturu742/loxia-player/releases/tag/v0.1.0-rc.2
 [0.1.0-rc.1]: https://github.com/tuturu742/loxia-player/releases/tag/v0.1.0-rc.1
